@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
   return (

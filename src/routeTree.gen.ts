@@ -22,6 +22,7 @@ import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
+import { Route as AuthenticatedEmpresaIdEditarRouteImport } from './routes/_authenticated.empresa.$id.editar'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -88,6 +89,12 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedEmpresaIdEditarRoute =
+  AuthenticatedEmpresaIdEditarRouteImport.update({
+    id: '/empresa/$id/editar',
+    path: '/empresa/$id/editar',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -116,6 +124,7 @@ export interface FileRoutesByTo {
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -132,6 +141,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/empresa/$id/editar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/empresa/$id/editar'
   id:
     | '__root__'
     | '/'
@@ -177,6 +189,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/_authenticated/empresa/$id/editar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -285,17 +298,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/empresa/$id/editar': {
+      id: '/_authenticated/empresa/$id/editar'
+      path: '/empresa/$id/editar'
+      fullPath: '/empresa/$id/editar'
+      preLoaderRoute: typeof AuthenticatedEmpresaIdEditarRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
+  AuthenticatedEmpresaIdEditarRoute: typeof AuthenticatedEmpresaIdEditarRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
+  AuthenticatedEmpresaIdEditarRoute: AuthenticatedEmpresaIdEditarRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -329,3 +351,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

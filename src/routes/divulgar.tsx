@@ -10,7 +10,7 @@ export const Route = createFileRoute("/divulgar")({
         Todas as empresas passam por aprovação manual para garantir a qualidade do diretório.
       </p>
       <div className="flex gap-3 mt-6">
-        <Link to="/login" className="bg-brand text-brand-foreground font-semibold px-5 py-2.5 rounded-full">Criar conta</Link>
+        <Link to="/login" search={{ redirect: "/minha-empresa", mode: "signup" }} className="bg-brand text-brand-foreground font-semibold px-5 py-2.5 rounded-full">Criar conta</Link>
         <Link to="/planos" className="bg-card shadow-card font-semibold px-5 py-2.5 rounded-full">Ver planos</Link>
       </div>
     </div>

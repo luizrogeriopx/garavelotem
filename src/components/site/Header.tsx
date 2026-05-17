@@ -40,9 +40,15 @@ export function Header() {
               Divulgar empresa
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
-            <Link to="/login">Entrar</Link>
-          </Button>
+          {user ? (
+            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+              <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+              <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>Entrar</Link>
+            </Button>
+          )}
           <button className="sm:hidden size-9 rounded-full bg-white/10 grid place-items-center" aria-label="Menu">
             <Menu className="size-4" />
           </button>

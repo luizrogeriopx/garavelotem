@@ -32,7 +32,8 @@ export function CategoryStrip() {
               </li>
             );
           }
-          const Icon = (c.icon && (Icons as unknown as Record<string, Icons.LucideIcon>)[c.icon]) ?? Icons.Tag;
+          const IconMap = Icons as unknown as Record<string, Icons.LucideIcon>;
+          const Icon: Icons.LucideIcon = (c.icon && IconMap[c.icon]) || Icons.Tag;
           return (
             <li key={c.id} className="shrink-0">
               <Link

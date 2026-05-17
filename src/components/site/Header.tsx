@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
+  const { user } = useAuth();
   return (
     <header className="sticky top-0 z-40 bg-brand text-brand-foreground shadow-soft">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">

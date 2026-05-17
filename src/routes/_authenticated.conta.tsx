@@ -80,14 +80,17 @@ function AccountPage() {
             Olá, {user?.user_metadata?.full_name || user?.email}
           </h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          onClick={async () => { await signOut(); navigate({ to: "/" }); }}
-        >
-          <LogOut className="size-4" /> Sair
-        </Button>
+        <div className="flex gap-2">
+          <AdminLinkButton />
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+          >
+            <LogOut className="size-4" /> Sair
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mt-6">

@@ -142,7 +142,7 @@ function AdminPlansPage() {
                   </p>
                   <p className="text-xs text-muted-foreground">/{p.slug}</p>
                 </div>
-                <p className="text-lg font-bold">{p.price_cents === 0 ? "Grátis" : formatBRL(p.price_cents / 100)}</p>
+                <p className="text-lg font-bold">{p.price_cents === 0 ? "Grátis" : formatBRL(p.price_cents)}</p>
               </div>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-0.5">
                 {p.features.map((f, i) => <li key={i}>{f}</li>)}

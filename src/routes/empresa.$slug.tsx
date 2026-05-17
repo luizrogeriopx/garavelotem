@@ -1,0 +1,103 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { BadgeCheck, MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react";
+import { whatsappLink } from "@/lib/format";
+
+export const Route = createFileRoute("/empresa/$slug")({
+  component: BusinessPage,
+});
+
+function BusinessPage() {
+  const { slug } = Route.useParams();
+  const { data: b } = useQuery({
+    queryKey: ["business", slug],
+    queryFn: async () => {
+      const { data } = await supabase.from("businesses").select("*").eq("slug", slug).maybeSingle();
+      return data;
+    },
+  });
+
+  if (!b) return <div className="max-w-4xl mx-auto px-4 py-10 text-muted-foreground">Carregando...</div>;
+
+  const hours = (b.hours ?? {}) as Record<string, string>;
+
+  return (
+    <div className="max-w-4xl mx-auto pb-10">
+      <div className="relative aspect-[5/2] md:aspect-[16/5] bg-muted">
+        {b.cover_url && <img src={b.cover_url} alt={b.name} className="w-full h-full object-cover" />}
+      </div>
+      <div className="px-4 -mt-10 relative">
+        <div className="flex items-end gap-4">
+          {b.logo_url && (
+            <img src={b.logo_url} alt="" className="size-20 rounded-2xl ring-4 ring-background object-cover bg-card" />
+          )}
+          <div className="pb-2">
+            <h1 className="font-display font-extrabold text-2xl text-brand flex items-center gap-2">
+              {b.name}
+              {b.is_verified && <BadgeCheck className="size-5 text-highlight" />}
+            </h1>
+            {b.neighborhood && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                <MapPin className="size-3.5" /> {b.neighborhood}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {b.short_description && <p className="mt-4 text-sm">{b.short_description}</p>}
+        {b.description && <p className="mt-2 text-sm text-muted-foreground">{b.description}</p>}
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+          <a
+            href={whatsappLink(b.whatsapp, `Olá! Vi a ${b.name} no Garavelo Tem.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-whatsapp text-whatsapp-foreground font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2 col-span-2"
+          >
+            <MessageCircle className="size-4" /> WhatsApp
+          </a>
+          {b.phone && (
+            <a href={`tel:${b.phone}`} className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
+              <Phone className="size-4" /> Ligar
+            </a>
+          )}
+          <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
+            <Share2 className="size-4" /> Compartilhar
+          </button>
+          <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
+            <Heart className="size-4" /> Salvar
+          </button>
+        </div>
+
+        {b.address && (
+          <section className="mt-8">
+            <h2 className="font-display font-bold text-lg text-brand">Endereço</h2>
+            <p className="text-sm text-muted-foreground mt-1">{b.address} — {b.neighborhood}, {b.city}/{b.state}</p>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${b.address}, ${b.neighborhood}`)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 bg-brand text-brand-foreground text-sm font-semibold px-4 py-2 rounded-full"
+            >
+              <MapPin className="size-4" /> Ver rota
+            </a>
+          </section>
+        )}
+
+        {Object.keys(hours).length > 0 && (
+          <section className="mt-8">
+            <h2 className="font-display font-bold text-lg text-brand flex items-center gap-2"><Clock className="size-4" /> Horários</h2>
+            <ul className="mt-2 text-sm">
+              {Object.entries(hours).map(([d, h]) => (
+                <li key={d} className="flex justify-between py-1 border-b border-border last:border-0">
+                  <span className="capitalize text-muted-foreground">{d}</span>
+                  <span>{h}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}

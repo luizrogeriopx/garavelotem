@@ -1,10 +1,15 @@
-import { createFileRoute, Link, Outlet, useRouterState, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState, redirect } from "@tanstack/react-router";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { Card } from "@/components/ui/card";
 import { Shield, Store, Image, Tag, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/admin" || location.pathname === "/admin/") {
+      throw redirect({ to: "/admin/empresas" });
+    }
+  },
   component: AdminLayout,
 });
 

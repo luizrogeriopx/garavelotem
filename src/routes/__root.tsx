@@ -11,6 +11,8 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { BottomNav } from "@/components/site/BottomNav";
 import { Footer } from "@/components/site/Footer";
+import { AuthProvider } from "@/hooks/use-auth";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -83,12 +85,15 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex flex-col pb-20 md:pb-0">
-        <Header />
-        <main className="flex-1"><Outlet /></main>
-        <Footer />
-        <BottomNav />
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col pb-20 md:pb-0">
+          <Header />
+          <main className="flex-1"><Outlet /></main>
+          <Footer />
+          <BottomNav />
+        </div>
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

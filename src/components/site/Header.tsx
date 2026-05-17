@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
+  const { user } = useAuth();
   return (
     <header className="sticky top-0 z-40 bg-brand text-brand-foreground shadow-soft">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
@@ -38,9 +40,15 @@ export function Header() {
               Divulgar empresa
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
-            <Link to="/login">Entrar</Link>
-          </Button>
+          {user ? (
+            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+              <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+              <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>Entrar</Link>
+            </Button>
+          )}
           <button className="sm:hidden size-9 rounded-full bg-white/10 grid place-items-center" aria-label="Menu">
             <Menu className="size-4" />
           </button>

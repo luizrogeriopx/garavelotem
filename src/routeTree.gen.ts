@@ -9,16 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PromocoesRouteImport } from './routes/promocoes'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as DivulgarRouteImport } from './routes/divulgar'
 import { Route as CategoriasRouteImport } from './routes/categorias'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
+import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
+import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PromocoesRoute = PromocoesRouteImport.update({
   id: '/promocoes',
   path: '/promocoes',
@@ -49,6 +58,10 @@ const CategoriasRoute = CategoriasRouteImport.update({
   path: '/categorias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -64,6 +77,17 @@ const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CategoriasRoute,
 } as any)
+const AuthenticatedMinhaEmpresaRoute =
+  AuthenticatedMinhaEmpresaRouteImport.update({
+    id: '/minha-empresa',
+    path: '/minha-empresa',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +97,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/conta': typeof AuthenticatedContaRoute
+  '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
 }
@@ -84,18 +111,25 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/conta': typeof AuthenticatedContaRoute
+  '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/categorias': typeof CategoriasRouteWithChildren
   '/divulgar': typeof DivulgarRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/conta': typeof AuthenticatedContaRoute
+  '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
 }
@@ -109,6 +143,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/planos'
     | '/promocoes'
+    | '/reset-password'
+    | '/conta'
+    | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -120,34 +157,50 @@ export interface FileRouteTypes {
     | '/login'
     | '/planos'
     | '/promocoes'
+    | '/reset-password'
+    | '/conta'
+    | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/categorias'
     | '/divulgar'
     | '/favoritos'
     | '/login'
     | '/planos'
     | '/promocoes'
+    | '/reset-password'
+    | '/_authenticated/conta'
+    | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CategoriasRoute: typeof CategoriasRouteWithChildren
   DivulgarRoute: typeof DivulgarRoute
   FavoritosRoute: typeof FavoritosRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   PromocoesRoute: typeof PromocoesRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/promocoes': {
       id: '/promocoes'
       path: '/promocoes'
@@ -190,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -211,8 +271,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriasSlugRouteImport
       parentRoute: typeof CategoriasRoute
     }
+    '/_authenticated/minha-empresa': {
+      id: '/_authenticated/minha-empresa'
+      path: '/minha-empresa'
+      fullPath: '/minha-empresa'
+      preLoaderRoute: typeof AuthenticatedMinhaEmpresaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/conta': {
+      id: '/_authenticated/conta'
+      path: '/conta'
+      fullPath: '/conta'
+      preLoaderRoute: typeof AuthenticatedContaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedContaRoute: typeof AuthenticatedContaRoute
+  AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedContaRoute: AuthenticatedContaRoute,
+  AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 interface CategoriasRouteChildren {
   CategoriasSlugRoute: typeof CategoriasSlugRoute
@@ -228,12 +316,14 @@ const CategoriasRouteWithChildren = CategoriasRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CategoriasRoute: CategoriasRouteWithChildren,
   DivulgarRoute: DivulgarRoute,
   FavoritosRoute: FavoritosRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   PromocoesRoute: PromocoesRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
 }
 export const routeTree = rootRouteImport

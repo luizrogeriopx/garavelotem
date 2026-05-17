@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield,
 } from "lucide-react";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   component: AccountPage,
@@ -80,14 +81,17 @@ function AccountPage() {
             Olá, {user?.user_metadata?.full_name || user?.email}
           </h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          onClick={async () => { await signOut(); navigate({ to: "/" }); }}
-        >
-          <LogOut className="size-4" /> Sair
-        </Button>
+        <div className="flex gap-2">
+          <AdminLinkButton />
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+          >
+            <LogOut className="size-4" /> Sair
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mt-6">
@@ -186,4 +190,14 @@ function StatusBadge({ status }: { status: string }) {
   if (status === "rejected")
     return <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><XCircle className="size-3" /> Recusada</Badge>;
   return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 gap-1"><Clock className="size-3" /> Em análise</Badge>;
+}
+
+function AdminLinkButton() {
+  const { isAdmin } = useIsAdmin();
+  if (!isAdmin) return null;
+  return (
+    <Button asChild variant="default" size="sm" className="rounded-full">
+      <Link to="/admin/empresas"><Shield className="size-4" /> Admin</Link>
+    </Button>
+  );
 }

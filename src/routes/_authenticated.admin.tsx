@@ -41,10 +41,6 @@ function AdminLayout() {
     );
   }
 
-  if (pathname === "/admin") {
-    return <Navigate to="/admin/empresas" replace />;
-  }
-
   return (
     <div className="container py-6 space-y-6">
       <div className="flex items-center gap-2">

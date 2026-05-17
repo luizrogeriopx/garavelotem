@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin, User as UserIcon } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function Header() {
   const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   return (
     <header className="sticky top-0 z-40 bg-brand text-brand-foreground shadow-soft">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
@@ -34,6 +36,11 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Button asChild size="sm" variant="ghost" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+              <Link to="/admin/empresas"><Shield className="size-4" /> Admin</Link>
+            </Button>
+          )}
           <Button asChild size="sm" className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full font-semibold hidden sm:inline-flex">
             <Link to="/divulgar">
               <Store className="size-4" />

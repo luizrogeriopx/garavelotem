@@ -22,6 +22,7 @@ import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
+import { Route as AuthenticatedEmpresaIdPromocoesRouteImport } from './routes/_authenticated.empresa.$id.promocoes'
 import { Route as AuthenticatedEmpresaIdEditarRouteImport } from './routes/_authenticated.empresa.$id.editar'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -89,6 +90,12 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedEmpresaIdPromocoesRoute =
+  AuthenticatedEmpresaIdPromocoesRouteImport.update({
+    id: '/empresa/$id/promocoes',
+    path: '/empresa/$id/promocoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEmpresaIdEditarRoute =
   AuthenticatedEmpresaIdEditarRouteImport.update({
     id: '/empresa/$id/editar',
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,6 +133,7 @@ export interface FileRoutesByTo {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,6 +151,7 @@ export interface FileRoutesById {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/_authenticated/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/empresa/$slug'
     | '/empresa/$id/editar'
+    | '/empresa/$id/promocoes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/empresa/$slug'
     | '/empresa/$id/editar'
+    | '/empresa/$id/promocoes'
   id:
     | '__root__'
     | '/'
@@ -190,6 +202,7 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/empresa/$slug'
     | '/_authenticated/empresa/$id/editar'
+    | '/_authenticated/empresa/$id/promocoes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/empresa/$id/promocoes': {
+      id: '/_authenticated/empresa/$id/promocoes'
+      path: '/empresa/$id/promocoes'
+      fullPath: '/empresa/$id/promocoes'
+      preLoaderRoute: typeof AuthenticatedEmpresaIdPromocoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/empresa/$id/editar': {
       id: '/_authenticated/empresa/$id/editar'
       path: '/empresa/$id/editar'
@@ -312,12 +332,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
   AuthenticatedEmpresaIdEditarRoute: typeof AuthenticatedEmpresaIdEditarRoute
+  AuthenticatedEmpresaIdPromocoesRoute: typeof AuthenticatedEmpresaIdPromocoesRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
   AuthenticatedEmpresaIdEditarRoute: AuthenticatedEmpresaIdEditarRoute,
+  AuthenticatedEmpresaIdPromocoesRoute: AuthenticatedEmpresaIdPromocoesRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

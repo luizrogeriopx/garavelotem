@@ -108,6 +108,17 @@ function Home() {
         </div>
       </section>
 
+      {(institutions.data?.length ?? 0) > 0 && (
+        <section>
+          <SectionHeader accent="Serviços" title="Utilidade pública" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {institutions.data!.map((i) => (
+              <InstitutionCard key={i.id} i={i} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="rounded-3xl bg-gradient-to-br from-brand to-brand/80 text-brand-foreground p-6 md:p-10 overflow-hidden relative">
         <Sparkles className="absolute -right-6 -top-6 size-40 text-highlight/20" />
         <p className="text-[11px] font-bold uppercase tracking-widest text-highlight">Para comerciantes</p>

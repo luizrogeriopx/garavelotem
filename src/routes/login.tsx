@@ -12,7 +12,7 @@ import { useEffect } from "react";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
-    redirect: (s.redirect as string) || "/completar-cadastro",
+    redirect: (s.redirect as string) || "/conta",
     mode: (s.mode as "signin" | "signup") || "signin",
   }),
   component: LoginPage,

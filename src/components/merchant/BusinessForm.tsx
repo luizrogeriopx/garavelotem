@@ -95,6 +95,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         neighborhood: form.neighborhood || null,
         logo_url: form.logo_url || null,
         cover_url: form.cover_url || null,
+        gallery: gallery.filter(Boolean),
       };
       if (businessId) {
         const { error } = await supabase

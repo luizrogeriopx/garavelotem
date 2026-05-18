@@ -37,6 +37,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     logo_url: "",
     cover_url: "",
   });
+  const [gallery, setGallery] = useState<string[]>(["", "", ""]);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -71,6 +72,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         logo_url: existing.logo_url ?? "",
         cover_url: existing.cover_url ?? "",
       });
+      const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
+      setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);
     }
   }, [existing]);
 
@@ -92,6 +95,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         neighborhood: form.neighborhood || null,
         logo_url: form.logo_url || null,
         cover_url: form.cover_url || null,
+        gallery: gallery.filter(Boolean),
       };
       if (businessId) {
         const { error } = await supabase
@@ -163,6 +167,25 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
             label="capa"
             aspect="aspect-video"
           />
+        </div>
+      </div>
+      <div>
+        <Label>Galeria (até 3 fotos)</Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Aparecem na página da sua empresa. No plano Pro, você também pode publicar posts no feed.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {[0, 1, 2].map((i) => (
+            <ImageUpload
+              key={i}
+              value={gallery[i]}
+              onChange={(url) => setGallery((arr) => arr.map((v, idx) => (idx === i ? url : v)))}
+              bucket="business-assets"
+              pathPrefix={`${user?.id}/gallery`}
+              label={`foto ${i + 1}`}
+              aspect="aspect-square"
+            />
+          ))}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">

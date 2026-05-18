@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedEmpresaIdPromocoesRouteImport } from './routes/_authenticated.empresa.$id.promocoes'
+import { Route as AuthenticatedEmpresaIdPostsRouteImport } from './routes/_authenticated.empresa.$id.posts'
 import { Route as AuthenticatedEmpresaIdEditarRouteImport } from './routes/_authenticated.empresa.$id.editar'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -176,6 +177,12 @@ const AuthenticatedEmpresaIdPromocoesRoute =
     path: '/empresa/$id/promocoes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedEmpresaIdPostsRoute =
+  AuthenticatedEmpresaIdPostsRouteImport.update({
+    id: '/empresa/$id/posts',
+    path: '/empresa/$id/posts',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEmpresaIdEditarRoute =
   AuthenticatedEmpresaIdEditarRouteImport.update({
     id: '/empresa/$id/editar',
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -266,6 +275,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
+  '/_authenticated/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/_authenticated/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/promocoes'
     | '/admin/usuarios'
     | '/empresa/$id/editar'
+    | '/empresa/$id/posts'
     | '/empresa/$id/promocoes'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/admin/promocoes'
     | '/admin/usuarios'
     | '/empresa/$id/editar'
+    | '/empresa/$id/posts'
     | '/empresa/$id/promocoes'
     | '/api/public/payments/webhook'
   id:
@@ -353,6 +365,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/promocoes'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/empresa/$id/editar'
+    | '/_authenticated/empresa/$id/posts'
     | '/_authenticated/empresa/$id/promocoes'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -559,6 +572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmpresaIdPromocoesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/empresa/$id/posts': {
+      id: '/_authenticated/empresa/$id/posts'
+      path: '/empresa/$id/posts'
+      fullPath: '/empresa/$id/posts'
+      preLoaderRoute: typeof AuthenticatedEmpresaIdPostsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/empresa/$id/editar': {
       id: '/_authenticated/empresa/$id/editar'
       path: '/empresa/$id/editar'
@@ -597,6 +617,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
   AuthenticatedEmpresaIdEditarRoute: typeof AuthenticatedEmpresaIdEditarRoute
+  AuthenticatedEmpresaIdPostsRoute: typeof AuthenticatedEmpresaIdPostsRoute
   AuthenticatedEmpresaIdPromocoesRoute: typeof AuthenticatedEmpresaIdPromocoesRoute
 }
 
@@ -605,6 +626,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
   AuthenticatedEmpresaIdEditarRoute: AuthenticatedEmpresaIdEditarRoute,
+  AuthenticatedEmpresaIdPostsRoute: AuthenticatedEmpresaIdPostsRoute,
   AuthenticatedEmpresaIdPromocoesRoute: AuthenticatedEmpresaIdPromocoesRoute,
 }
 

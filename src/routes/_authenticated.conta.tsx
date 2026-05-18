@@ -35,6 +35,8 @@ type BizRow = {
 function AccountPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
+
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["my-businesses", user?.id],

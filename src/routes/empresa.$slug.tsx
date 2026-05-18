@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BadgeCheck, MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react";
+import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 import { whatsappLink } from "@/lib/format";
 import { BusinessFeed } from "@/components/site/BusinessFeed";
 
@@ -39,7 +40,7 @@ function BusinessPage() {
         <div className="mt-3">
           <h1 className="font-display font-extrabold text-2xl text-brand flex items-center gap-2">
             {b.name}
-            {b.is_verified && <BadgeCheck className="size-5 text-highlight" />}
+            {b.is_verified && <VerifiedBadge className="size-5" />}
           </h1>
           {b.neighborhood && (
             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">

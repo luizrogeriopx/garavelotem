@@ -190,6 +190,16 @@ function AccountPage() {
                     </Link>
                   </Button>
                 )}
+                {b.entity_type === "pf" && b.migration_status !== "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => setMigrateBiz({ id: b.id, name: b.name })}
+                  >
+                    <ArrowRightLeft className="size-4" /> Migrar para PJ
+                  </Button>
+                )}
                 {b.status === "approved" && b.plan_slug !== "pro" && (
                   <Button
                     asChild

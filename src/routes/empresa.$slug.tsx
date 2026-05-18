@@ -40,7 +40,7 @@ function BusinessPage() {
         <div className="mt-3">
           <h1 className="font-display font-extrabold text-2xl text-brand flex items-center gap-2">
             {b.name}
-            {b.is_verified && <BadgeCheck className="size-5 text-highlight" />}
+            {b.is_verified && <VerifiedBadge className="size-5" />}
           </h1>
           {b.neighborhood && (
             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">

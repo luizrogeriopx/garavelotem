@@ -1,14 +1,38 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, XCircle, Clock, ExternalLink, ShieldCheck, ShieldOff, Pencil, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ExternalLink,
+  ShieldCheck,
+  ShieldOff,
+  Pencil,
+  Trash2,
+  Plus,
+  UserCog,
+  Loader2,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas")({
   component: AdminBusinessesPage,
@@ -16,8 +40,20 @@ export const Route = createFileRoute("/_authenticated/admin/empresas")({
 
 type Status = "pending" | "approved" | "rejected";
 
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
 function AdminBusinessesPage() {
+  const { user } = useAuth();
   const [tab, setTab] = useState<Status>("pending");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [transferFor, setTransferFor] = useState<{ id: string; name: string } | null>(null);
   const qc = useQueryClient();
 
   const { data: plans } = useQuery({
@@ -29,12 +65,21 @@ function AdminBusinessesPage() {
     },
   });
 
+  const { data: categories } = useQuery({
+    queryKey: ["categories-all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id, name").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-businesses", tab],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id")
+        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -97,13 +142,18 @@ function AdminBusinessesPage() {
 
   return (
     <div className="space-y-4">
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
-        <TabsList>
-          <TabsTrigger value="pending"><Clock className="h-4 w-4 mr-1" />Pendentes</TabsTrigger>
-          <TabsTrigger value="approved"><CheckCircle2 className="h-4 w-4 mr-1" />Aprovadas</TabsTrigger>
-          <TabsTrigger value="rejected"><XCircle className="h-4 w-4 mr-1" />Recusadas</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
+          <TabsList>
+            <TabsTrigger value="pending"><Clock className="h-4 w-4 mr-1" />Pendentes</TabsTrigger>
+            <TabsTrigger value="approved"><CheckCircle2 className="h-4 w-4 mr-1" />Aprovadas</TabsTrigger>
+            <TabsTrigger value="rejected"><XCircle className="h-4 w-4 mr-1" />Recusadas</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Button size="sm" onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-1" /> Nova empresa
+        </Button>
+      </div>
 
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
@@ -121,6 +171,7 @@ function AdminBusinessesPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     {b.is_verified && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
+                    {user && b.owner_id === user.id && <Badge variant="outline">Sem dono</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
                     {b.neighborhood ? `${b.neighborhood} · ` : ""}{b.city} · {b.whatsapp ?? "sem WhatsApp"}
@@ -152,6 +203,9 @@ function AdminBusinessesPage() {
                     <Pencil className="h-4 w-4 mr-1" />Editar
                   </Link>
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => setTransferFor({ id: b.id, name: b.name })}>
+                  <UserCog className="h-4 w-4 mr-1" />Transferir
+                </Button>
                 {tab !== "approved" && (
                   <Button size="sm" onClick={() => updateStatus.mutate({ id: b.id, status: "approved" })}>
                     <CheckCircle2 className="h-4 w-4 mr-1" />Aprovar
@@ -180,6 +234,208 @@ function AdminBusinessesPage() {
           ))}
         </div>
       )}
+
+      <CreateBusinessDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        categories={categories ?? []}
+        plans={plans ?? []}
+      />
+      <TransferOwnerDialog
+        business={transferFor}
+        onClose={() => setTransferFor(null)}
+      />
     </div>
+  );
+}
+
+function CreateBusinessDialog({
+  open,
+  onOpenChange,
+  categories,
+  plans,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  categories: { id: string; name: string }[];
+  plans: { id: string; slug: string; name: string }[];
+}) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    category_id: "",
+    whatsapp: "",
+    neighborhood: "Setor Garavelo",
+    short_description: "",
+  });
+
+  const freePlan = useMemo(
+    () => plans.find((p) => p.slug === "free") ?? plans[0],
+    [plans]
+  );
+
+  const reset = () => setForm({ name: "", category_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("businesses").insert({
+        name: form.name.trim(),
+        slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
+        category_id: form.category_id || null,
+        whatsapp: form.whatsapp.replace(/\D/g, ""),
+        neighborhood: form.neighborhood || null,
+        short_description: form.short_description.trim() || null,
+        owner_id: user.id,
+        plan_id: freePlan?.id ?? null,
+        status: "approved",
+      });
+      if (error) throw error;
+      toast.success("Empresa criada. Edite os detalhes ou transfira para um usuário.");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+      reset();
+      onOpenChange(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao criar");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Nova empresa</DialogTitle>
+          <DialogDescription>
+            Cria uma empresa no plano Free e aprovada. Você pode transferir o dono depois.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit} className="space-y-3">
+          <div>
+            <Label htmlFor="b-name">Nome *</Label>
+            <Input id="b-name" required maxLength={120} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </div>
+          <div>
+            <Label>Categoria</Label>
+            <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+              <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="b-wpp">WhatsApp *</Label>
+            <Input id="b-wpp" required placeholder="62999999999" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="b-bairro">Bairro</Label>
+            <Input id="b-bairro" value={form.neighborhood} onChange={(e) => setForm({ ...form, neighborhood: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="b-short">Frase curta</Label>
+            <Input id="b-short" maxLength={80} value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="size-4 animate-spin mr-1" />}
+              Criar empresa
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TransferOwnerDialog({
+  business,
+  onClose,
+}: {
+  business: { id: string; name: string } | null;
+  onClose: () => void;
+}) {
+  const qc = useQueryClient();
+  const [q, setQ] = useState("");
+
+  const { data: profiles, isLoading } = useQuery({
+    queryKey: ["transfer-profiles"],
+    enabled: !!business,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone, avatar_url")
+        .order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const filtered = useMemo(() => {
+    if (!profiles) return [];
+    const term = q.trim().toLowerCase();
+    if (!term) return profiles.slice(0, 30);
+    return profiles
+      .filter((p) => (p.full_name ?? "").toLowerCase().includes(term) || (p.phone ?? "").includes(term))
+      .slice(0, 30);
+  }, [profiles, q]);
+
+  const transfer = useMutation({
+    mutationFn: async (newOwnerId: string) => {
+      if (!business) return;
+      const { error } = await supabase.from("businesses").update({ owner_id: newOwnerId }).eq("id", business.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Empresa transferida");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={!!business} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Transferir empresa</DialogTitle>
+          <DialogDescription>
+            Escolha o usuário que passará a ser dono de <span className="font-medium">{business?.name}</span>.
+          </DialogDescription>
+        </DialogHeader>
+        <Input placeholder="Buscar por nome ou telefone…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="max-h-80 overflow-y-auto grid gap-1 mt-2">
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground p-2">Carregando…</p>
+          ) : !filtered.length ? (
+            <p className="text-sm text-muted-foreground p-2">Nenhum usuário encontrado.</p>
+          ) : (
+            filtered.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className="flex items-center gap-3 p-2 rounded-md hover:bg-muted text-left"
+                onClick={() => transfer.mutate(p.id)}
+                disabled={transfer.isPending}
+              >
+                <div className="size-9 rounded-full bg-muted grid place-items-center overflow-hidden shrink-0">
+                  {p.avatar_url ? <img src={p.avatar_url} alt="" className="size-full object-cover" /> : <User className="size-4 text-muted-foreground" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">{p.full_name ?? "Sem nome"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{p.phone ?? p.id.slice(0, 8)}</p>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

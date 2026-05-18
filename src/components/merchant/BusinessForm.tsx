@@ -169,6 +169,25 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           />
         </div>
       </div>
+      <div>
+        <Label>Galeria (até 3 fotos)</Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Aparecem na página da sua empresa. No plano Pro, você também pode publicar posts no feed.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {[0, 1, 2].map((i) => (
+            <ImageUpload
+              key={i}
+              value={gallery[i]}
+              onChange={(url) => setGallery((arr) => arr.map((v, idx) => (idx === i ? url : v)))}
+              bucket="business-assets"
+              pathPrefix={`${user?.id}/gallery`}
+              label={`foto ${i + 1}`}
+              aspect="aspect-square"
+            />
+          ))}
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="wpp">WhatsApp *</Label>

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles,
 } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 
@@ -24,6 +24,8 @@ type BizRow = {
   is_verified: boolean;
   views_count: number;
   whatsapp_clicks: number;
+  plan_slug: string | null;
+  plan_name: string | null;
 };
 
 function AccountPage() {
@@ -36,11 +38,15 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks")
+        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, plans(slug, name)")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as BizRow[];
+      return (data ?? []).map((b: any) => ({
+        ...b,
+        plan_slug: b.plans?.slug ?? null,
+        plan_name: b.plans?.name ?? null,
+      })) as BizRow[];
     },
   });
 

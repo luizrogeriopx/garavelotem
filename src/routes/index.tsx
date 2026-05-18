@@ -5,6 +5,7 @@ import { CategoryStrip } from "@/components/site/CategoryStrip";
 import { BannerCarousel } from "@/components/site/BannerCarousel";
 import { BusinessCard, type BusinessCardData } from "@/components/site/BusinessCard";
 import { PromotionCard, type PromotionCardData } from "@/components/site/PromotionCard";
+import { InstitutionCard, type InstitutionCardData } from "@/components/site/InstitutionCard";
 import { ChevronRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -61,6 +62,21 @@ function Home() {
     },
   });
 
+  const institutions = useQuery({
+    queryKey: ["home-institutions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("public_institutions")
+        .select("id,name,kind,description,address,neighborhood,phone,whatsapp,image_url")
+        .eq("is_active", true)
+        .order("sort_order")
+        .order("name")
+        .limit(8);
+      if (error) throw error;
+      return (data ?? []) as InstitutionCardData[];
+    },
+  });
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-10">
       <CategoryStrip />
@@ -91,6 +107,17 @@ function Home() {
             ))}
         </div>
       </section>
+
+      {(institutions.data?.length ?? 0) > 0 && (
+        <section>
+          <SectionHeader accent="Serviços" title="Utilidade pública" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {institutions.data!.map((i) => (
+              <InstitutionCard key={i.id} i={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="rounded-3xl bg-gradient-to-br from-brand to-brand/80 text-brand-foreground p-6 md:p-10 overflow-hidden relative">
         <Sparkles className="absolute -right-6 -top-6 size-40 text-highlight/20" />

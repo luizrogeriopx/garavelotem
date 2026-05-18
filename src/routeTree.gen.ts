@@ -25,6 +25,7 @@ import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
+import { Route as AuthenticatedCompletarCadastroRouteImport } from './routes/_authenticated.completar-cadastro'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
@@ -118,6 +119,12 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCompletarCadastroRoute =
+  AuthenticatedCompletarCadastroRouteImport.update({
+    id: '/completar-cadastro',
+    path: '/completar-cadastro',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -201,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -230,6 +238,7 @@ export interface FileRoutesByTo {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -261,6 +270,7 @@ export interface FileRoutesById {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/admin'
+    | '/completar-cadastro'
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/admin'
+    | '/completar-cadastro'
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
@@ -351,6 +363,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/completar-cadastro'
     | '/_authenticated/conta'
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
@@ -502,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/completar-cadastro': {
+      id: '/_authenticated/completar-cadastro'
+      path: '/completar-cadastro'
+      fullPath: '/completar-cadastro'
+      preLoaderRoute: typeof AuthenticatedCompletarCadastroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -614,6 +634,7 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedCompletarCadastroRoute: typeof AuthenticatedCompletarCadastroRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
   AuthenticatedEmpresaIdEditarRoute: typeof AuthenticatedEmpresaIdEditarRoute
@@ -623,6 +644,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedCompletarCadastroRoute: AuthenticatedCompletarCadastroRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
   AuthenticatedEmpresaIdEditarRoute: AuthenticatedEmpresaIdEditarRoute,

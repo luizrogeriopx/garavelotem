@@ -166,6 +166,13 @@ function AccountPage() {
                     <Tag className="size-4" /> Promoções ({promo?.total ?? 0})
                   </Link>
                 </Button>
+                {b.plan_slug === "pro" && (
+                  <Button asChild size="sm" variant="outline" className="rounded-full">
+                    <Link to="/empresa/$id/posts" params={{ id: b.id }}>
+                      <MessageCircle className="size-4" /> Posts
+                    </Link>
+                  </Button>
+                )}
                 {b.status === "approved" && (
                   <Button asChild size="sm" variant="ghost" className="rounded-full">
                     <Link to="/empresa/$slug" params={{ slug: b.slug }}>

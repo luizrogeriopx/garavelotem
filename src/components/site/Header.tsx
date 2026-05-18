@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function Header() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -23,6 +23,11 @@ export function Header() {
     const term = q.trim();
     if (!term) return;
     navigate({ to: "/buscar", search: { q: term } });
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
   };
 
   return (

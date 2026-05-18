@@ -90,18 +90,26 @@ export type Database = {
           address: string | null
           category_id: string | null
           city: string | null
+          cnpj: string | null
           cover_url: string | null
+          cpf: string | null
           created_at: string
           description: string | null
           email: string | null
+          entity_type: Database["public"]["Enums"]["entity_type"]
           gallery: Json
           hours: Json
           id: string
           is_featured: boolean
           is_verified: boolean
           lat: number | null
+          legal_name: string | null
           lng: number | null
           logo_url: string | null
+          migration_cnpj: string | null
+          migration_legal_name: string | null
+          migration_requested_at: string | null
+          migration_status: string | null
           name: string
           neighborhood: string | null
           owner_id: string | null
@@ -120,18 +128,26 @@ export type Database = {
           address?: string | null
           category_id?: string | null
           city?: string | null
+          cnpj?: string | null
           cover_url?: string | null
+          cpf?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
+          entity_type?: Database["public"]["Enums"]["entity_type"]
           gallery?: Json
           hours?: Json
           id?: string
           is_featured?: boolean
           is_verified?: boolean
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_url?: string | null
+          migration_cnpj?: string | null
+          migration_legal_name?: string | null
+          migration_requested_at?: string | null
+          migration_status?: string | null
           name: string
           neighborhood?: string | null
           owner_id?: string | null
@@ -150,18 +166,26 @@ export type Database = {
           address?: string | null
           category_id?: string | null
           city?: string | null
+          cnpj?: string | null
           cover_url?: string | null
+          cpf?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
+          entity_type?: Database["public"]["Enums"]["entity_type"]
           gallery?: Json
           hours?: Json
           id?: string
           is_featured?: boolean
           is_verified?: boolean
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_url?: string | null
+          migration_cnpj?: string | null
+          migration_legal_name?: string | null
+          migration_requested_at?: string | null
+          migration_status?: string | null
           name?: string
           neighborhood?: string | null
           owner_id?: string | null
@@ -349,26 +373,44 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          birth_date: string | null
+          cpf: string | null
           created_at: string
+          email: string | null
           full_name: string | null
           id: string
           phone: string | null
+          profile_completed: boolean
+          rg: string | null
+          selfie_url: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          profile_completed?: boolean
+          rg?: string | null
+          selfie_url?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          profile_completed?: boolean
+          rg?: string | null
+          selfie_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -616,6 +658,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "merchant" | "user"
       business_status: "pending" | "approved" | "rejected" | "suspended"
+      entity_type: "pf" | "pj"
       institution_kind:
         | "posto_saude"
         | "cartorio"
@@ -755,6 +798,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "merchant", "user"],
       business_status: ["pending", "approved", "rejected", "suspended"],
+      entity_type: ["pf", "pj"],
       institution_kind: [
         "posto_saude",
         "cartorio",

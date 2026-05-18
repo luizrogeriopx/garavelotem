@@ -32,6 +32,9 @@ export function PromotionCard({ p }: { p: PromotionCardData }) {
           </span>
         )}
         <h3 className="font-semibold text-sm mt-1 line-clamp-2">{p.title}</h3>
+        {p.description && (
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>
+        )}
         {(p.price_cents || p.original_price_cents) && (
           <div className="flex items-baseline gap-2 mt-2">
             {p.price_cents != null && (

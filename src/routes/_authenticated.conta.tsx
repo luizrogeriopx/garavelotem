@@ -42,7 +42,7 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, plans(slug, name)")
+        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, entity_type, migration_status, plans(slug, name)")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;

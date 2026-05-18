@@ -216,6 +216,14 @@ function AccountPage() {
           );
         })}
       </div>
+      {migrateBiz && (
+        <MigrateToPjDialog
+          open={!!migrateBiz}
+          onOpenChange={(v) => !v && setMigrateBiz(null)}
+          businessId={migrateBiz.id}
+          businessName={migrateBiz.name}
+        />
+      )}
     </div>
   );
 }

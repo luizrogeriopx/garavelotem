@@ -222,8 +222,15 @@ function PromoDialog({ businessId, promo, children }: { businessId: string; prom
             <Textarea id="d" rows={3} maxLength={500} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="img">URL da imagem</Label>
-            <Input id="img" placeholder="https://..." value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+            <Label>Imagem</Label>
+            <ImageUpload
+              value={form.image_url}
+              onChange={(url) => setForm({ ...form, image_url: url })}
+              bucket="business-assets"
+              pathPrefix={`promotions/${businessId}`}
+              label="Imagem da promoção"
+              aspect="aspect-[4/3]"
+            />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>

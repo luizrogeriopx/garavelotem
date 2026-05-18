@@ -14,6 +14,7 @@ import { Route as PromocoesRouteImport } from './routes/promocoes'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
+import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DivulgarRouteImport } from './routes/divulgar'
 import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -54,6 +55,11 @@ const LoginRoute = LoginRouteImport.update({
 const FavoritosRoute = FavoritosRouteImport.update({
   id: '/favoritos',
   path: '/favoritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasRoute = EmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DivulgarRoute = DivulgarRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   BuscarRoute: typeof BuscarRoute
   DivulgarRoute: typeof DivulgarRoute
+  EmpresasRoute: typeof EmpresasRoute
   FavoritosRoute: typeof FavoritosRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/favoritos'
       fullPath: '/favoritos'
       preLoaderRoute: typeof FavoritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas': {
+      id: '/empresas'
+      path: '/empresas'
+      fullPath: '/empresas'
+      preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/divulgar': {
@@ -489,6 +509,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   BuscarRoute: BuscarRoute,
   DivulgarRoute: DivulgarRoute,
+  EmpresasRoute: EmpresasRoute,
   FavoritosRoute: FavoritosRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,

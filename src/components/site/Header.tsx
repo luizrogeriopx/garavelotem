@@ -81,9 +81,54 @@ export function Header() {
               <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>Entrar</Link>
             </Button>
           )}
-          <button className="sm:hidden size-9 rounded-full bg-white/10 grid place-items-center" aria-label="Menu">
-            <Menu className="size-4" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="sm:hidden size-9 rounded-full bg-white/10 grid place-items-center hover:bg-white/20 transition-colors"
+                aria-label="Menu"
+              >
+                <Menu className="size-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/categorias"><LayoutGrid className="size-4" /> Categorias</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/promocoes"><Tag className="size-4" /> Promoções</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/favoritos"><Heart className="size-4" /> Favoritos</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/divulgar"><Store className="size-4" /> Divulgar empresa</Link>
+              </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/empresas"><Shield className="size-4" /> Admin</Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              {user ? (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={handleSignOut}>
+                    <LogOut className="size-4" /> Sair
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>
+                    <UserIcon className="size-4" /> Entrar
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import * as Icons from "lucide-react";
 
-export const Route = createFileRoute("/categorias")({
+export const Route = createFileRoute("/categorias/")({
   component: CategoriesPage,
   head: () => ({ meta: [{ title: "Categorias — Garavelo Tem" }] }),
 });

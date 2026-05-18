@@ -5,6 +5,7 @@ import { CategoryStrip } from "@/components/site/CategoryStrip";
 import { BannerCarousel } from "@/components/site/BannerCarousel";
 import { BusinessCard, type BusinessCardData } from "@/components/site/BusinessCard";
 import { PromotionCard, type PromotionCardData } from "@/components/site/PromotionCard";
+import { InstitutionCard, type InstitutionCardData } from "@/components/site/InstitutionCard";
 import { ChevronRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({

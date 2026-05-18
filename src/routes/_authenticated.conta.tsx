@@ -210,6 +210,12 @@ function StatusBadge({ status }: { status: string }) {
   return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 gap-1"><Clock className="size-3" /> Em análise</Badge>;
 }
 
+function PlanBadge({ slug, name }: { slug: string | null; name: string | null }) {
+  if (slug === "pro")
+    return <Badge className="bg-brand text-brand-foreground hover:bg-brand gap-1"><Sparkles className="size-3" /> Pro</Badge>;
+  return <Badge variant="outline" className="gap-1">{name ?? "Free"}</Badge>;
+}
+
 function AdminLinkButton() {
   const { isAdmin } = useIsAdmin();
   if (!isAdmin) return null;

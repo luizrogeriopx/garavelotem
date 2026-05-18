@@ -120,5 +120,3 @@ function AdminMigrationsPage() {
     </div>
   );
 }
-
-function _useState<T>(v: T) { return useState(v); }

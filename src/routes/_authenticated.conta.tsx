@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles,
 } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 
@@ -24,6 +24,8 @@ type BizRow = {
   is_verified: boolean;
   views_count: number;
   whatsapp_clicks: number;
+  plan_slug: string | null;
+  plan_name: string | null;
 };
 
 function AccountPage() {
@@ -36,11 +38,15 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks")
+        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, plans(slug, name)")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as BizRow[];
+      return (data ?? []).map((b: any) => ({
+        ...b,
+        plan_slug: b.plans?.slug ?? null,
+        plan_name: b.plans?.name ?? null,
+      })) as BizRow[];
     },
   });
 
@@ -137,6 +143,7 @@ function AccountPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     <StatusBadge status={b.status} />
+                    <PlanBadge slug={b.plan_slug} name={b.plan_name} />
                     {b.is_verified && (
                       <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
                     )}
@@ -166,6 +173,17 @@ function AccountPage() {
                     </Link>
                   </Button>
                 )}
+                {b.status === "approved" && b.plan_slug !== "pro" && (
+                  <Button
+                    asChild
+                    size="sm"
+                    className="rounded-full bg-highlight text-highlight-foreground hover:bg-highlight/90 ml-auto"
+                  >
+                    <Link to="/planos" search={{ businessId: b.id }}>
+                      <Sparkles className="size-4" /> Migrar para Pro
+                    </Link>
+                  </Button>
+                )}
               </div>
             </Card>
           );
@@ -190,6 +208,12 @@ function StatusBadge({ status }: { status: string }) {
   if (status === "rejected")
     return <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><XCircle className="size-3" /> Recusada</Badge>;
   return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 gap-1"><Clock className="size-3" /> Em análise</Badge>;
+}
+
+function PlanBadge({ slug, name }: { slug: string | null; name: string | null }) {
+  if (slug === "pro")
+    return <Badge className="bg-brand text-brand-foreground hover:bg-brand gap-1"><Sparkles className="size-3" /> Pro</Badge>;
+  return <Badge variant="outline" className="gap-1">{name ?? "Free"}</Badge>;
 }
 
 function AdminLinkButton() {

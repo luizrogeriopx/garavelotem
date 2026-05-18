@@ -31,13 +31,6 @@ type BizRow = {
   entity_type: "pf" | "pj";
   migration_status: string | null;
 };
-  logo_url: string | null;
-  is_verified: boolean;
-  views_count: number;
-  whatsapp_clicks: number;
-  plan_slug: string | null;
-  plan_name: string | null;
-};
 
 function AccountPage() {
   const { user, signOut } = useAuth();

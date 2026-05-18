@@ -156,10 +156,10 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       if (businessId) {
         const { error } = await supabase
           .from("businesses")
-          .update({ ...base, status: "pending" })
+          .update(base)
           .eq("id", businessId);
         if (error) throw error;
-        toast.success("Alterações salvas. A empresa volta para análise.");
+        toast.success("Alterações salvas.");
       } else {
         const { error } = await supabase.from("businesses").insert({
           ...base,

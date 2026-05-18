@@ -21,6 +21,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
+import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
@@ -90,6 +91,11 @@ const CategoriasIndexRoute = CategoriasIndexRouteImport.update({
 const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
   id: '/empresa/$slug',
   path: '/empresa/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRetornoRoute = CheckoutRetornoRouteImport.update({
+  id: '/checkout/retorno',
+  path: '/checkout/retorno',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias/'
     | '/admin/banners'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias'
     | '/admin/banners'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/_authenticated/conta'
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias/'
     | '/_authenticated/admin/banners'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   PromocoesRoute: typeof PromocoesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
+  CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -407,6 +420,13 @@ declare module '@tanstack/react-router' {
       path: '/empresa/$slug'
       fullPath: '/empresa/$slug'
       preLoaderRoute: typeof EmpresaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/retorno': {
+      id: '/checkout/retorno'
+      path: '/checkout/retorno'
+      fullPath: '/checkout/retorno'
+      preLoaderRoute: typeof CheckoutRetornoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categorias/$slug': {
@@ -538,6 +558,7 @@ const rootRouteChildren: RootRouteChildren = {
   PromocoesRoute: PromocoesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
+  CheckoutRetornoRoute: CheckoutRetornoRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

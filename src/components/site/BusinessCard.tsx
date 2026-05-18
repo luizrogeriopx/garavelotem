@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, MapPin, MessageCircle } from "lucide-react";
 import { whatsappLink } from "@/lib/format";
+import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 
 export type BusinessCardData = {
   id: string;

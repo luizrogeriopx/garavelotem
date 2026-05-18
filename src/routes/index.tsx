@@ -62,6 +62,21 @@ function Home() {
     },
   });
 
+  const institutions = useQuery({
+    queryKey: ["home-institutions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("public_institutions")
+        .select("id,name,kind,description,address,neighborhood,phone,whatsapp,image_url")
+        .eq("is_active", true)
+        .order("sort_order")
+        .order("name")
+        .limit(8);
+      if (error) throw error;
+      return (data ?? []) as InstitutionCardData[];
+    },
+  });
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-10">
       <CategoryStrip />

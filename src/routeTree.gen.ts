@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authenticated.admin.empresas'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedEmpresaIdPromocoesRouteImport } from './routes/_authenticated.empresa.$id.promocoes'
 import { Route as AuthenticatedEmpresaIdEditarRouteImport } from './routes/_authenticated.empresa.$id.editar'
 
@@ -136,6 +137,12 @@ const AuthenticatedAdminBannersRoute =
     path: '/banners',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedEmpresaIdPromocoesRoute =
   AuthenticatedEmpresaIdPromocoesRouteImport.update({
     id: '/empresa/$id/promocoes',
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,6 +202,7 @@ export interface FileRoutesByTo {
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -219,6 +228,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/_authenticated/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/admin/planos'
     | '/empresa/$id/editar'
     | '/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/admin/planos'
     | '/empresa/$id/editar'
     | '/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -291,6 +303,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/planos'
     | '/_authenticated/empresa/$id/editar'
     | '/_authenticated/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -307,6 +320,7 @@ export interface RootRouteChildren {
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -451,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBannersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/empresa/$id/promocoes': {
       id: '/_authenticated/empresa/$id/promocoes'
       path: '/empresa/$id/promocoes'
@@ -519,17 +540,8 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

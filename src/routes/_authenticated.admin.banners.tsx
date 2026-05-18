@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -97,7 +98,17 @@ function AdminBannersPage() {
               <DialogHeader><DialogTitle>{editing.id ? "Editar banner" : "Novo banner"}</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <div><Label>Título</Label><Input value={editing.title ?? ""} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
-                <div><Label>URL da imagem *</Label><Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} /></div>
+                <div>
+                  <Label>Imagem do banner *</Label>
+                  <ImageUpload
+                    value={editing.image_url}
+                    onChange={(url) => setEditing({ ...editing, image_url: url })}
+                    bucket="banners"
+                    pathPrefix="uploads"
+                    label="banner"
+                    aspect="aspect-[3/1]"
+                  />
+                </div>
                 <div><Label>Link ao clicar</Label><Input value={editing.link_url ?? ""} onChange={(e) => setEditing({ ...editing, link_url: e.target.value })} /></div>
                 <div><Label>Ordem</Label><Input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></div>
                 <div className="flex items-center justify-between"><Label>Ativo</Label><Switch checked={!!editing.is_active} onCheckedChange={(v) => setEditing({ ...editing, is_active: v })} /></div>

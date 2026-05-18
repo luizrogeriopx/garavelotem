@@ -143,6 +143,7 @@ function AccountPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     <StatusBadge status={b.status} />
+                    <PlanBadge slug={b.plan_slug} name={b.plan_name} />
                     {b.is_verified && (
                       <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
                     )}
@@ -169,6 +170,17 @@ function AccountPage() {
                   <Button asChild size="sm" variant="ghost" className="rounded-full">
                     <Link to="/empresa/$slug" params={{ slug: b.slug }}>
                       <ExternalLink className="size-4" /> Ver página
+                    </Link>
+                  </Button>
+                )}
+                {b.status === "approved" && b.plan_slug !== "pro" && (
+                  <Button
+                    asChild
+                    size="sm"
+                    className="rounded-full bg-highlight text-highlight-foreground hover:bg-highlight/90 ml-auto"
+                  >
+                    <Link to="/planos" search={{ businessId: b.id }}>
+                      <Sparkles className="size-4" /> Migrar para Pro
                     </Link>
                   </Button>
                 )}

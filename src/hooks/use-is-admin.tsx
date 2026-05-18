@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
 export function useIsAdmin() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const query = useQuery({
     queryKey: ["is-admin", user?.id],
     enabled: !!user,
@@ -18,5 +18,8 @@ export function useIsAdmin() {
       return !!data;
     },
   });
-  return { isAdmin: !!query.data, isLoading: query.isLoading };
+  return {
+    isAdmin: !!query.data,
+    isLoading: loading || (!!user && query.isPending),
+  };
 }

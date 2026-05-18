@@ -56,7 +56,7 @@ export function BannerCarousel() {
             )}
           </a>
         ))}
-        <div className="relative w-full aspect-[21/9] md:aspect-[3/1]" />
+        <div className="relative w-full aspect-[21/9] md:aspect-[3/1] pointer-events-none" />
       </div>
       {banners.length > 1 && (
         <div className="absolute bottom-3 right-4 flex gap-1.5">

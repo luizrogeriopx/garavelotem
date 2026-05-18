@@ -141,14 +141,28 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="desc">Descrição completa</Label>
         <Textarea id="desc" rows={4} maxLength={1000} value={form.description} onChange={(e) => set("description", e.target.value)} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="logo">URL do logo</Label>
-          <Input id="logo" value={form.logo_url} onChange={(e) => set("logo_url", e.target.value)} placeholder="https://..." />
+          <Label>Logo</Label>
+          <ImageUpload
+            value={form.logo_url}
+            onChange={(url) => set("logo_url", url)}
+            bucket="business-assets"
+            pathPrefix={`${user?.id}/logo`}
+            label="logo"
+            aspect="aspect-square"
+          />
         </div>
         <div>
-          <Label htmlFor="cover">URL da capa</Label>
-          <Input id="cover" value={form.cover_url} onChange={(e) => set("cover_url", e.target.value)} placeholder="https://..." />
+          <Label>Capa</Label>
+          <ImageUpload
+            value={form.cover_url}
+            onChange={(url) => set("cover_url", url)}
+            bucket="business-assets"
+            pathPrefix={`${user?.id}/cover`}
+            label="capa"
+            aspect="aspect-video"
+          />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">

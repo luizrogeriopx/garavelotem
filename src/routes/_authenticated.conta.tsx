@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft,
 } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   component: AccountPage,

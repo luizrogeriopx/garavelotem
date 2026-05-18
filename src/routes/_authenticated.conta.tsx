@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft,
 } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   component: AccountPage,
@@ -26,11 +28,15 @@ type BizRow = {
   whatsapp_clicks: number;
   plan_slug: string | null;
   plan_name: string | null;
+  entity_type: "pf" | "pj";
+  migration_status: string | null;
 };
 
 function AccountPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
+
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["my-businesses", user?.id],
@@ -38,7 +44,7 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, plans(slug, name)")
+        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, entity_type, migration_status, plans(slug, name)")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -144,6 +150,10 @@ function AccountPage() {
                     <p className="font-semibold truncate">{b.name}</p>
                     <StatusBadge status={b.status} />
                     <PlanBadge slug={b.plan_slug} name={b.plan_name} />
+                    <Badge variant="outline" className="uppercase text-[10px]">{b.entity_type === "pj" ? "PJ" : "PF"}</Badge>
+                    {b.migration_status === "pending" && (
+                      <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Migração em análise</Badge>
+                    )}
                     {b.is_verified && (
                       <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
                     )}
@@ -180,6 +190,16 @@ function AccountPage() {
                     </Link>
                   </Button>
                 )}
+                {b.entity_type === "pf" && b.migration_status !== "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => setMigrateBiz({ id: b.id, name: b.name })}
+                  >
+                    <ArrowRightLeft className="size-4" /> Migrar para PJ
+                  </Button>
+                )}
                 {b.status === "approved" && b.plan_slug !== "pro" && (
                   <Button
                     asChild
@@ -196,6 +216,14 @@ function AccountPage() {
           );
         })}
       </div>
+      {migrateBiz && (
+        <MigrateToPjDialog
+          open={!!migrateBiz}
+          onOpenChange={(v) => !v && setMigrateBiz(null)}
+          businessId={migrateBiz.id}
+          businessName={migrateBiz.name}
+        />
+      )}
     </div>
   );
 }

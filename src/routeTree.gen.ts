@@ -25,10 +25,12 @@ import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
+import { Route as AuthenticatedCompletarCadastroRouteImport } from './routes/_authenticated.completar-cadastro'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated.admin.planos'
+import { Route as AuthenticatedAdminMigracoesRouteImport } from './routes/_authenticated.admin.migracoes'
 import { Route as AuthenticatedAdminInstituicoesRouteImport } from './routes/_authenticated.admin.instituicoes'
 import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authenticated.admin.empresas'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
@@ -118,6 +120,12 @@ const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCompletarCadastroRoute =
+  AuthenticatedCompletarCadastroRouteImport.update({
+    id: '/completar-cadastro',
+    path: '/completar-cadastro',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -139,6 +147,12 @@ const AuthenticatedAdminPlanosRoute =
   AuthenticatedAdminPlanosRouteImport.update({
     id: '/planos',
     path: '/planos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMigracoesRoute =
+  AuthenticatedAdminMigracoesRouteImport.update({
+    id: '/migracoes',
+    path: '/migracoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstituicoesRoute =
@@ -201,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -211,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
+  '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -230,6 +246,7 @@ export interface FileRoutesByTo {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -240,6 +257,7 @@ export interface FileRoutesByTo {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
+  '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -261,6 +279,7 @@ export interface FileRoutesById {
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -271,6 +290,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/_authenticated/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
+  '/_authenticated/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/_authenticated/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -292,6 +312,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/admin'
+    | '/completar-cadastro'
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
@@ -302,6 +323,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/empresas'
     | '/admin/instituicoes'
+    | '/admin/migracoes'
     | '/admin/planos'
     | '/admin/promocoes'
     | '/admin/usuarios'
@@ -321,6 +343,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/admin'
+    | '/completar-cadastro'
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
@@ -331,6 +354,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/empresas'
     | '/admin/instituicoes'
+    | '/admin/migracoes'
     | '/admin/planos'
     | '/admin/promocoes'
     | '/admin/usuarios'
@@ -351,6 +375,7 @@ export interface FileRouteTypes {
     | '/promocoes'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/completar-cadastro'
     | '/_authenticated/conta'
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
@@ -361,6 +386,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/empresas'
     | '/_authenticated/admin/instituicoes'
+    | '/_authenticated/admin/migracoes'
     | '/_authenticated/admin/planos'
     | '/_authenticated/admin/promocoes'
     | '/_authenticated/admin/usuarios'
@@ -502,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/completar-cadastro': {
+      id: '/_authenticated/completar-cadastro'
+      path: '/completar-cadastro'
+      fullPath: '/completar-cadastro'
+      preLoaderRoute: typeof AuthenticatedCompletarCadastroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -528,6 +561,13 @@ declare module '@tanstack/react-router' {
       path: '/planos'
       fullPath: '/admin/planos'
       preLoaderRoute: typeof AuthenticatedAdminPlanosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/migracoes': {
+      id: '/_authenticated/admin/migracoes'
+      path: '/migracoes'
+      fullPath: '/admin/migracoes'
+      preLoaderRoute: typeof AuthenticatedAdminMigracoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instituicoes': {
@@ -594,6 +634,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminEmpresasRoute: typeof AuthenticatedAdminEmpresasRoute
   AuthenticatedAdminInstituicoesRoute: typeof AuthenticatedAdminInstituicoesRoute
+  AuthenticatedAdminMigracoesRoute: typeof AuthenticatedAdminMigracoesRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
   AuthenticatedAdminPromocoesRoute: typeof AuthenticatedAdminPromocoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -604,6 +645,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminEmpresasRoute: AuthenticatedAdminEmpresasRoute,
   AuthenticatedAdminInstituicoesRoute: AuthenticatedAdminInstituicoesRoute,
+  AuthenticatedAdminMigracoesRoute: AuthenticatedAdminMigracoesRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
   AuthenticatedAdminPromocoesRoute: AuthenticatedAdminPromocoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
@@ -614,6 +656,7 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedCompletarCadastroRoute: typeof AuthenticatedCompletarCadastroRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedMinhaEmpresaRoute: typeof AuthenticatedMinhaEmpresaRoute
   AuthenticatedEmpresaIdEditarRoute: typeof AuthenticatedEmpresaIdEditarRoute
@@ -623,6 +666,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedCompletarCadastroRoute: AuthenticatedCompletarCadastroRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedMinhaEmpresaRoute: AuthenticatedMinhaEmpresaRoute,
   AuthenticatedEmpresaIdEditarRoute: AuthenticatedEmpresaIdEditarRoute,
@@ -654,3 +698,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

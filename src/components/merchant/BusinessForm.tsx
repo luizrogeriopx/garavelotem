@@ -37,6 +37,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     logo_url: "",
     cover_url: "",
   });
+  const [gallery, setGallery] = useState<string[]>(["", "", ""]);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],

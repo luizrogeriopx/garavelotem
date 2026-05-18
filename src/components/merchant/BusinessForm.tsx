@@ -72,6 +72,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         logo_url: existing.logo_url ?? "",
         cover_url: existing.cover_url ?? "",
       });
+      const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
+      setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);
     }
   }, [existing]);
 

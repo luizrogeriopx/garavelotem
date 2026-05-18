@@ -80,9 +80,9 @@ const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => CategoriasRoute,
+  id: '/categorias/$slug',
+  path: '/categorias/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMinhaEmpresaRoute =
   AuthenticatedMinhaEmpresaRouteImport.update({
@@ -278,6 +278,7 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   PromocoesRoute: typeof PromocoesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
 }
@@ -356,10 +357,10 @@ declare module '@tanstack/react-router' {
     }
     '/categorias/$slug': {
       id: '/categorias/$slug'
-      path: '/$slug'
+      path: '/categorias/$slug'
       fullPath: '/categorias/$slug'
       preLoaderRoute: typeof CategoriasSlugRouteImport
-      parentRoute: typeof CategoriasRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/minha-empresa': {
       id: '/_authenticated/minha-empresa'
@@ -473,19 +474,10 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   PromocoesRoute: PromocoesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

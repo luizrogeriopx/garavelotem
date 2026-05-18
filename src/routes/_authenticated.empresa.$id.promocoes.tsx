@@ -158,10 +158,9 @@ function PromoDialog({ businessId, promo, children }: { businessId: string; prom
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  useState(() => {
+  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
-    return undefined;
-  });
+  }, []);
   const [form, setForm] = useState({
     title: promo?.title ?? "",
     description: promo?.description ?? "",

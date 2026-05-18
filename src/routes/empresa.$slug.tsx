@@ -27,22 +27,24 @@ function BusinessPage() {
       <div className="relative aspect-[5/2] md:aspect-[16/5] bg-muted">
         {b.cover_url && <img src={b.cover_url} alt={b.name} className="w-full h-full object-cover" />}
       </div>
-      <div className="px-4 -mt-10 relative">
-        <div className="flex items-end gap-4">
-          {b.logo_url && (
-            <img src={b.logo_url} alt="" className="size-20 rounded-2xl ring-4 ring-background object-cover bg-card" />
+      <div className="px-4 relative">
+        {b.logo_url && (
+          <img
+            src={b.logo_url}
+            alt=""
+            className="size-20 rounded-2xl ring-4 ring-background object-cover bg-card -mt-10 relative"
+          />
+        )}
+        <div className="mt-3">
+          <h1 className="font-display font-extrabold text-2xl text-brand flex items-center gap-2">
+            {b.name}
+            {b.is_verified && <BadgeCheck className="size-5 text-highlight" />}
+          </h1>
+          {b.neighborhood && (
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin className="size-3.5" /> {b.neighborhood}
+            </p>
           )}
-          <div className="pb-2">
-            <h1 className="font-display font-extrabold text-2xl text-brand flex items-center gap-2">
-              {b.name}
-              {b.is_verified && <BadgeCheck className="size-5 text-highlight" />}
-            </h1>
-            {b.neighborhood && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                <MapPin className="size-3.5" /> {b.neighborhood}
-              </p>
-            )}
-          </div>
         </div>
 
         {b.short_description && <p className="mt-4 text-sm">{b.short_description}</p>}

@@ -1,23 +1,32 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Store } from "lucide-react";
 import { formatBRL } from "@/lib/format";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+const searchSchema = z.object({ businessId: z.string().uuid().optional() });
 
 export const Route = createFileRoute("/planos")({
   component: PlansPage,
+  validateSearch: searchSchema,
   head: () => ({ meta: [{ title: "Planos — Garavelo Tem" }] }),
 });
 
+type EligibleBiz = { id: string; name: string; logo_url: string | null; plan_slug: string | null };
+
 function PlansPage() {
   const navigate = useNavigate();
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const search = useSearch({ from: "/planos" });
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const [checkoutBusinessId, setCheckoutBusinessId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -33,14 +42,58 @@ function PlansPage() {
     },
   });
 
+  const { data: eligible } = useQuery({
+    queryKey: ["eligible-businesses", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, plans(slug)")
+        .eq("owner_id", user!.id)
+        .eq("status", "approved");
+      if (error) throw error;
+      return (data ?? []).map((b: any) => ({
+        id: b.id, name: b.name, logo_url: b.logo_url,
+        plan_slug: b.plans?.slug ?? null,
+      })) as EligibleBiz[];
+    },
+  });
+
+  const freeApproved = (eligible ?? []).filter((b) => b.plan_slug !== "pro");
+
   const handleProClick = () => {
     if (!user) {
       toast.error("Faça login para assinar o Plano Pro");
       navigate({ to: "/login" });
       return;
     }
-    setCheckoutOpen(true);
+    if (!eligible) return;
+    if (eligible.length === 0) {
+      toast.error("Você precisa de uma empresa aprovada antes de assinar o Pro.");
+      navigate({ to: "/minha-empresa" });
+      return;
+    }
+    if (freeApproved.length === 0) {
+      toast.info("Todas as suas empresas aprovadas já estão no plano Pro.");
+      return;
+    }
+    if (search.businessId && freeApproved.some((b) => b.id === search.businessId)) {
+      setCheckoutBusinessId(search.businessId);
+      return;
+    }
+    if (freeApproved.length === 1) {
+      setCheckoutBusinessId(freeApproved[0].id);
+      return;
+    }
+    setSelectorOpen(true);
   };
+
+  // Auto-open checkout if URL has a valid businessId
+  useEffect(() => {
+    if (search.businessId && user && freeApproved.some((b) => b.id === search.businessId)) {
+      setCheckoutBusinessId(search.businessId);
+    }
+  }, [search.businessId, user, freeApproved]);
 
   return (
     <>
@@ -100,22 +153,66 @@ function PlansPage() {
                     Começar grátis
                   </Link>
                 )}
+                {isPro && user && eligible && eligible.length > 0 && freeApproved.length === 0 && (
+                  <p className="mt-3 text-xs opacity-80 text-center">
+                    Todas as suas empresas já são Pro 🎉
+                  </p>
+                )}
+                {isPro && user && eligible && eligible.length === 0 && (
+                  <p className="mt-3 text-xs opacity-80 text-center">
+                    Cadastre e aprove uma empresa antes de assinar o Pro.
+                  </p>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+      {/* Business selector */}
+      <Dialog open={selectorOpen} onOpenChange={setSelectorOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Para qual empresa deseja assinar o Pro?</DialogTitle>
+            <DialogDescription>
+              Selecione abaixo a empresa aprovada que você quer migrar para o plano Pro.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {freeApproved.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => { setSelectorOpen(false); setCheckoutBusinessId(b.id); }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl border hover:bg-accent transition"
+              >
+                <div className="size-10 rounded-lg bg-muted overflow-hidden grid place-items-center shrink-0">
+                  {b.logo_url ? (
+                    <img src={b.logo_url} alt={b.name} className="size-full object-cover" />
+                  ) : (
+                    <Store className="size-5 text-muted-foreground" />
+                  )}
+                </div>
+                <span className="font-medium">{b.name}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Stripe checkout */}
+      <Dialog open={!!checkoutBusinessId} onOpenChange={(o) => !o && setCheckoutBusinessId(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Assinar Plano Pro</DialogTitle>
+            <DialogDescription>
+              {freeApproved.find((b) => b.id === checkoutBusinessId)?.name}
+            </DialogDescription>
           </DialogHeader>
-          {checkoutOpen && user && (
+          {checkoutBusinessId && user && (
             <StripeEmbeddedCheckout
               priceId="plano_pro_mensal"
+              businessId={checkoutBusinessId}
               customerEmail={user.email}
-              userId={user.id}
               returnUrl={`${window.location.origin}/checkout/retorno?session_id={CHECKOUT_SESSION_ID}`}
             />
           )}

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BadgeCheck, MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react";
 import { whatsappLink } from "@/lib/format";
+import { BusinessFeed } from "@/components/site/BusinessFeed";
 
 export const Route = createFileRoute("/empresa/$slug")({
   component: BusinessPage,
@@ -13,7 +14,7 @@ function BusinessPage() {
   const { data: b } = useQuery({
     queryKey: ["business", slug],
     queryFn: async () => {
-      const { data } = await supabase.from("businesses").select("*").eq("slug", slug).maybeSingle();
+      const { data } = await supabase.from("businesses").select("*, plans(slug)").eq("slug", slug).maybeSingle();
       return data;
     },
   });

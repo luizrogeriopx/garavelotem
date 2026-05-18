@@ -14,10 +14,12 @@ import { Route as PromocoesRouteImport } from './routes/promocoes'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
+import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DivulgarRouteImport } from './routes/divulgar'
-import { Route as CategoriasRouteImport } from './routes/categorias'
+import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
@@ -55,14 +57,19 @@ const FavoritosRoute = FavoritosRouteImport.update({
   path: '/favoritos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmpresasRoute = EmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DivulgarRoute = DivulgarRouteImport.update({
   id: '/divulgar',
   path: '/divulgar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CategoriasRoute = CategoriasRouteImport.update({
-  id: '/categorias',
-  path: '/categorias',
+const BuscarRoute = BuscarRouteImport.update({
+  id: '/buscar',
+  path: '/buscar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -74,15 +81,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoriasIndexRoute = CategoriasIndexRouteImport.update({
+  id: '/categorias/',
+  path: '/categorias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
   id: '/empresa/$slug',
   path: '/empresa/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => CategoriasRoute,
+  id: '/categorias/$slug',
+  path: '/categorias/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMinhaEmpresaRoute =
   AuthenticatedMinhaEmpresaRouteImport.update({
@@ -139,8 +151,9 @@ const AuthenticatedEmpresaIdEditarRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/categorias': typeof CategoriasRouteWithChildren
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -151,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/categorias/': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -160,8 +174,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/categorias': typeof CategoriasRouteWithChildren
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -172,6 +187,7 @@ export interface FileRoutesByTo {
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/categorias': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -183,8 +199,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/categorias': typeof CategoriasRouteWithChildren
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
+  '/empresas': typeof EmpresasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
   '/planos': typeof PlanosRoute
@@ -195,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/categorias/': typeof CategoriasIndexRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -206,8 +224,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/categorias'
+    | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -218,6 +237,7 @@ export interface FileRouteTypes {
     | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/categorias/'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
@@ -227,8 +247,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/categorias'
+    | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -239,6 +260,7 @@ export interface FileRouteTypes {
     | '/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/categorias'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
@@ -249,8 +271,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/categorias'
+    | '/buscar'
     | '/divulgar'
+    | '/empresas'
     | '/favoritos'
     | '/login'
     | '/planos'
@@ -261,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
     | '/empresa/$slug'
+    | '/categorias/'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/empresas'
@@ -272,14 +296,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  CategoriasRoute: typeof CategoriasRouteWithChildren
+  BuscarRoute: typeof BuscarRoute
   DivulgarRoute: typeof DivulgarRoute
+  EmpresasRoute: typeof EmpresasRoute
   FavoritosRoute: typeof FavoritosRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   PromocoesRoute: typeof PromocoesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
+  CategoriasIndexRoute: typeof CategoriasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -319,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empresas': {
+      id: '/empresas'
+      path: '/empresas'
+      fullPath: '/empresas'
+      preLoaderRoute: typeof EmpresasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/divulgar': {
       id: '/divulgar'
       path: '/divulgar'
@@ -326,11 +360,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DivulgarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/categorias': {
-      id: '/categorias'
-      path: '/categorias'
-      fullPath: '/categorias'
-      preLoaderRoute: typeof CategoriasRouteImport
+    '/buscar': {
+      id: '/buscar'
+      path: '/buscar'
+      fullPath: '/buscar'
+      preLoaderRoute: typeof BuscarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -347,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/categorias/': {
+      id: '/categorias/'
+      path: '/categorias'
+      fullPath: '/categorias/'
+      preLoaderRoute: typeof CategoriasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empresa/$slug': {
       id: '/empresa/$slug'
       path: '/empresa/$slug'
@@ -356,10 +397,10 @@ declare module '@tanstack/react-router' {
     }
     '/categorias/$slug': {
       id: '/categorias/$slug'
-      path: '/$slug'
+      path: '/categorias/$slug'
       fullPath: '/categorias/$slug'
       preLoaderRoute: typeof CategoriasSlugRouteImport
-      parentRoute: typeof CategoriasRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/minha-empresa': {
       id: '/_authenticated/minha-empresa'
@@ -464,29 +505,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-interface CategoriasRouteChildren {
-  CategoriasSlugRoute: typeof CategoriasSlugRoute
-}
-
-const CategoriasRouteChildren: CategoriasRouteChildren = {
-  CategoriasSlugRoute: CategoriasSlugRoute,
-}
-
-const CategoriasRouteWithChildren = CategoriasRoute._addFileChildren(
-  CategoriasRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  CategoriasRoute: CategoriasRouteWithChildren,
+  BuscarRoute: BuscarRoute,
   DivulgarRoute: DivulgarRoute,
+  EmpresasRoute: EmpresasRoute,
   FavoritosRoute: FavoritosRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   PromocoesRoute: PromocoesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
+  CategoriasIndexRoute: CategoriasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

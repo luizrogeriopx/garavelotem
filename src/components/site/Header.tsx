@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, Menu, Store, MapPin, User as UserIcon, Shield } from "lucide-react";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
@@ -7,6 +8,16 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 export function Header() {
   const { user } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+
+  const onSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const term = q.trim();
+    if (!term) return;
+    navigate({ to: "/buscar", search: { q: term } });
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-brand text-brand-foreground shadow-soft">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
@@ -24,16 +35,18 @@ export function Header() {
           </div>
         </Link>
 
-        <div className="hidden md:flex flex-1 max-w-md">
+        <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md">
           <label className="w-full flex items-center gap-2 bg-white/10 border border-white/15 focus-within:bg-white focus-within:text-foreground rounded-full px-4 py-2 transition-colors">
             <Search className="size-4 opacity-70" />
             <input
               type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar pizzaria, salão, oficina..."
               className="bg-transparent w-full text-sm outline-none placeholder:opacity-60"
             />
           </label>
-        </div>
+        </form>
 
         <div className="flex items-center gap-2">
           {isAdmin && (
@@ -62,16 +75,18 @@ export function Header() {
         </div>
       </div>
 
-      <div className="md:hidden px-4 pb-3">
+      <form onSubmit={onSearch} className="md:hidden px-4 pb-3">
         <label className="w-full flex items-center gap-2 bg-white text-foreground rounded-xl px-4 py-2.5 shadow-soft">
           <Search className="size-4 text-muted-foreground" />
           <input
             type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
             placeholder="O que você procura hoje?"
             className="bg-transparent w-full text-sm outline-none"
           />
         </label>
-      </div>
+      </form>
     </header>
   );
 }

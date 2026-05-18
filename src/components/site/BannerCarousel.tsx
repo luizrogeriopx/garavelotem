@@ -34,29 +34,35 @@ export function BannerCarousel() {
   return (
     <section className="relative">
       <div className="relative rounded-3xl overflow-hidden bg-brand">
-        {banners.map((b, i) => (
-          <a
-            key={b.id}
-            href={b.link_url ?? "#"}
-            className={`block absolute inset-0 transition-opacity duration-700 ${
-              i === idx ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          >
-            <img src={b.image_url} alt={b.title ?? ""} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand/80 via-brand/20 to-transparent" />
-            {b.title && (
-              <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 right-4 max-w-lg">
-                <span className="inline-block bg-yellow-soft text-brand text-[10px] font-black px-2 py-0.5 rounded mb-2">
-                  PATROCINADO
-                </span>
-                <h2 className="text-brand-foreground text-xl md:text-3xl font-display font-extrabold leading-tight">
-                  {b.title}
-                </h2>
-              </div>
-            )}
-          </a>
-        ))}
-        <div className="relative w-full aspect-[21/9] md:aspect-[3/1]" />
+        {banners.map((b, i) => {
+          const inner = (
+            <>
+              <img src={b.image_url} alt={b.title ?? ""} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand/80 via-brand/20 to-transparent" />
+              {b.title && (
+                <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 right-4 max-w-lg">
+                  <span className="inline-block bg-yellow-soft text-brand text-[10px] font-black px-2 py-0.5 rounded mb-2">
+                    PATROCINADO
+                  </span>
+                  <h2 className="text-brand-foreground text-xl md:text-3xl font-display font-extrabold leading-tight">
+                    {b.title}
+                  </h2>
+                </div>
+              )}
+            </>
+          );
+          const cls = `block absolute inset-0 transition-opacity duration-700 ${
+            i === idx ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`;
+          return b.link_url ? (
+            <a key={b.id} href={b.link_url} target="_blank" rel="noopener noreferrer" className={cls}>
+              {inner}
+            </a>
+          ) : (
+            <div key={b.id} className={cls}>{inner}</div>
+          );
+        })}
+        <div className="relative w-full aspect-[21/9] md:aspect-[3/1] pointer-events-none" />
       </div>
       {banners.length > 1 && (
         <div className="absolute bottom-3 right-4 flex gap-1.5">

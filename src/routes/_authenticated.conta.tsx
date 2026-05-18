@@ -150,6 +150,10 @@ function AccountPage() {
                     <p className="font-semibold truncate">{b.name}</p>
                     <StatusBadge status={b.status} />
                     <PlanBadge slug={b.plan_slug} name={b.plan_name} />
+                    <Badge variant="outline" className="uppercase text-[10px]">{b.entity_type === "pj" ? "PJ" : "PF"}</Badge>
+                    {b.migration_status === "pending" && (
+                      <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Migração em análise</Badge>
+                    )}
                     {b.is_verified && (
                       <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
                     )}

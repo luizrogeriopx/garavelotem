@@ -39,6 +39,10 @@ function CompleteProfilePage() {
         .select("*")
         .eq("id", user.id)
         .maybeSingle();
+      if (data?.profile_completed) {
+        navigate({ to: "/conta" });
+        return;
+      }
       setF({
         full_name: data?.full_name ?? user.user_metadata?.full_name ?? "",
         birth_date: data?.birth_date ?? "",
@@ -49,7 +53,7 @@ function CompleteProfilePage() {
         selfie_url: data?.selfie_url ?? "",
       });
     })();
-  }, [user]);
+  }, [user, navigate]);
 
   const set = <K extends keyof typeof f>(k: K, v: string) => setF((s) => ({ ...s, [k]: v }));
 

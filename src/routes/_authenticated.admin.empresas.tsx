@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, XCircle, Clock, ExternalLink, ShieldCheck, ShieldOff } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CheckCircle2, XCircle, Clock, ExternalLink, ShieldCheck, ShieldOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -19,12 +20,21 @@ function AdminBusinessesPage() {
   const [tab, setTab] = useState<Status>("pending");
   const qc = useQueryClient();
 
+  const { data: plans } = useQuery({
+    queryKey: ["plans-all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("plans").select("id, slug, name").order("price_cents");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-businesses", tab],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, neighborhood, city, whatsapp, created_at")
+        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -57,6 +67,34 @@ function AdminBusinessesPage() {
     },
   });
 
+  const changePlan = useMutation({
+    mutationFn: async ({ id, plan_id, slug }: { id: string; plan_id: string; slug: string }) => {
+      const { error } = await supabase
+        .from("businesses")
+        .update({ plan_id, is_featured: slug === "pro" })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Plano atualizado");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeBusiness = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from("promotions").delete().eq("business_id", id);
+      const { error } = await supabase.from("businesses").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Empresa excluída");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-4">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
@@ -80,7 +118,7 @@ function AdminBusinessesPage() {
                   {b.logo_url && <img src={b.logo_url} alt="" className="h-full w-full object-cover" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     {b.is_verified && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
                   </div>
@@ -89,10 +127,29 @@ function AdminBusinessesPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
+                {plans && (
+                  <Select
+                    value={b.plan_id ?? undefined}
+                    onValueChange={(v) => {
+                      const p = plans.find((x) => x.id === v);
+                      if (p) changePlan.mutate({ id: b.id, plan_id: v, slug: p.slug });
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[110px]"><SelectValue placeholder="Plano" /></SelectTrigger>
+                    <SelectContent>
+                      {plans.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button asChild variant="outline" size="sm">
                   <Link to="/empresa/$slug" params={{ slug: b.slug }}>
                     <ExternalLink className="h-4 w-4 mr-1" />Ver
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/empresa/$id/editar" params={{ id: b.id }}>
+                    <Pencil className="h-4 w-4 mr-1" />Editar
                   </Link>
                 </Button>
                 {tab !== "approved" && (
@@ -110,6 +167,14 @@ function AdminBusinessesPage() {
                     {b.is_verified ? <><ShieldOff className="h-4 w-4 mr-1" />Remover selo</> : <><ShieldCheck className="h-4 w-4 mr-1" />Verificar</>}
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive"
+                  onClick={() => { if (confirm(`Excluir definitivamente "${b.name}"? Esta ação não pode ser desfeita.`)) removeBusiness.mutate(b.id); }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </Card>
           ))}

@@ -231,7 +231,7 @@ function PromoDialog({ businessId, promo, children }: { businessId: string; prom
               value={form.image_url}
               onChange={(url) => setForm({ ...form, image_url: url })}
               bucket="business-assets"
-              pathPrefix={`promotions/${businessId}`}
+              pathPrefix={`${userId ?? "promotions"}/promotions/${businessId}`}
               label="Imagem da promoção"
               aspect="aspect-[4/3]"
             />

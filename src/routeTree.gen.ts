@@ -21,6 +21,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
+import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authenticated.minha-empresa'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authenticated.admin.empresas'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedEmpresaIdPromocoesRouteImport } from './routes/_authenticated.empresa.$id.promocoes'
 import { Route as AuthenticatedEmpresaIdEditarRouteImport } from './routes/_authenticated.empresa.$id.editar'
 
@@ -91,6 +93,11 @@ const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
   path: '/empresa/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRetornoRoute = CheckoutRetornoRouteImport.update({
+  id: '/checkout/retorno',
+  path: '/checkout/retorno',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
   id: '/categorias/$slug',
   path: '/categorias/$slug',
@@ -136,6 +143,12 @@ const AuthenticatedAdminBannersRoute =
     path: '/banners',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedEmpresaIdPromocoesRoute =
   AuthenticatedEmpresaIdPromocoesRouteImport.update({
     id: '/empresa/$id/promocoes',
@@ -163,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -171,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/conta': typeof AuthenticatedContaRoute
   '/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias': typeof CategoriasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -194,6 +210,7 @@ export interface FileRoutesByTo {
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -211,6 +228,7 @@ export interface FileRoutesById {
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/minha-empresa': typeof AuthenticatedMinhaEmpresaRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -219,6 +237,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
   '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/_authenticated/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -236,6 +255,7 @@ export interface FileRouteTypes {
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias/'
     | '/admin/banners'
@@ -244,6 +264,7 @@ export interface FileRouteTypes {
     | '/admin/planos'
     | '/empresa/$id/editar'
     | '/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -259,6 +280,7 @@ export interface FileRouteTypes {
     | '/conta'
     | '/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias'
     | '/admin/banners'
@@ -267,6 +289,7 @@ export interface FileRouteTypes {
     | '/admin/planos'
     | '/empresa/$id/editar'
     | '/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -283,6 +306,7 @@ export interface FileRouteTypes {
     | '/_authenticated/conta'
     | '/_authenticated/minha-empresa'
     | '/categorias/$slug'
+    | '/checkout/retorno'
     | '/empresa/$slug'
     | '/categorias/'
     | '/_authenticated/admin/banners'
@@ -291,6 +315,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/planos'
     | '/_authenticated/empresa/$id/editar'
     | '/_authenticated/empresa/$id/promocoes'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -305,8 +330,10 @@ export interface RootRouteChildren {
   PromocoesRoute: typeof PromocoesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
+  CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -395,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/retorno': {
+      id: '/checkout/retorno'
+      path: '/checkout/retorno'
+      fullPath: '/checkout/retorno'
+      preLoaderRoute: typeof CheckoutRetornoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categorias/$slug': {
       id: '/categorias/$slug'
       path: '/categorias/$slug'
@@ -450,6 +484,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/banners'
       preLoaderRoute: typeof AuthenticatedAdminBannersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/empresa/$id/promocoes': {
       id: '/_authenticated/empresa/$id/promocoes'
@@ -517,8 +558,10 @@ const rootRouteChildren: RootRouteChildren = {
   PromocoesRoute: PromocoesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
+  CheckoutRetornoRoute: CheckoutRetornoRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

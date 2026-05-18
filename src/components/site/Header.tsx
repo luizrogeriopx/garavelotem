@@ -1,7 +1,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin, User as UserIcon, Shield } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon, Shield, LogOut, Heart, LayoutGrid, Tag } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 

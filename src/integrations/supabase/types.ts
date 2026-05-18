@@ -327,6 +327,72 @@ export type Database = {
           },
         ]
       }
+      public_institutions: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          hours: Json
+          id: string
+          image_url: string | null
+          is_active: boolean
+          kind: Database["public"]["Enums"]["institution_kind"]
+          lat: number | null
+          lng: number | null
+          name: string
+          neighborhood: string | null
+          phone: string | null
+          sort_order: number
+          state: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          hours?: Json
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["institution_kind"]
+          lat?: number | null
+          lng?: number | null
+          name: string
+          neighborhood?: string | null
+          phone?: string | null
+          sort_order?: number
+          state?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          hours?: Json
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["institution_kind"]
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          neighborhood?: string | null
+          phone?: string | null
+          sort_order?: number
+          state?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           business_id: string
@@ -451,6 +517,16 @@ export type Database = {
     Enums: {
       app_role: "admin" | "merchant" | "user"
       business_status: "pending" | "approved" | "rejected" | "suspended"
+      institution_kind:
+        | "posto_saude"
+        | "cartorio"
+        | "delegacia"
+        | "conselho_tutelar"
+        | "hospital"
+        | "escola"
+        | "bombeiros"
+        | "prefeitura"
+        | "outros"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -580,6 +656,17 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "merchant", "user"],
       business_status: ["pending", "approved", "rejected", "suspended"],
+      institution_kind: [
+        "posto_saude",
+        "cartorio",
+        "delegacia",
+        "conselho_tutelar",
+        "hospital",
+        "escola",
+        "bombeiros",
+        "prefeitura",
+        "outros",
+      ],
     },
   },
 } as const

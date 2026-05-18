@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Pencil, Tag, Loader2 } from "lucide-react";
 import { formatBRL } from "@/lib/format";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 export const Route = createFileRoute("/_authenticated/empresa/$id/promocoes")({
   component: PromotionsPage,

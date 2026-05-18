@@ -10,6 +10,17 @@ export const Route = createFileRoute("/_authenticated")({
         search: { redirect: location.pathname, mode: "signin" },
       });
     }
+    // Gate: força completar perfil antes de qualquer ação interna
+    if (location.pathname !== "/completar-cadastro") {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("profile_completed")
+        .eq("id", data.session.user.id)
+        .maybeSingle();
+      if (!profile?.profile_completed) {
+        throw redirect({ to: "/completar-cadastro" });
+      }
+    }
   },
   component: () => <Outlet />,
 });

@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { formatCNPJ, lookupCNPJ, onlyDigits } from "@/lib/br-validation";
 
 function slugify(s: string) {
   return s
@@ -25,6 +27,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [entityType, setEntityType] = useState<"pf" | "pj">("pf");
+  const [cnpj, setCnpj] = useState("");
+  const [legalName, setLegalName] = useState("");
+  const [cnpjStatus, setCnpjStatus] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [checkingCnpj, setCheckingCnpj] = useState(false);
   const [form, setForm] = useState({
     name: "",
     category_id: "",
@@ -38,6 +45,20 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     cover_url: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
+
+  // Perfil do usuário (para PF)
+  const { data: profile } = useQuery({
+    queryKey: ["profile-for-business", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, cpf")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -74,14 +95,45 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       });
       const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
       setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);
+      setEntityType((existing.entity_type as "pf" | "pj") ?? "pf");
+      setCnpj(existing.cnpj ? formatCNPJ(existing.cnpj) : "");
+      setLegalName(existing.legal_name ?? "");
     }
   }, [existing]);
 
   const set = <K extends keyof typeof form>(k: K, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
+  const checkCnpj = async () => {
+    setCheckingCnpj(true);
+    setCnpjStatus(null);
+    const result = await lookupCNPJ(cnpj);
+    if (!result.ok) {
+      setCnpjStatus({ ok: false, msg: result.error ?? "CNPJ inválido" });
+    } else if (!result.active) {
+      setCnpjStatus({ ok: false, msg: `Situação: ${result.situacao || "inativa"}` });
+    } else {
+      setCnpjStatus({ ok: true, msg: `Ativo • ${result.razaoSocial}` });
+      if (result.razaoSocial) setLegalName(result.razaoSocial);
+    }
+    setCheckingCnpj(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (entityType === "pj") {
+      if (!cnpjStatus?.ok) {
+        toast.error("Valide o CNPJ antes de continuar.");
+        return;
+      }
+    } else {
+      if (!profile?.cpf) {
+        toast.error("Complete seu cadastro pessoal (CPF) antes.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const base = {
@@ -96,6 +148,10 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         logo_url: form.logo_url || null,
         cover_url: form.cover_url || null,
         gallery: gallery.filter(Boolean),
+        entity_type: entityType,
+        cnpj: entityType === "pj" ? onlyDigits(cnpj) : null,
+        legal_name: entityType === "pj" ? legalName || null : profile?.full_name ?? null,
+        cpf: entityType === "pf" ? profile?.cpf ?? null : null,
       };
       if (businessId) {
         const { error } = await supabase
@@ -124,6 +180,64 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+      <div className="rounded-xl border p-4 bg-muted/30">
+        <Label className="font-semibold">Tipo de empresa *</Label>
+        <RadioGroup
+          value={entityType}
+          onValueChange={(v) => setEntityType(v as "pf" | "pj")}
+          className="flex flex-col sm:flex-row gap-3 mt-2"
+        >
+          <label className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background">
+            <RadioGroupItem value="pf" id="pf" />
+            <div>
+              <p className="font-medium text-sm">Pessoa Física</p>
+              <p className="text-xs text-muted-foreground">Usa seus dados de cadastro (CPF).</p>
+            </div>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background">
+            <RadioGroupItem value="pj" id="pj" />
+            <div>
+              <p className="font-medium text-sm">Pessoa Jurídica</p>
+              <p className="text-xs text-muted-foreground">Empresa com CNPJ ativo na Receita.</p>
+            </div>
+          </label>
+        </RadioGroup>
+
+        {entityType === "pf" && (
+          <div className="mt-3 text-sm bg-background rounded-lg p-3 border">
+            <p><span className="text-muted-foreground">Titular:</span> {profile?.full_name || "—"}</p>
+            <p><span className="text-muted-foreground">CPF:</span> {profile?.cpf || "—"}</p>
+          </div>
+        )}
+
+        {entityType === "pj" && (
+          <div className="mt-3 space-y-2">
+            <Label htmlFor="cnpj">CNPJ *</Label>
+            <div className="flex gap-2">
+              <Input
+                id="cnpj"
+                required
+                placeholder="00.000.000/0000-00"
+                value={cnpj}
+                onChange={(e) => { setCnpj(formatCNPJ(e.target.value)); setCnpjStatus(null); }}
+              />
+              <Button type="button" variant="outline" onClick={checkCnpj} disabled={checkingCnpj || !cnpj}>
+                {checkingCnpj ? <Loader2 className="size-4 animate-spin" /> : "Validar"}
+              </Button>
+            </div>
+            {cnpjStatus && (
+              <p className={`text-xs flex items-center gap-1 ${cnpjStatus.ok ? "text-green-700" : "text-destructive"}`}>
+                {cnpjStatus.ok ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}
+                {cnpjStatus.msg}
+              </p>
+            )}
+            {legalName && cnpjStatus?.ok && (
+              <p className="text-xs text-muted-foreground">Razão social: {legalName}</p>
+            )}
+          </div>
+        )}
+      </div>
+
       <div>
         <Label htmlFor="name">Nome da empresa *</Label>
         <Input id="name" required maxLength={120} value={form.name} onChange={(e) => set("name", e.target.value)} />

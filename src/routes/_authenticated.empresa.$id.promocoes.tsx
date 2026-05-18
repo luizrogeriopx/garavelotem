@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -157,6 +157,10 @@ function PromotionsPage() {
 function PromoDialog({ businessId, promo, children }: { businessId: string; promo?: Promo; children: React.ReactNode }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
   const [form, setForm] = useState({
     title: promo?.title ?? "",
     description: promo?.description ?? "",
@@ -227,7 +231,7 @@ function PromoDialog({ businessId, promo, children }: { businessId: string; prom
               value={form.image_url}
               onChange={(url) => setForm({ ...form, image_url: url })}
               bucket="business-assets"
-              pathPrefix={`promotions/${businessId}`}
+              pathPrefix={`${userId ?? "promotions"}/promotions/${businessId}`}
               label="Imagem da promoção"
               aspect="aspect-[4/3]"
             />

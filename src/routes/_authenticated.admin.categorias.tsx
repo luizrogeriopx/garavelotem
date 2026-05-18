@@ -113,8 +113,13 @@ function AdminCategoriesPage() {
         <div className="grid sm:grid-cols-2 gap-3">
           {data.map((c) => (
             <Card key={c.id} className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg flex items-center justify-center text-lg" style={{ background: c.color || "hsl(var(--muted))" }}>
-                {c.icon || "🏷️"}
+              <div className="h-10 w-10 rounded-lg flex items-center justify-center text-lg text-white" style={{ background: c.color || "hsl(var(--muted))" }}>
+                {(() => {
+                  const Map = Icons as unknown as Record<string, Icons.LucideIcon>;
+                  const Ico = c.icon && Map[c.icon];
+                  if (Ico) return <Ico className="h-5 w-5" />;
+                  return <span>{c.icon || "🏷️"}</span>;
+                })()}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold truncate">{c.name}</p>

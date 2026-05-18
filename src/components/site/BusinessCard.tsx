@@ -54,7 +54,9 @@ export function BusinessCard({ b }: { b: BusinessCardData }) {
               </h3>
             </Link>
             {b.short_description && (
-              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{b.short_description}</p>
+              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                {b.short_description}
+              </p>
             )}
             {b.neighborhood && (
               <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">

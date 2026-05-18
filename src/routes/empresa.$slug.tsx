@@ -89,18 +89,21 @@ function BusinessPage() {
 
         {(() => {
           const plan = (b as any).plans?.slug;
-          if (plan === "pro") return <BusinessFeed businessId={b.id} />;
           const gallery = (Array.isArray(b.gallery) ? (b.gallery as string[]) : []).filter(Boolean);
-          if (gallery.length === 0) return null;
           return (
-            <section className="mt-8">
-              <h2 className="font-display font-bold text-lg text-brand">Galeria</h2>
-              <div className="grid grid-cols-3 gap-2 mt-3">
-                {gallery.map((url, i) => (
-                  <img key={i} src={url} alt="" className="aspect-square w-full object-cover rounded-lg bg-muted" />
-                ))}
-              </div>
-            </section>
+            <>
+              {gallery.length > 0 && (
+                <section className="mt-8">
+                  <h2 className="font-display font-bold text-lg text-brand">Galeria</h2>
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    {gallery.map((url, i) => (
+                      <img key={i} src={url} alt="" className="aspect-square w-full object-cover rounded-lg bg-muted" />
+                    ))}
+                  </div>
+                </section>
+              )}
+              {plan === "pro" && <BusinessFeed businessId={b.id} />}
+            </>
           );
         })()}
 

@@ -15,6 +15,7 @@ import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as DivulgarRouteImport } from './routes/divulgar'
+import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
@@ -60,6 +61,11 @@ const DivulgarRoute = DivulgarRouteImport.update({
   path: '/divulgar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuscarRoute = BuscarRouteImport.update({
+  id: '/buscar',
+  path: '/buscar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -80,9 +86,9 @@ const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
-  id: '/categorias/$slug',
-  path: '/categorias/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CategoriasRoute,
 } as any)
 const AuthenticatedMinhaEmpresaRoute =
   AuthenticatedMinhaEmpresaRouteImport.update({
@@ -139,6 +145,7 @@ const AuthenticatedEmpresaIdEditarRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/buscar': typeof BuscarRoute
   '/divulgar': typeof DivulgarRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/buscar'
     | '/divulgar'
     | '/favoritos'
     | '/login'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/buscar'
     | '/divulgar'
     | '/favoritos'
     | '/login'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/buscar'
     | '/divulgar'
     | '/favoritos'
     | '/login'
@@ -272,13 +284,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  BuscarRoute: typeof BuscarRoute
   DivulgarRoute: typeof DivulgarRoute
   FavoritosRoute: typeof FavoritosRoute
   LoginRoute: typeof LoginRoute
   PlanosRoute: typeof PlanosRoute
   PromocoesRoute: typeof PromocoesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
 }
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DivulgarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buscar': {
+      id: '/buscar'
+      path: '/buscar'
+      fullPath: '/buscar'
+      preLoaderRoute: typeof BuscarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -357,10 +376,10 @@ declare module '@tanstack/react-router' {
     }
     '/categorias/$slug': {
       id: '/categorias/$slug'
-      path: '/categorias/$slug'
+      path: '/$slug'
       fullPath: '/categorias/$slug'
       preLoaderRoute: typeof CategoriasSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof CategoriasRoute
     }
     '/_authenticated/minha-empresa': {
       id: '/_authenticated/minha-empresa'
@@ -468,16 +487,26 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  BuscarRoute: BuscarRoute,
   DivulgarRoute: DivulgarRoute,
   FavoritosRoute: FavoritosRoute,
   LoginRoute: LoginRoute,
   PlanosRoute: PlanosRoute,
   PromocoesRoute: PromocoesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

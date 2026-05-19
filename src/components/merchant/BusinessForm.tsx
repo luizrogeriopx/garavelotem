@@ -20,6 +20,7 @@ import {
   allAccepted,
 } from "@/components/site/PolicyAcceptance";
 import { LocationPicker } from "@/components/merchant/LocationPicker";
+import { HoursEditor, defaultHours, normalizeHours, type WeekHours } from "@/components/merchant/HoursEditor";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 import { Lock } from "lucide-react";
 
@@ -57,6 +58,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [hours, setHours] = useState<WeekHours>(defaultHours());
   const [changeReqOpen, setChangeReqOpen] = useState(false);
   const isEditing = !!businessId;
 
@@ -119,6 +121,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lat: existing.lat != null ? Number(existing.lat) : null,
         lng: existing.lng != null ? Number(existing.lng) : null,
       });
+      setHours(normalizeHours(existing.hours));
     }
   }, [existing]);
 
@@ -180,6 +183,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         cpf: entityType === "pf" ? profile?.cpf ?? null : null,
         lat: coords.lat,
         lng: coords.lng,
+        hours,
       };
       if (businessId) {
         const { error } = await supabase
@@ -382,6 +386,13 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           lng={coords.lng}
           onChange={(lat, lng) => setCoords({ lat, lng })}
         />
+      </div>
+      <div>
+        <Label>Horário de funcionamento (opcional)</Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Informe os dias e horários em que sua empresa atende. Desligue o switch nos dias fechados.
+        </p>
+        <HoursEditor value={hours} onChange={setHours} />
       </div>
       {!businessId && (
         <PolicyAcceptanceList

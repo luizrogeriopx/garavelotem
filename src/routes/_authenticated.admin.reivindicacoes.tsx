@@ -38,11 +38,18 @@ function AdminClaimsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("business_claims")
-        .select("*, businesses:business_id(id,name,slug,owner_id), profiles:user_id(full_name,email,phone)")
+        .select("*")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      if (!data || data.length === 0) return [];
+      const businessIds = Array.from(new Set(data.map((c) => c.business_id)));
+      const { data: bizs } = await supabase
+        .from("businesses")
+        .select("id,name,slug,owner_id")
+        .in("id", businessIds);
+      const bizMap = new Map((bizs ?? []).map((b) => [b.id, b]));
+      return data.map((c) => ({ ...c, businesses: bizMap.get(c.business_id) ?? null }));
     },
   });
 

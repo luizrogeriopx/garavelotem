@@ -298,3 +298,81 @@ function EditUserDialog({
     </Dialog>
   );
 }
+
+function UserAcceptancesDialog({
+  user,
+  onClose,
+}: {
+  user: ProfileRow | null;
+  onClose: () => void;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["user-acceptances", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: accs, error } = await supabase
+        .from("policy_acceptances")
+        .select("id,policy_slug,context,accepted_at,ip_address,user_agent,business_id,claim_id")
+        .eq("user_id", user!.id)
+        .order("accepted_at", { ascending: false });
+      if (error) throw error;
+      const slugs = Array.from(new Set((accs ?? []).map((r: any) => r.policy_slug)));
+      const titleMap = new Map<string, string>();
+      if (slugs.length) {
+        const { data: pols } = await supabase
+          .from("policies")
+          .select("slug,title")
+          .in("slug", slugs);
+        (pols ?? []).forEach((p: any) => titleMap.set(p.slug, p.title));
+      }
+      return { rows: accs ?? [], titleMap };
+    },
+  });
+
+  return (
+    <Dialog open={!!user} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Aceites de políticas — {user?.full_name ?? user?.email}</DialogTitle>
+          <DialogDescription>
+            Registros de aceite com data, hora, IP e dispositivo.
+          </DialogDescription>
+        </DialogHeader>
+        {isLoading ? (
+          <p className="text-muted-foreground py-4">Carregando…</p>
+        ) : !data || data.rows.length === 0 ? (
+          <p className="text-muted-foreground py-4">Nenhum aceite registrado.</p>
+        ) : (
+          <ul className="divide-y">
+            {data.rows.map((r: any) => (
+              <li key={r.id} className="py-3 text-sm space-y-1">
+                <div className="flex justify-between gap-2 flex-wrap">
+                  <p className="font-medium">
+                    {data.titleMap.get(r.policy_slug) ?? r.policy_slug}
+                  </p>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(r.accepted_at).toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Contexto: <span className="font-mono">{r.context}</span>
+                  {r.business_id ? " · empresa" : ""}
+                  {r.claim_id ? " · reivindicação" : ""}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  IP: <span className="font-mono">{r.ip_address ?? "—"}</span>
+                </p>
+                {r.user_agent && (
+                  <p className="text-xs text-muted-foreground break-words">
+                    Dispositivo: <span className="font-mono">{r.user_agent}</span>
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+

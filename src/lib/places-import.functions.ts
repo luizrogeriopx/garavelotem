@@ -44,8 +44,9 @@ function formatGooglePlacesError(status: number, body: string) {
     }
     if (status === 403 && parsed.error?.status === "PERMISSION_DENIED") {
       return [
-        "Places API (New) não está ativa na chave/projeto do Google Maps conectado.",
-        "Ative a Places API (New) no Google Cloud, confirme que a cobrança está habilitada e aguarde alguns minutos.",
+        "O Google recebeu a credencial, mas negou permissão para usar a Places API (New).",
+        "No Google Cloud, confirme que a chave da conexão está no mesmo projeto com billing ativo, Places API (New) habilitada e 'Restrições de API' permitindo places.googleapis.com.",
+        "Se essa chave tiver 'Restrições de aplicativo' por Sites/HTTP referrers, crie uma chave separada sem essa restrição para a conexão server-side do Lovable; a chave de browser pode continuar restrita por domínio.",
         activationUrl ? `Link de ativação: ${activationUrl}` : null,
         connectionHint,
       ]

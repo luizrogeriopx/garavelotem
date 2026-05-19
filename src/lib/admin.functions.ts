@@ -94,3 +94,34 @@ export const blockBusiness = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const transferBusiness = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      businessId: z.string().uuid(),
+      newOwnerId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+
+    // Ensure target profile exists
+    const { data: profile, error: pErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("id", data.newOwnerId)
+      .maybeSingle();
+    if (pErr) throw new Error(pErr.message);
+    if (!profile) throw new Error("Usuário de destino não encontrado.");
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("businesses")
+      .update({ owner_id: data.newOwnerId })
+      .eq("id", data.businessId)
+      .select("id, owner_id")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!updated) throw new Error("Empresa não encontrada.");
+    return { ok: true, owner_id: updated.owner_id };
+  });

@@ -186,6 +186,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lat: coords.lat,
         lng: coords.lng,
         hours,
+        username: form.username.trim() ? form.username.trim().toLowerCase() : null,
       };
       if (businessId) {
         const { error } = await supabase

@@ -178,8 +178,22 @@ function AdminBusinessesPage() {
     blockBiz.mutate({ id: b.id, until });
   };
 
+  // Apply filters
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (data ?? []).filter((b) => {
+      if (planFilter !== "all" && b.plan_id !== planFilter) return false;
+      if (categoryFilter !== "all" && b.category_id !== categoryFilter) return false;
+      if (q) {
+        const hay = `${b.name} ${b.slug} ${b.neighborhood ?? ""} ${b.city ?? ""} ${b.whatsapp ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [data, query, planFilter, categoryFilter]);
+
   // Reset selection when tab or list changes
-  const allIds = useMemo(() => (data ?? []).map((b) => b.id), [data]);
+  const allIds = useMemo(() => filtered.map((b) => b.id), [filtered]);
   const toggleOne = (id: string) =>
     setSelected((prev) => {
       const next = new Set(prev);

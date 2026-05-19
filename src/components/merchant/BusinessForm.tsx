@@ -352,6 +352,14 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
+      <div>
+        <Label>Localização no mapa</Label>
+        <LocationPicker
+          lat={coords.lat}
+          lng={coords.lng}
+          onChange={(lat, lng) => setCoords({ lat, lng })}
+        />
+      </div>
       {!businessId && (
         <PolicyAcceptanceList
           context="business"

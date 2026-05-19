@@ -18,11 +18,18 @@ async function assertAdmin(userId: string) {
 
 function getKeys() {
   const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-  const GOOGLE_MAPS_API_KEY =
-    process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY_1;
+  const googleKeys = Object.entries(process.env)
+    .filter(([name, value]) => /^GOOGLE_MAPS_API_KEY(?:_\d+)?$/.test(name) && Boolean(value))
+    .sort(([a], [b]) => {
+      if (a === "GOOGLE_MAPS_API_KEY") return 1;
+      if (b === "GOOGLE_MAPS_API_KEY") return -1;
+      return a.localeCompare(b, undefined, { numeric: true });
+    })
+    .map(([name, value]) => ({ name, value: value as string }));
+
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
-  if (!GOOGLE_MAPS_API_KEY) throw new Error("GOOGLE_MAPS_API_KEY não configurada");
-  return { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY };
+  if (googleKeys.length === 0) throw new Error("GOOGLE_MAPS_API_KEY não configurada");
+  return { LOVABLE_API_KEY, googleKeys };
 }
 
 function formatGooglePlacesError(status: number, body: string) {
@@ -96,7 +103,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY } = getKeys();
+    const { LOVABLE_API_KEY, googleKeys } = getKeys();
 
     const body: Record<string, unknown> = {
       textQuery: data.query,
@@ -113,23 +120,34 @@ export const searchPlaces = createServerFn({ method: "POST" })
       };
     }
 
-    const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents",
-      },
-      body: JSON.stringify(body),
-    });
+    let json: { places?: PlaceResult[] } | null = null;
+    const failedAttempts: string[] = [];
 
-    if (!res.ok) {
+    for (const googleKey of googleKeys) {
+      const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": googleKey.value,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        json = (await res.json()) as { places?: PlaceResult[] };
+        break;
+      }
+
       const txt = await res.text();
-      throw new Error(formatGooglePlacesError(res.status, txt));
+      failedAttempts.push(`${googleKey.name}: ${formatGooglePlacesError(res.status, txt)}`);
     }
-    const json = (await res.json()) as { places?: PlaceResult[] };
+
+    if (!json) {
+      throw new Error(failedAttempts.join(" "));
+    }
     const places = json.places ?? [];
 
     // Check which already exist

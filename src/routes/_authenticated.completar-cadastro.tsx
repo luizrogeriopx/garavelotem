@@ -27,6 +27,8 @@ function CompleteProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("signup");
   const [f, setF] = useState({
     full_name: "",
     birth_date: "",

@@ -49,9 +49,9 @@ export function BusinessCard({ b }: { b: BusinessCardData }) {
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <Link to="/empresa/$slug" params={{ slug: b.slug }}>
-              <h3 className="font-semibold text-sm truncate flex items-center gap-1">
-                {b.name}
-                {b.is_verified && <VerifiedBadge className="size-3.5" />}
+              <h3 className="font-semibold text-sm flex items-start gap-1 break-words">
+                <span className="line-clamp-2">{b.name}</span>
+                {b.is_verified && <VerifiedBadge className="size-3.5 shrink-0 mt-0.5" />}
               </h3>
             </Link>
             {b.short_description && (

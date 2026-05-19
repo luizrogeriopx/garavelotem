@@ -55,6 +55,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     neighborhood: "Setor Garavelo",
     logo_url: "",
     cover_url: "",
+    username: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
@@ -110,6 +111,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         neighborhood: existing.neighborhood ?? "Setor Garavelo",
         logo_url: existing.logo_url ?? "",
         cover_url: existing.cover_url ?? "",
+        username: (existing as any).username ?? "",
       });
       const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
       setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);
@@ -184,6 +186,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lat: coords.lat,
         lng: coords.lng,
         hours,
+        username: form.username.trim() ? form.username.trim().toLowerCase() : null,
       };
       if (businessId) {
         const { error } = await supabase
@@ -378,6 +381,25 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       <div>
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
+      </div>
+      <div>
+        <Label htmlFor="username">Username da empresa (URL curta)</Label>
+        <p className="text-xs text-muted-foreground mb-1">
+          Opcional. Letras minúsculas, números e _ (3 a 30). Sua página fica em{" "}
+          <span className="font-mono">garavelotem.com/{form.username || "seu_username"}</span>.
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">@</span>
+          <Input
+            id="username"
+            placeholder="termogelo"
+            maxLength={30}
+            value={form.username}
+            onChange={(e) =>
+              set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+            }
+          />
+        </div>
       </div>
       <div>
         <Label>Localização no mapa</Label>

@@ -19,7 +19,9 @@ import { Route as DivulgarRouteImport } from './routes/divulgar'
 import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PoliticasIndexRouteImport } from './routes/politicas.index'
 import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
+import { Route as PoliticasSlugRouteImport } from './routes/politicas.$slug'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
@@ -91,9 +93,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PoliticasIndexRoute = PoliticasIndexRouteImport.update({
+  id: '/politicas/',
+  path: '/politicas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriasIndexRoute = CategoriasIndexRouteImport.update({
   id: '/categorias/',
   path: '/categorias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticasSlugRoute = PoliticasSlugRouteImport.update({
+  id: '/politicas/$slug',
+  path: '/politicas/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
@@ -236,7 +248,9 @@ export interface FileRoutesByFullPath {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
+  '/politicas/': typeof PoliticasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -269,7 +283,9 @@ export interface FileRoutesByTo {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias': typeof CategoriasIndexRoute
+  '/politicas': typeof PoliticasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -304,7 +320,9 @@ export interface FileRoutesById {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
+  '/politicas/': typeof PoliticasIndexRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
@@ -339,7 +357,9 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias/'
+    | '/politicas/'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
@@ -372,7 +392,9 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias'
+    | '/politicas'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
@@ -406,7 +428,9 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias/'
+    | '/politicas/'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/empresas'
@@ -436,7 +460,9 @@ export interface RootRouteChildren {
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
+  PoliticasSlugRoute: typeof PoliticasSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
+  PoliticasIndexRoute: typeof PoliticasIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -512,11 +538,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politicas/': {
+      id: '/politicas/'
+      path: '/politicas'
+      fullPath: '/politicas/'
+      preLoaderRoute: typeof PoliticasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categorias/': {
       id: '/categorias/'
       path: '/categorias'
       fullPath: '/categorias/'
       preLoaderRoute: typeof CategoriasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politicas/$slug': {
+      id: '/politicas/$slug'
+      path: '/politicas/$slug'
+      fullPath: '/politicas/$slug'
+      preLoaderRoute: typeof PoliticasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresa/$slug': {
@@ -736,9 +776,21 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriasSlugRoute: CategoriasSlugRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
+  PoliticasSlugRoute: PoliticasSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
+  PoliticasIndexRoute: PoliticasIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

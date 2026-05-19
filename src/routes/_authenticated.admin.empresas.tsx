@@ -31,9 +31,12 @@ import {
   Loader2,
   User,
   FileCheck,
+  Ban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { blockBusiness } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas")({
   component: AdminBusinessesPage,
@@ -81,7 +84,7 @@ function AdminBusinessesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id")
+        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id, blocked_until")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -142,6 +145,30 @@ function AdminBusinessesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const blockBizFn = useServerFn(blockBusiness);
+  const blockBiz = useMutation({
+    mutationFn: async ({ id, until }: { id: string; until: string | null }) =>
+      blockBizFn({ data: { businessId: id, until } }),
+    onSuccess: (_d, vars) => {
+      toast.success(vars.until ? "Empresa bloqueada" : "Bloqueio removido");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const promptBlock = (b: { id: string; name: string; blocked_until: string | null }) => {
+    if (b.blocked_until && new Date(b.blocked_until) > new Date()) {
+      if (confirm(`Remover bloqueio de "${b.name}"?`)) blockBiz.mutate({ id: b.id, until: null });
+      return;
+    }
+    const days = prompt(`Bloquear "${b.name}" por quantos dias? (deixe vazio para 7)`, "7");
+    if (days === null) return;
+    const n = Number(days || 7);
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Número inválido");
+    const until = new Date(Date.now() + n * 86_400_000).toISOString();
+    blockBiz.mutate({ id: b.id, until });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -173,6 +200,11 @@ function AdminBusinessesPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     {b.is_verified && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
+                    {b.blocked_until && new Date(b.blocked_until) > new Date() && (
+                      <Badge variant="destructive" className="gap-1">
+                        <Ban className="h-3 w-3" />Bloqueada até {new Date(b.blocked_until).toLocaleDateString("pt-BR")}
+                      </Badge>
+                    )}
                     {user && b.owner_id === user.id && <Badge variant="outline">Sem dono</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
@@ -226,6 +258,14 @@ function AdminBusinessesPage() {
                     {b.is_verified ? <><ShieldOff className="h-4 w-4 mr-1" />Remover selo</> : <><ShieldCheck className="h-4 w-4 mr-1" />Verificar</>}
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => promptBlock({ id: b.id, name: b.name, blocked_until: b.blocked_until })}
+                >
+                  <Ban className="h-4 w-4 mr-1" />
+                  {b.blocked_until && new Date(b.blocked_until) > new Date() ? "Desbloquear" : "Bloquear"}
+                </Button>
                 <Button
                   size="sm"
                   variant="ghost"

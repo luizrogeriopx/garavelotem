@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { ShieldCheck, ShieldOff, User, Pencil, Loader2, FileCheck } from "lucide-react";
+import { ShieldCheck, ShieldOff, User, Pencil, Loader2, FileCheck, Ban, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo, useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { blockUser, deleteUser } from "@/lib/admin.functions";
 import { formatCPF, formatPhoneBR } from "@/lib/br-validation";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
@@ -28,6 +30,7 @@ type ProfileRow = {
   selfie_url: string | null;
   profile_completed: boolean;
   created_at: string;
+  blocked_until: string | null;
   roles: string[];
 };
 
@@ -43,7 +46,7 @@ function AdminUsersPage() {
       const [{ data: profiles, error: pe }, { data: roles, error: re }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at")
+          .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at, blocked_until")
           .order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
       ]);
@@ -89,6 +92,44 @@ function AdminUsersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const blockFn = useServerFn(blockUser);
+  const deleteFn = useServerFn(deleteUser);
+
+  const blockMut = useMutation({
+    mutationFn: async ({ userId, until }: { userId: string; until: string | null }) =>
+      blockFn({ data: { userId, until } }),
+    onSuccess: (_d, v) => {
+      toast.success(v.until ? "Usuário bloqueado" : "Bloqueio removido");
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (userId: string) => deleteFn({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Usuário excluído");
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const promptBlockUser = (u: ProfileRow) => {
+    const isBlocked = u.blocked_until && new Date(u.blocked_until) > new Date();
+    if (isBlocked) {
+      if (confirm(`Remover bloqueio de ${u.full_name ?? u.email}?`)) {
+        blockMut.mutate({ userId: u.id, until: null });
+      }
+      return;
+    }
+    const days = prompt(`Bloquear usuário por quantos dias? (deixe vazio para 7)`, "7");
+    if (days === null) return;
+    const n = Number(days || 7);
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Número inválido");
+    const until = new Date(Date.now() + n * 86_400_000).toISOString();
+    blockMut.mutate({ userId: u.id, until });
+  };
+
   return (
     <div className="space-y-4">
       <Input
@@ -124,6 +165,11 @@ function AdminUsersPage() {
                         <ShieldCheck className="h-3 w-3" />Admin
                       </Badge>
                     )}
+                    {u.blocked_until && new Date(u.blocked_until) > new Date() && (
+                      <Badge variant="destructive" className="gap-1">
+                        <Ban className="h-3 w-3" />Bloqueado até {new Date(u.blocked_until).toLocaleDateString("pt-BR")}
+                      </Badge>
+                    )}
                     {!u.profile_completed && <Badge variant="outline">Cadastro incompleto</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
@@ -146,6 +192,22 @@ function AdminUsersPage() {
                       <ShieldCheck className="h-4 w-4 mr-1" /> Tornar admin
                     </Button>
                   )}
+                  <Button size="sm" variant="outline" onClick={() => promptBlockUser(u)}>
+                    <Ban className="h-4 w-4 mr-1" />
+                    {u.blocked_until && new Date(u.blocked_until) > new Date() ? "Desbloquear" : "Bloquear"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => {
+                      if (confirm(`Excluir permanentemente ${u.full_name ?? u.email}? Esta ação não pode ser desfeita.`)) {
+                        deleteMut.mutate(u.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </Card>
             );

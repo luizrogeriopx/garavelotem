@@ -532,11 +532,11 @@ function TransferOwnerDialog({
       .slice(0, 30);
   }, [profiles, q]);
 
+  const transferFn = useServerFn(transferBusiness);
   const transfer = useMutation({
     mutationFn: async (newOwnerId: string) => {
       if (!business) return;
-      const { error } = await supabase.from("businesses").update({ owner_id: newOwnerId }).eq("id", business.id);
-      if (error) throw error;
+      await transferFn({ data: { businessId: business.id, newOwnerId } });
     },
     onSuccess: () => {
       toast.success("Empresa transferida");

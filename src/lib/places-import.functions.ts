@@ -25,12 +25,9 @@ function getKeys() {
   return { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY };
 }
 
-function keyFingerprint(key: string) {
-  return `${key.slice(0, 6)}...${key.slice(-4)} (${key.length} caracteres)`;
-}
-
-function formatGooglePlacesError(status: number, body: string, googleMapsKey: string) {
-  const keyHint = `Chave usada pelo app: ${keyFingerprint(googleMapsKey)}.`;
+function formatGooglePlacesError(status: number, body: string) {
+  const connectionHint =
+    "A conexão usada pelo app é 'Luiz's Google Maps Platform'. Reabra essa conexão em Connectors e confirme que a chave Google cadastrada nela é a mesma que você liberou no Google Cloud.";
   try {
     const parsed = JSON.parse(body) as {
       error?: { status?: string; message?: string; details?: Array<{ reason?: string; metadata?: { activationUrl?: string } }> };
@@ -42,7 +39,7 @@ function formatGooglePlacesError(status: number, body: string, googleMapsKey: st
         "A chave do Google Maps está bloqueando o uso da Places API (New).",
         "No Google Cloud, abra a chave de API usada na conexão e, em 'Restrições de API', adicione/permita 'Places API (New)' (places.googleapis.com).",
         "Confirme também que a Places API (New) está ativada e que o billing está habilitado no mesmo projeto da chave.",
-        keyHint,
+        connectionHint,
       ].join(" ");
     }
     if (status === 403 && parsed.error?.status === "PERMISSION_DENIED") {
@@ -50,7 +47,7 @@ function formatGooglePlacesError(status: number, body: string, googleMapsKey: st
         "Places API (New) não está ativa na chave/projeto do Google Maps conectado.",
         "Ative a Places API (New) no Google Cloud, confirme que a cobrança está habilitada e aguarde alguns minutos.",
         activationUrl ? `Link de ativação: ${activationUrl}` : null,
-        keyHint,
+        connectionHint,
       ]
         .filter(Boolean)
         .join(" ");
@@ -58,7 +55,7 @@ function formatGooglePlacesError(status: number, body: string, googleMapsKey: st
   } catch {
     // Keep the fallback below when Google returns non-JSON errors.
   }
-  return `Google Places falhou [${status}]: ${body} ${keyHint}`;
+  return `Google Places falhou [${status}]: ${body} ${connectionHint}`;
 }
 
 function slugify(s: string): string {
@@ -129,7 +126,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(formatGooglePlacesError(res.status, txt, GOOGLE_MAPS_API_KEY));
+      throw new Error(formatGooglePlacesError(res.status, txt));
     }
     const json = (await res.json()) as { places?: PlaceResult[] };
     const places = json.places ?? [];

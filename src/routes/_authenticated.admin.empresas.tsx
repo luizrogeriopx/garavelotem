@@ -84,7 +84,7 @@ function AdminBusinessesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id")
+        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id, blocked_until")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;

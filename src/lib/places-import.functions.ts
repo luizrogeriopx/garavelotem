@@ -18,7 +18,8 @@ async function assertAdmin(userId: string) {
 
 function getKeys() {
   const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-  const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+  const GOOGLE_MAPS_API_KEY =
+    process.env.GOOGLE_MAPS_API_KEY_1 ?? process.env.GOOGLE_MAPS_API_KEY;
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
   if (!GOOGLE_MAPS_API_KEY) throw new Error("GOOGLE_MAPS_API_KEY não configurada");
   return { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY };

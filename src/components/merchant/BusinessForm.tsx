@@ -92,7 +92,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     queryKey: ["business", businessId],
     enabled: !!businessId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("businesses").select("*").eq("id", businessId!).maybeSingle();
+      const { data, error } = await supabase.from("businesses").select("*, plans(slug)").eq("id", businessId!).maybeSingle();
       if (error) throw error;
       return data;
     },

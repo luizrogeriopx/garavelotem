@@ -162,6 +162,7 @@ export type Database = {
           email: string | null
           entity_type: Database["public"]["Enums"]["entity_type"]
           gallery: Json
+          google_place_id: string | null
           hours: Json
           id: string
           is_featured: boolean
@@ -201,6 +202,7 @@ export type Database = {
           email?: string | null
           entity_type?: Database["public"]["Enums"]["entity_type"]
           gallery?: Json
+          google_place_id?: string | null
           hours?: Json
           id?: string
           is_featured?: boolean
@@ -240,6 +242,7 @@ export type Database = {
           email?: string | null
           entity_type?: Database["public"]["Enums"]["entity_type"]
           gallery?: Json
+          google_place_id?: string | null
           hours?: Json
           id?: string
           is_featured?: boolean

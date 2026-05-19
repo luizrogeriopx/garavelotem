@@ -13,6 +13,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { formatCNPJ, lookupCNPJ, onlyDigits } from "@/lib/br-validation";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 function slugify(s: string) {
   return s

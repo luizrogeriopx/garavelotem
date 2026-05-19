@@ -55,6 +55,7 @@ function AdminBusinessesPage() {
   const [tab, setTab] = useState<Status>("pending");
   const [createOpen, setCreateOpen] = useState(false);
   const [transferFor, setTransferFor] = useState<{ id: string; name: string } | null>(null);
+  const [acceptsFor, setAcceptsFor] = useState<{ id: string; name: string; owner_id: string | null } | null>(null);
   const qc = useQueryClient();
 
   const { data: plans } = useQuery({

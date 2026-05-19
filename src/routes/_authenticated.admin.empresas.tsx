@@ -391,7 +391,8 @@ function AdminBusinessesPage() {
               </div>
             </Card>
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       <CreateBusinessDialog

@@ -30,8 +30,10 @@ type Place = {
   rating: number | null;
   rating_count: number | null;
   photo_name: string | null;
+  photo_url: string | null;
   already_imported: boolean;
 };
+
 
 // Aparecida de Goiânia center
 const DEFAULT_LAT = -16.8233;

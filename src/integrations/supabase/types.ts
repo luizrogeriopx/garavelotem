@@ -151,6 +151,7 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null
+          blocked_until: string | null
           category_id: string | null
           city: string | null
           cnpj: string | null
@@ -189,6 +190,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          blocked_until?: string | null
           category_id?: string | null
           city?: string | null
           cnpj?: string | null
@@ -227,6 +229,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          blocked_until?: string | null
           category_id?: string | null
           city?: string | null
           cnpj?: string | null
@@ -526,6 +529,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           birth_date: string | null
+          blocked_until: string | null
           cpf: string | null
           created_at: string
           email: string | null
@@ -540,6 +544,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           birth_date?: string | null
+          blocked_until?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
@@ -554,6 +559,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           birth_date?: string | null
+          blocked_until?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null

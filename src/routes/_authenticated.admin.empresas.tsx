@@ -36,7 +36,7 @@ import {
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { blockBusiness } from "@/lib/admin.functions";
+import { blockBusiness, transferBusiness } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas")({
   component: AdminBusinessesPage,

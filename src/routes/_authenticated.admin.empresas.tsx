@@ -31,9 +31,12 @@ import {
   Loader2,
   User,
   FileCheck,
+  Ban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { blockBusiness } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas")({
   component: AdminBusinessesPage,

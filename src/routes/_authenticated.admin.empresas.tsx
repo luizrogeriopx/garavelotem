@@ -65,6 +65,9 @@ function AdminBusinessesPage() {
   const [transferFor, setTransferFor] = useState<{ id: string; name: string } | null>(null);
   const [acceptsFor, setAcceptsFor] = useState<{ id: string; name: string; owner_id: string | null } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const [planFilter, setPlanFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const qc = useQueryClient();
 
   const { data: plans } = useQuery({

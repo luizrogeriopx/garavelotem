@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { ShieldCheck, ShieldOff, User, Pencil, Loader2, FileCheck, Ban, Trash2 } from "lucide-react";
+import { ShieldCheck, ShieldOff, User, Pencil, Loader2, FileCheck, Ban, Trash2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -32,6 +32,7 @@ type ProfileRow = {
   created_at: string;
   blocked_until: string | null;
   roles: string[];
+  businesses: { id: string; name: string; slug: string }[];
 };
 
 function AdminUsersPage() {
@@ -43,22 +44,34 @@ function AdminUsersPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const [{ data: profiles, error: pe }, { data: roles, error: re }] = await Promise.all([
+      const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: bizs, error: be }] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at, blocked_until")
           .order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
+        supabase.from("businesses").select("id, name, slug, owner_id").not("owner_id", "is", null),
       ]);
       if (pe) throw pe;
       if (re) throw re;
+      if (be) throw be;
       const roleMap = new Map<string, string[]>();
       (roles ?? []).forEach((r: any) => {
         const arr = roleMap.get(r.user_id) ?? [];
         arr.push(r.role);
         roleMap.set(r.user_id, arr);
       });
-      return (profiles ?? []).map((p: any) => ({ ...p, roles: roleMap.get(p.id) ?? [] })) as ProfileRow[];
+      const bizMap = new Map<string, { id: string; name: string; slug: string }[]>();
+      (bizs ?? []).forEach((b: any) => {
+        const arr = bizMap.get(b.owner_id) ?? [];
+        arr.push({ id: b.id, name: b.name, slug: b.slug });
+        bizMap.set(b.owner_id, arr);
+      });
+      return (profiles ?? []).map((p: any) => ({
+        ...p,
+        roles: roleMap.get(p.id) ?? [],
+        businesses: bizMap.get(p.id) ?? [],
+      })) as ProfileRow[];
     },
   });
 
@@ -175,6 +188,22 @@ function AdminUsersPage() {
                   <p className="text-xs text-muted-foreground truncate">
                     {u.email ?? "—"} · {u.phone ? formatPhoneBR(u.phone) : "sem tel."} · CPF {u.cpf ? formatCPF(u.cpf) : "—"}
                   </p>
+                  {u.businesses.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      <Building2 className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Empresas:</span>
+                      {u.businesses.map((b) => (
+                        <Link
+                          key={b.id}
+                          to="/empresa/$slug"
+                          params={{ slug: b.slug }}
+                          className="text-xs underline hover:text-primary"
+                        >
+                          {b.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0 flex-wrap justify-end">
                   <Button size="sm" variant="outline" onClick={() => setAcceptancesFor(u)}>

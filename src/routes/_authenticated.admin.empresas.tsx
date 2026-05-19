@@ -432,7 +432,7 @@ function AdminBusinessesPage() {
                 {b.whatsapp && (
                   <Button asChild variant="outline" size="sm" className="text-green-700 hover:text-green-700">
                     <a
-                      href={buildClaimInviteLink({ whatsapp: b.whatsapp, slug: b.slug })}
+                      href={buildClaimInviteLink({ whatsapp: b.whatsapp, slug: b.slug, username: b.username, template: claimTemplate })}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

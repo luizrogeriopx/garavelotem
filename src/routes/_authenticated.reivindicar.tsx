@@ -42,6 +42,9 @@ type EntityType = "pf" | "pj";
 function ClaimBusinessPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("claim");
+
 
   const [search, setSearch] = useState("");
   const [businessId, setBusinessId] = useState<string>("");

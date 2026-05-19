@@ -174,6 +174,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         cnpj: entityType === "pj" ? onlyDigits(cnpj) : null,
         legal_name: entityType === "pj" ? legalName || null : profile?.full_name ?? null,
         cpf: entityType === "pf" ? profile?.cpf ?? null : null,
+        lat: coords.lat,
+        lng: coords.lng,
       };
       if (businessId) {
         const { error } = await supabase

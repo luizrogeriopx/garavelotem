@@ -31,6 +31,14 @@ function formatGooglePlacesError(status: number, body: string) {
       error?: { status?: string; message?: string; details?: Array<{ reason?: string; metadata?: { activationUrl?: string } }> };
     };
     const activationUrl = parsed.error?.details?.find((detail) => detail.metadata?.activationUrl)?.metadata?.activationUrl;
+    const reason = parsed.error?.details?.find((detail) => detail.reason)?.reason;
+    if (status === 403 && reason === "API_KEY_SERVICE_BLOCKED") {
+      return [
+        "A chave do Google Maps está bloqueando o uso da Places API (New).",
+        "No Google Cloud, abra a chave de API usada na conexão e, em 'Restrições de API', adicione/permita 'Places API (New)' (places.googleapis.com).",
+        "Confirme também que a Places API (New) está ativada e que o billing está habilitado no mesmo projeto da chave.",
+      ].join(" ");
+    }
     if (status === 403 && parsed.error?.status === "PERMISSION_DENIED") {
       return [
         "Places API (New) não está ativa na chave/projeto do Google Maps conectado.",

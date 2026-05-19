@@ -88,6 +88,10 @@ function CompleteProfilePage() {
       toast.error("Idade mínima de 16 anos.");
       return;
     }
+    if (!allAccepted(requiredPolicies, accepted)) {
+      toast.error("Aceite todas as políticas obrigatórias para concluir.");
+      return;
+    }
     setLoading(true);
     try {
       const { error } = await supabase

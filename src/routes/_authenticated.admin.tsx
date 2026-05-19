@@ -23,6 +23,7 @@ const tabs = [
   { to: "/admin/banners", label: "Banners", icon: Image },
   { to: "/admin/categorias", label: "Categorias", icon: Tag },
   { to: "/admin/planos", label: "Planos", icon: CreditCard },
+  { to: "/admin/politicas", label: "Políticas", icon: FileText },
 ];
 
 function AdminLayout() {

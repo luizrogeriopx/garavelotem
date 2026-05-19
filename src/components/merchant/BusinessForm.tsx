@@ -399,6 +399,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
               set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
             }
           />
+        </div>
       </div>
       <div>
         <Label>Localização no mapa</Label>

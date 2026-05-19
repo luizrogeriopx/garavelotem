@@ -12,6 +12,12 @@ import {
 } from "@/lib/br-validation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 export const Route = createFileRoute("/_authenticated/completar-cadastro")({
   component: CompleteProfilePage,

@@ -26,6 +26,7 @@ const tabs = [
   { to: "/admin/categorias", label: "Categorias", icon: Tag },
   { to: "/admin/planos", label: "Planos", icon: CreditCard },
   { to: "/admin/politicas", label: "Políticas", icon: FileText },
+  { to: "/admin/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 function AdminLayout() {

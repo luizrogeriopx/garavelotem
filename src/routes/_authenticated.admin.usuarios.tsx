@@ -158,6 +158,10 @@ function AdminUsersPage() {
         onClose={() => setEditing(null)}
         onSaved={() => qc.invalidateQueries({ queryKey: ["admin-users"] })}
       />
+      <UserAcceptancesDialog
+        user={acceptancesFor}
+        onClose={() => setAcceptancesFor(null)}
+      />
     </div>
   );
 }

@@ -260,6 +260,14 @@ function AdminBusinessesPage() {
                 )}
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => promptBlock({ id: b.id, name: b.name, blocked_until: b.blocked_until })}
+                >
+                  <Ban className="h-4 w-4 mr-1" />
+                  {b.blocked_until && new Date(b.blocked_until) > new Date() ? "Desbloquear" : "Bloquear"}
+                </Button>
+                <Button
+                  size="sm"
                   variant="ghost"
                   className="text-destructive"
                   onClick={() => { if (confirm(`Excluir definitivamente "${b.name}"? Esta ação não pode ser desfeita.`)) removeBusiness.mutate(b.id); }}

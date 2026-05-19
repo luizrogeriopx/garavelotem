@@ -208,6 +208,9 @@ function AdminBusinessesPage() {
                 <Button variant="outline" size="sm" onClick={() => setTransferFor({ id: b.id, name: b.name })}>
                   <UserCog className="h-4 w-4 mr-1" />Transferir
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => setAcceptsFor({ id: b.id, name: b.name, owner_id: b.owner_id })}>
+                  <FileCheck className="h-4 w-4 mr-1" />Aceites
+                </Button>
                 {tab !== "approved" && (
                   <Button size="sm" onClick={() => updateStatus.mutate({ id: b.id, status: "approved" })}>
                     <CheckCircle2 className="h-4 w-4 mr-1" />Aprovar

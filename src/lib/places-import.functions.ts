@@ -25,6 +25,27 @@ function getKeys() {
   return { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY };
 }
 
+function formatGooglePlacesError(status: number, body: string) {
+  try {
+    const parsed = JSON.parse(body) as {
+      error?: { status?: string; message?: string; details?: Array<{ reason?: string; metadata?: { activationUrl?: string } }> };
+    };
+    const activationUrl = parsed.error?.details?.find((detail) => detail.metadata?.activationUrl)?.metadata?.activationUrl;
+    if (status === 403 && parsed.error?.status === "PERMISSION_DENIED") {
+      return [
+        "Places API (New) não está ativa na chave/projeto do Google Maps conectado.",
+        "Ative a Places API (New) no Google Cloud, confirme que a cobrança está habilitada e aguarde alguns minutos.",
+        activationUrl ? `Link de ativação: ${activationUrl}` : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    }
+  } catch {
+    // Keep the fallback below when Google returns non-JSON errors.
+  }
+  return `Google Places falhou [${status}]: ${body}`;
+}
+
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -93,7 +114,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(`Google Places falhou [${res.status}]: ${txt}`);
+      throw new Error(formatGooglePlacesError(res.status, txt));
     }
     const json = (await res.json()) as { places?: PlaceResult[] };
     const places = json.places ?? [];

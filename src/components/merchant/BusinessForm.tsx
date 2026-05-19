@@ -19,6 +19,7 @@ import {
   recordAcceptances,
   allAccepted,
 } from "@/components/site/PolicyAcceptance";
+import { LocationPicker } from "@/components/merchant/LocationPicker";
 
 function slugify(s: string) {
   return s

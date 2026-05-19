@@ -250,6 +250,14 @@ export const importPlaces = createServerFn({ method: "POST" })
     await assertAdmin(context.userId);
     const { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY } = getKeys();
 
+    // Resolve Free plan id (imported businesses default to Free)
+    const { data: freePlan } = await supabaseAdmin
+      .from("plans")
+      .select("id")
+      .eq("slug", "free")
+      .maybeSingle();
+    const freePlanId = freePlan?.id ?? null;
+
     let imported = 0;
     const skipped: string[] = [];
     const errors: string[] = [];
@@ -305,6 +313,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         lat: item.lat ?? null,
         lng: item.lng ?? null,
         category_id: item.category_id ?? null,
+        plan_id: freePlanId,
         short_description: item.short_description ?? null,
         logo_url: logoUrl,
         cover_url: coverUrl,

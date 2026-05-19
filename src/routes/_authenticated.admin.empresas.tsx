@@ -200,6 +200,11 @@ function AdminBusinessesPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
                     {b.is_verified && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
+                    {b.blocked_until && new Date(b.blocked_until) > new Date() && (
+                      <Badge variant="destructive" className="gap-1">
+                        <Ban className="h-3 w-3" />Bloqueada até {new Date(b.blocked_until).toLocaleDateString("pt-BR")}
+                      </Badge>
+                    )}
                     {user && b.owner_id === user.id && <Badge variant="outline">Sem dono</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">

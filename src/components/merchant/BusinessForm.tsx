@@ -402,7 +402,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
               <span className="text-muted-foreground">@</span>
               <Input
                 id="username"
-                placeholder="termogelo"
+                placeholder="empresa"
                 maxLength={30}
                 disabled={!isPro}
                 value={form.username}

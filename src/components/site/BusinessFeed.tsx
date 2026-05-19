@@ -137,7 +137,6 @@ function Comments({
   qc,
 }: {
   postId: string;
-  businessId: string;
   user: ReturnType<typeof useAuth>["user"];
   qc: ReturnType<typeof useQueryClient>;
 }) {

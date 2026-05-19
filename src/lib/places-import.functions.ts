@@ -313,6 +313,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         lat: item.lat ?? null,
         lng: item.lng ?? null,
         category_id: item.category_id ?? null,
+        plan_id: freePlanId,
         short_description: item.short_description ?? null,
         logo_url: logoUrl,
         cover_url: coverUrl,

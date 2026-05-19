@@ -108,6 +108,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setEntityType((existing.entity_type as "pf" | "pj") ?? "pf");
       setCnpj(existing.cnpj ? formatCNPJ(existing.cnpj) : "");
       setLegalName(existing.legal_name ?? "");
+      setOwnerIdState(existing.owner_id ?? null);
     }
   }, [existing]);
 

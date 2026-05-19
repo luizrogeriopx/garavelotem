@@ -316,6 +316,51 @@ export type Database = {
         }
         Relationships: []
       }
+      change_requests: {
+        Row: {
+          admin_note: string | null
+          business_id: string | null
+          changes: Json
+          created_at: string
+          id: string
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["change_request_status"]
+          target_type: Database["public"]["Enums"]["change_request_target"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          business_id?: string | null
+          changes?: Json
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["change_request_status"]
+          target_type: Database["public"]["Enums"]["change_request_target"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          business_id?: string | null
+          changes?: Json
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["change_request_status"]
+          target_type?: Database["public"]["Enums"]["change_request_target"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           business_id: string
@@ -819,6 +864,8 @@ export type Database = {
     Enums: {
       app_role: "admin" | "merchant" | "user"
       business_status: "pending" | "approved" | "rejected" | "suspended"
+      change_request_status: "pending" | "approved" | "rejected"
+      change_request_target: "profile" | "business"
       claim_entity_type: "pf" | "pj"
       claim_status: "pending" | "approved" | "rejected"
       entity_type: "pf" | "pj"
@@ -961,6 +1008,8 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "merchant", "user"],
       business_status: ["pending", "approved", "rejected", "suspended"],
+      change_request_status: ["pending", "approved", "rejected"],
+      change_request_target: ["profile", "business"],
       claim_entity_type: ["pf", "pj"],
       claim_status: ["pending", "approved", "rejected"],
       entity_type: ["pf", "pj"],

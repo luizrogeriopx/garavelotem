@@ -8,10 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog,
 } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
+import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   component: AccountPage,
@@ -36,6 +37,7 @@ function AccountPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
+  const [profileChangeOpen, setProfileChangeOpen] = useState(false);
 
 
   const { data: businesses, isLoading } = useQuery({
@@ -95,6 +97,14 @@ function AccountPage() {
         </div>
         <div className="flex gap-2">
           <AdminLinkButton />
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => setProfileChangeOpen(true)}
+          >
+            <UserCog className="size-4" /> Alterar meus dados
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -224,6 +234,20 @@ function AccountPage() {
           businessName={migrateBiz.name}
         />
       )}
+      <ChangeRequestDialog
+        open={profileChangeOpen}
+        onOpenChange={setProfileChangeOpen}
+        targetType="profile"
+        title="Solicitar alteração de dados pessoais"
+        description="Nome, data de nascimento, CPF, RG e foto só podem ser alterados pelo administrador. Preencha o que precisa ser corrigido."
+        fields={[
+          { key: "full_name", label: "Novo nome completo" },
+          { key: "birth_date", label: "Nova data de nascimento", placeholder: "AAAA-MM-DD" },
+          { key: "cpf", label: "Novo CPF" },
+          { key: "rg", label: "Novo RG" },
+          { key: "selfie", label: "Solicitar nova foto?", placeholder: "Sim / Não" },
+        ]}
+      />
     </div>
   );
 }

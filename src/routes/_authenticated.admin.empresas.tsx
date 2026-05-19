@@ -32,12 +32,14 @@ import {
   User,
   FileCheck,
   Ban,
+  MessageCircle,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { blockBusiness, transferBusiness } from "@/lib/admin.functions";
+import { buildClaimInviteLink } from "@/lib/whatsapp-claim";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas")({
   component: AdminBusinessesPage,
@@ -345,6 +347,17 @@ function AdminBusinessesPage() {
                     <ExternalLink className="h-4 w-4 mr-1" />Ver
                   </Link>
                 </Button>
+                {b.whatsapp && (
+                  <Button asChild variant="outline" size="sm" className="text-green-700 hover:text-green-700">
+                    <a
+                      href={buildClaimInviteLink({ whatsapp: b.whatsapp, slug: b.slug })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-1" />Convite WhatsApp
+                    </a>
+                  </Button>
+                )}
                 <Button asChild variant="outline" size="sm">
                   <Link to="/empresa/$id/editar" params={{ id: b.id }}>
                     <Pencil className="h-4 w-4 mr-1" />Editar

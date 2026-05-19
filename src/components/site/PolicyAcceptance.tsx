@@ -28,6 +28,8 @@ export function usePoliciesForContext(context: PolicyContext) {
   });
 }
 
+import { recordPolicyAcceptances } from "@/lib/policies.functions";
+
 export async function recordAcceptances(params: {
   userId: string;
   policies: AcceptablePolicy[];
@@ -36,16 +38,14 @@ export async function recordAcceptances(params: {
   claimId?: string | null;
 }) {
   if (!params.policies.length) return;
-  const rows = params.policies.map((p) => ({
-    user_id: params.userId,
-    policy_id: p.id,
-    policy_slug: p.slug,
-    context: params.context,
-    business_id: params.businessId ?? null,
-    claim_id: params.claimId ?? null,
-  }));
-  const { error } = await supabase.from("policy_acceptances").insert(rows);
-  if (error) throw error;
+  await recordPolicyAcceptances({
+    data: {
+      policies: params.policies.map((p) => ({ id: p.id, slug: p.slug })),
+      context: params.context,
+      businessId: params.businessId ?? null,
+      claimId: params.claimId ?? null,
+    },
+  });
 }
 
 export function PolicyAcceptanceList({

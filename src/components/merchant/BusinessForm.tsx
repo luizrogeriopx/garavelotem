@@ -183,6 +183,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         cpf: entityType === "pf" ? profile?.cpf ?? null : null,
         lat: coords.lat,
         lng: coords.lng,
+        hours,
       };
       if (businessId) {
         const { error } = await supabase

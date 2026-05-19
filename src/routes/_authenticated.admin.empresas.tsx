@@ -33,6 +33,8 @@ import {
   FileCheck,
   Ban,
   MessageCircle,
+  Search,
+  X,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";

@@ -135,7 +135,7 @@ function ClaimBusinessPage() {
   });
 
   return (
-    <div className="container max-w-3xl py-8 space-y-6">
+    <div className="container max-w-3xl py-8 px-4 sm:px-6 space-y-6">
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <ShieldCheck className="size-6 text-primary" />

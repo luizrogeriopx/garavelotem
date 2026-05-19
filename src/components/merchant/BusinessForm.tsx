@@ -174,13 +174,21 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         if (error) throw error;
         toast.success("Alterações salvas.");
       } else {
-        const { error } = await supabase.from("businesses").insert({
+        const { data: inserted, error } = await supabase.from("businesses").insert({
           ...base,
           owner_id: user.id,
           slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
           status: "pending",
-        });
+        }).select("id").single();
         if (error) throw error;
+        if (requiredPolicies && inserted) {
+          await recordAcceptances({
+            userId: user.id,
+            policies: requiredPolicies,
+            context: "business",
+            businessId: inserted.id,
+          });
+        }
         toast.success("Empresa enviada para análise.");
       }
       navigate({ to: "/conta" });

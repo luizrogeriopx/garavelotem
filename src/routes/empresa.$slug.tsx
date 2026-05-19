@@ -142,6 +142,8 @@ export function BusinessPageView({ business: b }: { business: any }) {
             </section>
           );
         })()}
+
+        <BusinessReviews businessId={b.id} />
       </div>
     </div>
   );

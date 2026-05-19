@@ -269,18 +269,16 @@ function AcceptancesDialog({
     queryKey: ["business-acceptances", business?.id, business?.owner_id],
     enabled: !!business,
     queryFn: async () => {
-      // Acceptances tied to this business (context business/claim)
       const { data: byBiz } = await supabase
         .from("policy_acceptances")
-        .select("id,policy_slug,context,accepted_at,user_id,claim_id")
+        .select("id,policy_slug,context,accepted_at,user_id,claim_id,ip_address,user_agent")
         .eq("business_id", business!.id)
         .order("accepted_at", { ascending: false });
-      // Owner signup acceptances
       let byOwner: any[] = [];
       if (business!.owner_id) {
         const { data: own } = await supabase
           .from("policy_acceptances")
-          .select("id,policy_slug,context,accepted_at,user_id")
+          .select("id,policy_slug,context,accepted_at,user_id,ip_address,user_agent")
           .eq("user_id", business!.owner_id)
           .eq("context", "signup")
           .order("accepted_at", { ascending: false });
@@ -301,17 +299,23 @@ function AcceptancesDialog({
   });
 
   const renderRow = (r: any) => (
-    <li key={r.id} className="py-2 text-sm flex justify-between gap-2 border-b last:border-0">
-      <div>
+    <li key={r.id} className="py-2 text-sm border-b last:border-0 space-y-1">
+      <div className="flex justify-between gap-2 flex-wrap">
         <p className="font-medium">{data?.titleMap.get(r.policy_slug) ?? r.policy_slug}</p>
-        <p className="text-xs text-muted-foreground">
-          Contexto: {r.context}
-          {r.claim_id ? " · via reivindicação" : ""}
-        </p>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {new Date(r.accepted_at).toLocaleString("pt-BR")}
+        </span>
       </div>
-      <span className="text-xs text-muted-foreground whitespace-nowrap">
-        {new Date(r.accepted_at).toLocaleString("pt-BR")}
-      </span>
+      <p className="text-xs text-muted-foreground">
+        Contexto: {r.context}
+        {r.claim_id ? " · via reivindicação" : ""}
+        {" · IP: "}<span className="font-mono">{r.ip_address ?? "—"}</span>
+      </p>
+      {r.user_agent && (
+        <p className="text-xs text-muted-foreground break-words">
+          <span className="font-mono">{r.user_agent}</span>
+        </p>
+      )}
     </li>
   );
 

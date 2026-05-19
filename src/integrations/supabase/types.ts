@@ -418,8 +418,10 @@ export type Database = {
           claim_id: string | null
           context: string
           id: string
+          ip_address: string | null
           policy_id: string
           policy_slug: string
+          user_agent: string | null
           user_id: string
         }
         Insert: {
@@ -428,8 +430,10 @@ export type Database = {
           claim_id?: string | null
           context: string
           id?: string
+          ip_address?: string | null
           policy_id: string
           policy_slug: string
+          user_agent?: string | null
           user_id: string
         }
         Update: {
@@ -438,8 +442,10 @@ export type Database = {
           claim_id?: string | null
           context?: string
           id?: string
+          ip_address?: string | null
           policy_id?: string
           policy_slug?: string
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: [

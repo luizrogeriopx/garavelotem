@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ShieldCheck, ShieldOff, User, Pencil, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { ShieldCheck, ShieldOff, User, Pencil, Loader2, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo, useEffect } from "react";
 import { formatCPF, formatPhoneBR } from "@/lib/br-validation";
@@ -35,6 +35,7 @@ function AdminUsersPage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<ProfileRow | null>(null);
+  const [acceptancesFor, setAcceptancesFor] = useState<ProfileRow | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],
@@ -107,7 +108,9 @@ function AdminUsersPage() {
             return (
               <Card key={u.id} className="p-3 flex items-center gap-3">
                 <div className="size-10 rounded-full bg-muted grid place-items-center overflow-hidden shrink-0">
-                  {u.avatar_url ? (
+                  {u.selfie_url ? (
+                    <img src={u.selfie_url} alt="selfie" className="size-full object-cover" />
+                  ) : u.avatar_url ? (
                     <img src={u.avatar_url} alt="" className="size-full object-cover" />
                   ) : (
                     <User className="size-5 text-muted-foreground" />
@@ -127,7 +130,10 @@ function AdminUsersPage() {
                     {u.email ?? "—"} · {u.phone ? formatPhoneBR(u.phone) : "sem tel."} · CPF {u.cpf ? formatCPF(u.cpf) : "—"}
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+                  <Button size="sm" variant="outline" onClick={() => setAcceptancesFor(u)}>
+                    <FileCheck className="h-4 w-4 mr-1" /> Aceites
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => setEditing(u)}>
                     <Pencil className="h-4 w-4 mr-1" /> Editar
                   </Button>
@@ -151,6 +157,10 @@ function AdminUsersPage() {
         user={editing}
         onClose={() => setEditing(null)}
         onSaved={() => qc.invalidateQueries({ queryKey: ["admin-users"] })}
+      />
+      <UserAcceptancesDialog
+        user={acceptancesFor}
+        onClose={() => setAcceptancesFor(null)}
       />
     </div>
   );
@@ -188,12 +198,15 @@ function EditUserDialog({
       });
       setSelfieUrl(null);
       if (user.selfie_url) {
-        // selfie_url is the storage path inside the user-selfies bucket
-        supabase.storage
-          .from("user-selfies")
-          .createSignedUrl(user.selfie_url, 60 * 10)
-          .then(({ data }) => setSelfieUrl(data?.signedUrl ?? null))
-          .catch(() => setSelfieUrl(null));
+        if (/^https?:\/\//i.test(user.selfie_url)) {
+          setSelfieUrl(user.selfie_url);
+        } else {
+          supabase.storage
+            .from("user-selfies")
+            .createSignedUrl(user.selfie_url, 60 * 10)
+            .then(({ data }) => setSelfieUrl(data?.signedUrl ?? null))
+            .catch(() => setSelfieUrl(null));
+        }
       }
     }
   }, [user]);
@@ -285,3 +298,81 @@ function EditUserDialog({
     </Dialog>
   );
 }
+
+function UserAcceptancesDialog({
+  user,
+  onClose,
+}: {
+  user: ProfileRow | null;
+  onClose: () => void;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["user-acceptances", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: accs, error } = await supabase
+        .from("policy_acceptances")
+        .select("id,policy_slug,context,accepted_at,ip_address,user_agent,business_id,claim_id")
+        .eq("user_id", user!.id)
+        .order("accepted_at", { ascending: false });
+      if (error) throw error;
+      const slugs = Array.from(new Set((accs ?? []).map((r: any) => r.policy_slug)));
+      const titleMap = new Map<string, string>();
+      if (slugs.length) {
+        const { data: pols } = await supabase
+          .from("policies")
+          .select("slug,title")
+          .in("slug", slugs);
+        (pols ?? []).forEach((p: any) => titleMap.set(p.slug, p.title));
+      }
+      return { rows: accs ?? [], titleMap };
+    },
+  });
+
+  return (
+    <Dialog open={!!user} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Aceites de políticas — {user?.full_name ?? user?.email}</DialogTitle>
+          <DialogDescription>
+            Registros de aceite com data, hora, IP e dispositivo.
+          </DialogDescription>
+        </DialogHeader>
+        {isLoading ? (
+          <p className="text-muted-foreground py-4">Carregando…</p>
+        ) : !data || data.rows.length === 0 ? (
+          <p className="text-muted-foreground py-4">Nenhum aceite registrado.</p>
+        ) : (
+          <ul className="divide-y">
+            {data.rows.map((r: any) => (
+              <li key={r.id} className="py-3 text-sm space-y-1">
+                <div className="flex justify-between gap-2 flex-wrap">
+                  <p className="font-medium">
+                    {data.titleMap.get(r.policy_slug) ?? r.policy_slug}
+                  </p>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(r.accepted_at).toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Contexto: <span className="font-mono">{r.context}</span>
+                  {r.business_id ? " · empresa" : ""}
+                  {r.claim_id ? " · reivindicação" : ""}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  IP: <span className="font-mono">{r.ip_address ?? "—"}</span>
+                </p>
+                {r.user_agent && (
+                  <p className="text-xs text-muted-foreground break-words">
+                    Dispositivo: <span className="font-mono">{r.user_agent}</span>
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+

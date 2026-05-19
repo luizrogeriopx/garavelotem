@@ -260,6 +260,14 @@ function ClaimBusinessPage() {
           </div>
         </div>
 
+        <PolicyAcceptanceList
+          context="claim"
+          accepted={accepted}
+          onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+        />
+
+
+
         <Button
           onClick={() => submit.mutate()}
           disabled={submit.isPending}

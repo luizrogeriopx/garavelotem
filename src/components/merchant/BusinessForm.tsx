@@ -58,6 +58,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [hours, setHours] = useState<WeekHours>(defaultHours());
   const [changeReqOpen, setChangeReqOpen] = useState(false);
   const isEditing = !!businessId;
 

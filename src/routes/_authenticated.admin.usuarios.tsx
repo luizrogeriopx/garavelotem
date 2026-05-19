@@ -188,6 +188,22 @@ function AdminUsersPage() {
                   <p className="text-xs text-muted-foreground truncate">
                     {u.email ?? "—"} · {u.phone ? formatPhoneBR(u.phone) : "sem tel."} · CPF {u.cpf ? formatCPF(u.cpf) : "—"}
                   </p>
+                  {u.businesses.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      <Building2 className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Empresas:</span>
+                      {u.businesses.map((b) => (
+                        <Link
+                          key={b.id}
+                          to="/empresa/$slug"
+                          params={{ slug: b.slug }}
+                          className="text-xs underline hover:text-primary"
+                        >
+                          {b.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0 flex-wrap justify-end">
                   <Button size="sm" variant="outline" onClick={() => setAcceptancesFor(u)}>

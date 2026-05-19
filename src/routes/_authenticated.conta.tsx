@@ -22,6 +22,7 @@ type BizRow = {
   id: string;
   name: string;
   slug: string;
+  username: string | null;
   status: string;
   logo_url: string | null;
   is_verified: boolean;
@@ -46,7 +47,7 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, views_count, whatsapp_clicks, entity_type, migration_status, plans(slug, name)")
+        .select("id, name, slug, username, status, logo_url, is_verified, views_count, whatsapp_clicks, entity_type, migration_status, plans(slug, name)")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -195,9 +196,15 @@ function AccountPage() {
                 )}
                 {b.status === "approved" && (
                   <Button asChild size="sm" variant="ghost" className="rounded-full">
-                    <Link to="/empresa/$slug" params={{ slug: b.slug }}>
-                      <ExternalLink className="size-4" /> Ver página
-                    </Link>
+                    {b.username ? (
+                      <Link to="/$username" params={{ username: b.username }}>
+                        <ExternalLink className="size-4" /> Ver página
+                      </Link>
+                    ) : (
+                      <Link to="/empresa/$slug" params={{ slug: b.slug }}>
+                        <ExternalLink className="size-4" /> Ver página
+                      </Link>
+                    )}
                   </Button>
                 )}
                 {b.entity_type === "pf" && b.migration_status !== "pending" && (

@@ -93,7 +93,7 @@ function AdminBusinessesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, category_id, owner_id, blocked_until")
+        .select("id, name, slug, username, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, category_id, owner_id, blocked_until")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -185,7 +185,7 @@ function AdminBusinessesPage() {
       if (planFilter !== "all" && b.plan_id !== planFilter) return false;
       if (categoryFilter !== "all" && b.category_id !== categoryFilter) return false;
       if (q) {
-        const hay = `${b.name} ${b.slug} ${b.neighborhood ?? ""} ${b.city ?? ""} ${b.whatsapp ?? ""}`.toLowerCase();
+        const hay = `${b.name} ${b.slug} ${b.username ?? ""} ${b.neighborhood ?? ""} ${b.city ?? ""} ${b.whatsapp ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -406,9 +406,15 @@ function AdminBusinessesPage() {
                   </Select>
                 )}
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/empresa/$slug" params={{ slug: b.slug }}>
-                    <ExternalLink className="h-4 w-4 mr-1" />Ver
-                  </Link>
+                  {b.username ? (
+                    <Link to="/$username" params={{ username: b.username }}>
+                      <ExternalLink className="h-4 w-4 mr-1" />Ver
+                    </Link>
+                  ) : (
+                    <Link to="/empresa/$slug" params={{ slug: b.slug }}>
+                      <ExternalLink className="h-4 w-4 mr-1" />Ver
+                    </Link>
+                  )}
                 </Button>
                 {b.whatsapp && (
                   <Button asChild variant="outline" size="sm" className="text-green-700 hover:text-green-700">

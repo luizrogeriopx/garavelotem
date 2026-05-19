@@ -32,7 +32,7 @@ type ProfileRow = {
   created_at: string;
   blocked_until: string | null;
   roles: string[];
-  businesses: { id: string; name: string; slug: string }[];
+  businesses: { id: string; name: string; slug: string; username: string | null }[];
 };
 
 function AdminUsersPage() {
@@ -50,7 +50,7 @@ function AdminUsersPage() {
           .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at, blocked_until")
           .order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
-        supabase.from("businesses").select("id, name, slug, owner_id").not("owner_id", "is", null),
+        supabase.from("businesses").select("id, name, slug, username, owner_id").not("owner_id", "is", null),
       ]);
       if (pe) throw pe;
       if (re) throw re;
@@ -61,10 +61,10 @@ function AdminUsersPage() {
         arr.push(r.role);
         roleMap.set(r.user_id, arr);
       });
-      const bizMap = new Map<string, { id: string; name: string; slug: string }[]>();
+      const bizMap = new Map<string, { id: string; name: string; slug: string; username: string | null }[]>();
       (bizs ?? []).forEach((b: any) => {
         const arr = bizMap.get(b.owner_id) ?? [];
-        arr.push({ id: b.id, name: b.name, slug: b.slug });
+        arr.push({ id: b.id, name: b.name, slug: b.slug, username: b.username ?? null });
         bizMap.set(b.owner_id, arr);
       });
       return (profiles ?? []).map((p: any) => ({
@@ -193,14 +193,25 @@ function AdminUsersPage() {
                       <Building2 className="h-3 w-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">Empresas:</span>
                       {u.businesses.map((b) => (
-                        <Link
-                          key={b.id}
-                          to="/empresa/$slug"
-                          params={{ slug: b.slug }}
-                          className="text-xs underline hover:text-primary"
-                        >
-                          {b.name}
-                        </Link>
+                        b.username ? (
+                          <Link
+                            key={b.id}
+                            to="/$username"
+                            params={{ username: b.username }}
+                            className="text-xs underline hover:text-primary"
+                          >
+                            {b.name}
+                          </Link>
+                        ) : (
+                          <Link
+                            key={b.id}
+                            to="/empresa/$slug"
+                            params={{ slug: b.slug }}
+                            className="text-xs underline hover:text-primary"
+                          >
+                            {b.name}
+                          </Link>
+                        )
                       ))}
                     </div>
                   )}

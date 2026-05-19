@@ -32,6 +32,7 @@ type ProfileRow = {
   created_at: string;
   blocked_until: string | null;
   roles: string[];
+  businesses: { id: string; name: string; slug: string }[];
 };
 
 function AdminUsersPage() {

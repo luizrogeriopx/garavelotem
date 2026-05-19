@@ -132,7 +132,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
         "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
         "Content-Type": "application/json",
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents",
+          "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents,places.photos",
       },
       body: JSON.stringify(body),
     });
@@ -170,6 +170,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
           hours: p.regularOpeningHours?.weekdayDescriptions ?? [],
           rating: p.rating ?? null,
           rating_count: p.userRatingCount ?? null,
+          photo_name: p.photos?.[0]?.name ?? null,
           already_imported: existingSet.has(p.id),
         };
       }),

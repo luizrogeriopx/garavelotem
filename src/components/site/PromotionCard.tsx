@@ -54,10 +54,12 @@ export function PromotionCard({ p }: { p: PromotionCardData }) {
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-auto pt-3 w-full inline-flex items-center justify-center gap-2 bg-brand text-brand-foreground text-xs font-semibold py-2 rounded-xl active:scale-[0.98] transition-transform"
+          className="mt-auto pt-3 w-full inline-flex items-center justify-center gap-2 text-xs font-semibold leading-none"
         >
-          <MessageCircle className="size-4" />
-          Pedir no WhatsApp
+          <span className="w-full inline-flex items-center justify-center gap-2 bg-brand text-brand-foreground py-2 px-3 rounded-xl active:scale-[0.98] transition-transform">
+            <MessageCircle className="size-4 shrink-0" />
+            <span>Pedir no WhatsApp</span>
+          </span>
         </a>
       </div>
     </article>

@@ -172,6 +172,56 @@ function AdminBusinessesPage() {
     blockBiz.mutate({ id: b.id, until });
   };
 
+  // Reset selection when tab or list changes
+  const allIds = useMemo(() => (data ?? []).map((b) => b.id), [data]);
+  const toggleOne = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const toggleAll = () =>
+    setSelected((prev) => (prev.size === allIds.length ? new Set() : new Set(allIds)));
+  const clearSelection = () => setSelected(new Set());
+
+  const bulkUpdate = useMutation({
+    mutationFn: async (patch: Record<string, unknown>) => {
+      const ids = Array.from(selected);
+      if (!ids.length) return;
+      const { error } = await supabase.from("businesses").update(patch).in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Empresas atualizadas");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+      clearSelection();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDelete = useMutation({
+    mutationFn: async () => {
+      const ids = Array.from(selected);
+      if (!ids.length) return;
+      await supabase.from("promotions").delete().in("business_id", ids);
+      const { error } = await supabase.from("businesses").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Empresas excluídas");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+      clearSelection();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkChangePlan = (plan_id: string) => {
+    const p = plans?.find((x) => x.id === plan_id);
+    if (!p) return;
+    bulkUpdate.mutate({ plan_id, is_featured: p.slug === "pro" });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">

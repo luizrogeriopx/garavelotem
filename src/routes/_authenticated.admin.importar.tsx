@@ -182,7 +182,14 @@ function ImportPage() {
                 {allSelected ? "Desmarcar todas" : "Selecionar todas"}
               </Button>
               <Button
-                onClick={() => importMut.mutate()}
+                onClick={() => {
+                  const catName = categoryId
+                    ? (categories ?? []).find((c) => c.id === categoryId)?.name ?? "selecionada"
+                    : "Sem categoria";
+                  if (confirm(`Confirma importar ${selectedCount} empresa(s) na categoria "${catName}"?`)) {
+                    importMut.mutate();
+                  }
+                }}
                 disabled={importMut.isPending || selectedCount === 0}
               >
                 {importMut.isPending ? (

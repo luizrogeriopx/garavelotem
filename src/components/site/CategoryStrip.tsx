@@ -14,7 +14,7 @@ export function CategoryStrip() {
       const { data, error } = await supabase
         .from("categories")
         .select("id,name,slug,icon,color")
-        .order("sort_order");
+        .order("name");
       if (error) throw error;
       return (data ?? []) as Cat[];
     },

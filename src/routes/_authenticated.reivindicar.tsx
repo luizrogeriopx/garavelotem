@@ -26,6 +26,12 @@ import {
   isValidCNPJ,
   onlyDigits,
 } from "@/lib/br-validation";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 export const Route = createFileRoute("/_authenticated/reivindicar")({
   component: ClaimBusinessPage,

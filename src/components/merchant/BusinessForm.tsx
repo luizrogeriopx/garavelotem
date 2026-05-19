@@ -121,6 +121,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lat: existing.lat != null ? Number(existing.lat) : null,
         lng: existing.lng != null ? Number(existing.lng) : null,
       });
+      setHours(normalizeHours(existing.hours));
     }
   }, [existing]);
 

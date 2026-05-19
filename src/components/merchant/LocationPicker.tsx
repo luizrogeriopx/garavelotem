@@ -1,34 +1,7 @@
-import { useEffect, useRef } from "react";
-
-declare global {
-  interface Window {
-    google?: any;
-    __initGaravMap?: () => void;
-  }
-}
-
-const BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
-
-const DEFAULT = { lat: -16.8239, lng: -49.2438 }; // Aparecida de Goiânia
-
-let loadPromise: Promise<void> | null = null;
-function loadMaps(): Promise<void> {
-  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  if (window.google?.maps) return Promise.resolve();
-  if (loadPromise) return loadPromise;
-  if (!BROWSER_KEY) return Promise.reject(new Error("Google Maps key not configured"));
-  loadPromise = new Promise<void>((resolve, reject) => {
-    window.__initGaravMap = () => resolve();
-    const s = document.createElement("script");
-    const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__initGaravMap${channel}`;
-    s.async = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps"));
-    document.head.appendChild(s);
-  });
-  return loadPromise;
-}
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MapPin, Loader2 } from "lucide-react";
 
 type Props = {
   lat: number | null;
@@ -37,72 +10,69 @@ type Props = {
 };
 
 export function LocationPicker({ lat, lng, onChange }: Props) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    loadMaps()
-      .then(() => {
-        if (cancelled || !ref.current || !window.google) return;
-        const center = { lat: lat ?? DEFAULT.lat, lng: lng ?? DEFAULT.lng };
-        const map = new window.google.maps.Map(ref.current, {
-          center,
-          zoom: 16,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: false,
-        });
-        const marker = new window.google.maps.Marker({
-          position: center,
-          map,
-          draggable: true,
-        });
-        marker.addListener("dragend", () => {
-          const p = marker.getPosition();
-          if (p) onChange(p.lat(), p.lng());
-        });
-        map.addListener("click", (e: any) => {
-          if (!e.latLng) return;
-          marker.setPosition(e.latLng);
-          onChange(e.latLng.lat(), e.latLng.lng());
-        });
-        mapRef.current = map;
-        markerRef.current = marker;
-      })
-      .catch((err) => console.error("Maps load error", err));
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Sync external lat/lng changes (e.g. when editing existing business loads)
-  useEffect(() => {
-    if (!mapRef.current || !markerRef.current || lat == null || lng == null) return;
-    const pos = { lat, lng };
-    markerRef.current.setPosition(pos);
-    mapRef.current.panTo(pos);
-  }, [lat, lng]);
-
-  if (!BROWSER_KEY) {
-    return (
-      <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-        Mapa indisponível: chave do Google Maps não configurada.
-      </div>
+  const useMyLocation = () => {
+    setError(null);
+    if (!("geolocation" in navigator)) {
+      setError("Seu navegador não suporta geolocalização.");
+      return;
+    }
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        onChange(pos.coords.latitude, pos.coords.longitude);
+        setLoading(false);
+      },
+      (err) => {
+        setLoading(false);
+        setError(
+          err.code === err.PERMISSION_DENIED
+            ? "Permissão de localização negada. Habilite nas configurações do navegador."
+            : "Não foi possível obter sua localização. Tente novamente.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
-  }
+  };
+
+  const handleManual = (which: "lat" | "lng", value: string) => {
+    const n = value === "" ? NaN : Number(value);
+    if (which === "lat") onChange(Number.isFinite(n) ? n : 0, lng ?? 0);
+    else onChange(lat ?? 0, Number.isFinite(n) ? n : 0);
+  };
 
   return (
-    <div className="space-y-2">
-      <div ref={ref} className="w-full h-64 rounded-lg border bg-muted" />
+    <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-medium">Localização exata (GPS)</p>
+        <Button type="button" size="sm" variant="outline" onClick={useMyLocation} disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+          <span className="ml-1">Usar minha localização</span>
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          type="number"
+          step="any"
+          placeholder="Latitude"
+          value={lat ?? ""}
+          onChange={(e) => handleManual("lat", e.target.value)}
+        />
+        <Input
+          type="number"
+          step="any"
+          placeholder="Longitude"
+          value={lng ?? ""}
+          onChange={(e) => handleManual("lng", e.target.value)}
+        />
+      </div>
       <p className="text-xs text-muted-foreground">
-        Arraste o pino ou toque no mapa para marcar a localização exata.
-        {lat != null && lng != null && (
-          <> Coordenadas: <span className="font-mono">{lat.toFixed(6)}, {lng.toFixed(6)}</span></>
-        )}
+        Clique em "Usar minha localização" estando no endereço da empresa para capturar as coordenadas via GPS.
+        Elas serão usadas para o botão "Ver rota" abrir o Google Maps com o destino exato.
       </p>
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

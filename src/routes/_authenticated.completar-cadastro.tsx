@@ -178,6 +178,12 @@ function CompleteProfilePage() {
             </div>
           </div>
 
+          <PolicyAcceptanceList
+            context="signup"
+            accepted={accepted}
+            onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+          />
+
           <Button type="submit" disabled={loading} className="w-full rounded-full bg-brand text-brand-foreground font-semibold">
             {loading && <Loader2 className="size-4 animate-spin" />}
             Concluir cadastro

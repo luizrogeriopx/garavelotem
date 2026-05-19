@@ -47,18 +47,20 @@ export function PromotionCard({ p }: { p: PromotionCardData }) {
             )}
           </div>
         )}
-        <a
-          href={whatsappLink(
-            p.businesses?.whatsapp,
-            `Olá! Tenho interesse na promoção "${p.title}" no Garavelo Tem.`,
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto pt-3 w-full inline-flex items-center justify-center gap-2 bg-brand text-brand-foreground text-xs font-semibold py-2 rounded-xl active:scale-[0.98] transition-transform"
-        >
-          <MessageCircle className="size-4" />
-          Pedir no WhatsApp
-        </a>
+        <div className="mt-auto pt-3">
+          <a
+            href={whatsappLink(
+              p.businesses?.whatsapp,
+              `Olá! Tenho interesse na promoção "${p.title}" no Garavelo Tem.`,
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full inline-flex items-center justify-center gap-2 bg-brand text-brand-foreground text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-transform text-center leading-none"
+          >
+            <MessageCircle className="size-4 shrink-0" />
+            <span>Pedir no WhatsApp</span>
+          </a>
+        </div>
       </div>
     </article>
   );

@@ -49,9 +49,9 @@ export function BusinessCard({ b }: { b: BusinessCardData }) {
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <Link to="/empresa/$slug" params={{ slug: b.slug }}>
-              <h3 className="font-semibold text-sm truncate flex items-center gap-1">
-                {b.name}
-                {b.is_verified && <VerifiedBadge className="size-3.5" />}
+              <h3 className="font-semibold text-sm flex items-start gap-1 break-words">
+                <span className="line-clamp-2">{b.name}</span>
+                {b.is_verified && <VerifiedBadge className="size-3.5 shrink-0 mt-0.5" />}
               </h3>
             </Link>
             {b.short_description && (
@@ -70,10 +70,10 @@ export function BusinessCard({ b }: { b: BusinessCardData }) {
           href={whatsappLink(b.whatsapp, `Olá! Vi a ${b.name} no Garavelo Tem.`)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 w-full inline-flex items-center justify-center gap-2 bg-whatsapp text-whatsapp-foreground text-xs font-semibold py-2 rounded-xl active:scale-[0.98] transition-transform"
+          className="mt-3 w-full inline-flex items-center justify-center gap-2 bg-whatsapp text-whatsapp-foreground text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-transform text-center leading-none"
         >
-          <MessageCircle className="size-4" />
-          Chamar no WhatsApp
+          <MessageCircle className="size-4 shrink-0" />
+          <span>Chamar no WhatsApp</span>
         </a>
       </div>
     </article>

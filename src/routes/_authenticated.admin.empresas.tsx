@@ -363,7 +363,7 @@ function AdminBusinessesPage() {
             )}
           </Card>
           <div className="grid gap-3">
-            {data.map((b) => (
+            {filtered.map((b) => (
               <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Checkbox

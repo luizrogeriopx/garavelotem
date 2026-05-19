@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const tabs = [
   { to: "/admin/empresas", label: "Empresas", icon: Store },
   { to: "/admin/migracoes", label: "Migrações PF→PJ", icon: ArrowRightLeft },
+  { to: "/admin/reivindicacoes", label: "Reivindicações", icon: ShieldCheck },
   { to: "/admin/instituicoes", label: "Utilidade pública", icon: Landmark },
   { to: "/admin/promocoes", label: "Promoções", icon: Percent },
   { to: "/admin/usuarios", label: "Usuários", icon: Users },

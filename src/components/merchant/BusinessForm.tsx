@@ -20,6 +20,8 @@ import {
   allAccepted,
 } from "@/components/site/PolicyAcceptance";
 import { LocationPicker } from "@/components/merchant/LocationPicker";
+import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
+import { Lock } from "lucide-react";
 
 function slugify(s: string) {
   return s
@@ -55,6 +57,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [changeReqOpen, setChangeReqOpen] = useState(false);
+  const isEditing = !!businessId;
 
   // Perfil do titular (owner da empresa quando editando; senão o usuário atual)
   const [ownerIdState, setOwnerIdState] = useState<string | null>(null);
@@ -216,18 +220,18 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label className="font-semibold">Tipo de empresa *</Label>
         <RadioGroup
           value={entityType}
-          onValueChange={(v) => setEntityType(v as "pf" | "pj")}
+          onValueChange={(v) => !isEditing && setEntityType(v as "pf" | "pj")}
           className="flex flex-col sm:flex-row gap-3 mt-2"
         >
-          <label className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background">
-            <RadioGroupItem value="pf" id="pf" />
+          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${isEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+            <RadioGroupItem value="pf" id="pf" disabled={isEditing} />
             <div>
               <p className="font-medium text-sm">Pessoa Física</p>
               <p className="text-xs text-muted-foreground">Usa seus dados de cadastro (CPF).</p>
             </div>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background">
-            <RadioGroupItem value="pj" id="pj" />
+          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${isEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+            <RadioGroupItem value="pj" id="pj" disabled={isEditing} />
             <div>
               <p className="font-medium text-sm">Pessoa Jurídica</p>
               <p className="text-xs text-muted-foreground">Empresa com CNPJ ativo na Receita.</p>
@@ -244,18 +248,23 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
 
         {entityType === "pj" && (
           <div className="mt-3 space-y-2">
-            <Label htmlFor="cnpj">CNPJ *</Label>
+            <Label htmlFor="cnpj" className="flex items-center gap-1">
+              CNPJ * {isEditing && <Lock className="size-3 text-muted-foreground" />}
+            </Label>
             <div className="flex gap-2">
               <Input
                 id="cnpj"
                 required
                 placeholder="00.000.000/0000-00"
                 value={cnpj}
+                disabled={isEditing}
                 onChange={(e) => { setCnpj(formatCNPJ(e.target.value)); setCnpjStatus(null); }}
               />
-              <Button type="button" variant="outline" onClick={checkCnpj} disabled={checkingCnpj || !cnpj}>
-                {checkingCnpj ? <Loader2 className="size-4 animate-spin" /> : "Validar"}
-              </Button>
+              {!isEditing && (
+                <Button type="button" variant="outline" onClick={checkCnpj} disabled={checkingCnpj || !cnpj}>
+                  {checkingCnpj ? <Loader2 className="size-4 animate-spin" /> : "Validar"}
+                </Button>
+              )}
             </div>
             {cnpjStatus && (
               <p className={`text-xs flex items-center gap-1 ${cnpjStatus.ok ? "text-green-700" : "text-destructive"}`}>
@@ -263,16 +272,30 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
                 {cnpjStatus.msg}
               </p>
             )}
-            {legalName && cnpjStatus?.ok && (
+            {legalName && (
               <p className="text-xs text-muted-foreground">Razão social: {legalName}</p>
             )}
+          </div>
+        )}
+
+        {isEditing && (
+          <div className="mt-3 rounded-lg border border-dashed bg-background p-3 text-xs text-muted-foreground space-y-2">
+            <p className="flex items-center gap-1">
+              <Lock className="size-3" />
+              Nome da empresa, CNPJ e razão social não podem ser alterados diretamente.
+            </p>
+            <Button type="button" size="sm" variant="outline" onClick={() => setChangeReqOpen(true)}>
+              Solicitar alteração desses dados
+            </Button>
           </div>
         )}
       </div>
 
       <div>
-        <Label htmlFor="name">Nome da empresa *</Label>
-        <Input id="name" required maxLength={120} value={form.name} onChange={(e) => set("name", e.target.value)} />
+        <Label htmlFor="name" className="flex items-center gap-1">
+          Nome da empresa * {isEditing && <Lock className="size-3 text-muted-foreground" />}
+        </Label>
+        <Input id="name" required maxLength={120} value={form.name} disabled={isEditing} onChange={(e) => set("name", e.target.value)} />
       </div>
       <div>
         <Label>Categoria *</Label>
@@ -371,6 +394,22 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         {loading && <Loader2 className="size-4 animate-spin" />}
         {businessId ? "Salvar alterações" : "Enviar para aprovação"}
       </Button>
+
+      {isEditing && (
+        <ChangeRequestDialog
+          open={changeReqOpen}
+          onOpenChange={setChangeReqOpen}
+          targetType="business"
+          businessId={businessId}
+          title="Solicitar alteração de dados da empresa"
+          description="Esses campos só podem ser alterados pelo administrador. Preencha o que precisa ser corrigido."
+          fields={[
+            { key: "name", label: "Novo nome da empresa" },
+            { key: "legal_name", label: "Nova razão social" },
+            { key: "cnpj", label: "Novo CNPJ" },
+          ]}
+        />
+      )}
     </form>
   );
 }

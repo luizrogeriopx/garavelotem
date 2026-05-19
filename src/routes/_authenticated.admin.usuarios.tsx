@@ -46,7 +46,7 @@ function AdminUsersPage() {
       const [{ data: profiles, error: pe }, { data: roles, error: re }] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at")
+          .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at, blocked_until")
           .order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
       ]);

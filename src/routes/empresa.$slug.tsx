@@ -74,9 +74,7 @@ export function BusinessPageView({ business: b }: { business: any }) {
           <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
             <Share2 className="size-4" /> Compartilhar
           </button>
-          <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
-            <Heart className="size-4" /> Salvar
-          </button>
+          <FollowButton businessId={b.id} />
         </div>
 
         {b.address && (

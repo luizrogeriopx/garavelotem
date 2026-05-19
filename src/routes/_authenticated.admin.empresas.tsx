@@ -88,6 +88,19 @@ function AdminBusinessesPage() {
     },
   });
 
+  const { data: claimTemplate } = useQuery({
+    queryKey: ["app_settings", "claim_invite_template"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "claim_invite_template")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value ?? null;
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-businesses", tab],
     queryFn: async () => {

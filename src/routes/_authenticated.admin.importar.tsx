@@ -81,6 +81,7 @@ function ImportPage() {
           lat: r.lat,
           lng: r.lng,
           category_id: categoryId || null,
+          photo_name: r.photo_name,
         }));
       if (items.length === 0) throw new Error("Selecione ao menos uma empresa.");
       return importFn({ data: { items } });

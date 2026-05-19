@@ -189,12 +189,15 @@ function EditUserDialog({
       });
       setSelfieUrl(null);
       if (user.selfie_url) {
-        // selfie_url is the storage path inside the user-selfies bucket
-        supabase.storage
-          .from("user-selfies")
-          .createSignedUrl(user.selfie_url, 60 * 10)
-          .then(({ data }) => setSelfieUrl(data?.signedUrl ?? null))
-          .catch(() => setSelfieUrl(null));
+        if (/^https?:\/\//i.test(user.selfie_url)) {
+          setSelfieUrl(user.selfie_url);
+        } else {
+          supabase.storage
+            .from("user-selfies")
+            .createSignedUrl(user.selfie_url, 60 * 10)
+            .then(({ data }) => setSelfieUrl(data?.signedUrl ?? null))
+            .catch(() => setSelfieUrl(null));
+        }
       }
     }
   }, [user]);

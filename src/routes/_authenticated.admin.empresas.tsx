@@ -33,6 +33,8 @@ import {
   FileCheck,
   Ban,
   MessageCircle,
+  Search,
+  X,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -63,6 +65,9 @@ function AdminBusinessesPage() {
   const [transferFor, setTransferFor] = useState<{ id: string; name: string } | null>(null);
   const [acceptsFor, setAcceptsFor] = useState<{ id: string; name: string; owner_id: string | null } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const [planFilter, setPlanFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const qc = useQueryClient();
 
   const { data: plans } = useQuery({
@@ -88,7 +93,7 @@ function AdminBusinessesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, owner_id, blocked_until")
+        .select("id, name, slug, status, logo_url, is_verified, is_featured, neighborhood, city, whatsapp, created_at, plan_id, category_id, owner_id, blocked_until")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -173,8 +178,22 @@ function AdminBusinessesPage() {
     blockBiz.mutate({ id: b.id, until });
   };
 
+  // Apply filters
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (data ?? []).filter((b) => {
+      if (planFilter !== "all" && b.plan_id !== planFilter) return false;
+      if (categoryFilter !== "all" && b.category_id !== categoryFilter) return false;
+      if (q) {
+        const hay = `${b.name} ${b.slug} ${b.neighborhood ?? ""} ${b.city ?? ""} ${b.whatsapp ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [data, query, planFilter, categoryFilter]);
+
   // Reset selection when tab or list changes
-  const allIds = useMemo(() => (data ?? []).map((b) => b.id), [data]);
+  const allIds = useMemo(() => filtered.map((b) => b.id), [filtered]);
   const toggleOne = (id: string) =>
     setSelected((prev) => {
       const next = new Set(prev);
@@ -238,10 +257,54 @@ function AdminBusinessesPage() {
         </Button>
       </div>
 
+      <Card className="p-3 flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="h-4 w-4 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nome, bairro, WhatsApp…"
+            className="pl-8 h-9"
+          />
+        </div>
+        <Select value={planFilter} onValueChange={setPlanFilter}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue placeholder="Plano" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os planos</SelectItem>
+            {(plans ?? []).map((p) => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as categorias</SelectItem>
+            {(categories ?? []).map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(query || planFilter !== "all" || categoryFilter !== "all") && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => { setQuery(""); setPlanFilter("all"); setCategoryFilter("all"); }}
+          >
+            <X className="h-4 w-4 mr-1" />Limpar filtros
+          </Button>
+        )}
+        <span className="text-xs text-muted-foreground ml-auto">
+          {filtered.length} de {data?.length ?? 0}
+        </span>
+      </Card>
+
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
-      ) : !data?.length ? (
-        <Card className="p-8 text-center text-muted-foreground">Nenhuma empresa nesta categoria.</Card>
+      ) : !filtered.length ? (
+        <Card className="p-8 text-center text-muted-foreground">
+          {data?.length ? "Nenhuma empresa encontrada com esses filtros." : "Nenhuma empresa nesta categoria."}
+        </Card>
       ) : (
         <>
           <Card className="p-3 flex flex-wrap items-center gap-2 sticky top-0 z-10 bg-card/95 backdrop-blur">
@@ -300,7 +363,7 @@ function AdminBusinessesPage() {
             )}
           </Card>
           <div className="grid gap-3">
-            {data.map((b) => (
+            {filtered.map((b) => (
               <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Checkbox

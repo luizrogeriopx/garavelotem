@@ -20,6 +20,7 @@ import {
   allAccepted,
 } from "@/components/site/PolicyAcceptance";
 import { LocationPicker } from "@/components/merchant/LocationPicker";
+import { HoursEditor, defaultHours, normalizeHours, type WeekHours } from "@/components/merchant/HoursEditor";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 import { Lock } from "lucide-react";
 

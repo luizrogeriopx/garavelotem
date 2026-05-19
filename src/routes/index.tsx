@@ -112,7 +112,7 @@ function Home() {
       <BannerCarousel />
 
       <section>
-        <SectionHeader accent="Plano Pro" title="Empresas em destaque" to="/empresas" />
+        <SectionHeader title="Negócios em destaque" to="/empresas" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {(featured.data ?? []).map((b) => (
             <BusinessCard key={b.id} b={b} />
@@ -125,7 +125,7 @@ function Home() {
       </section>
 
       <section>
-        <SectionHeader accent="Plano Free" title="Classificados" to="/empresas" />
+        <SectionHeader title="Negócios na Região" to="/empresas" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {(classificados.data ?? []).map((b) => (
             <BusinessCard key={b.id} b={b} />

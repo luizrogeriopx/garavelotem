@@ -1,4 +1,4 @@
-import { whatsappLink } from "./format";
+
 
 export function claimInviteMessage(opts: { businessUrl: string; claimUrl: string }) {
   return `Sua empresa está aparecendo gratuitamente no Garavelo Tem, uma nova plataforma digital da região, criada para ajudar comércios e serviços locais a ganharem mais visibilidade e novos clientes.

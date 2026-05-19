@@ -54,6 +54,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     cover_url: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
+  const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
 
   // Perfil do titular (owner da empresa quando editando; senão o usuário atual)
   const [ownerIdState, setOwnerIdState] = useState<string | null>(null);

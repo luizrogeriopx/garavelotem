@@ -303,7 +303,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         city: "Aparecida de Goiânia",
         state: "GO",
         entity_type: "pf",
-        status: "pending",
+        status: "approved",
         is_verified: false,
         owner_id: null,
       });

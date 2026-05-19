@@ -92,6 +92,44 @@ function AdminUsersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const blockFn = useServerFn(blockUser);
+  const deleteFn = useServerFn(deleteUser);
+
+  const blockMut = useMutation({
+    mutationFn: async ({ userId, until }: { userId: string; until: string | null }) =>
+      blockFn({ data: { userId, until } }),
+    onSuccess: (_d, v) => {
+      toast.success(v.until ? "Usuário bloqueado" : "Bloqueio removido");
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (userId: string) => deleteFn({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Usuário excluído");
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const promptBlockUser = (u: ProfileRow) => {
+    const isBlocked = u.blocked_until && new Date(u.blocked_until) > new Date();
+    if (isBlocked) {
+      if (confirm(`Remover bloqueio de ${u.full_name ?? u.email}?`)) {
+        blockMut.mutate({ userId: u.id, until: null });
+      }
+      return;
+    }
+    const days = prompt(`Bloquear usuário por quantos dias? (deixe vazio para 7)`, "7");
+    if (days === null) return;
+    const n = Number(days || 7);
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Número inválido");
+    const until = new Date(Date.now() + n * 86_400_000).toISOString();
+    blockMut.mutate({ userId: u.id, until });
+  };
+
   return (
     <div className="space-y-4">
       <Input

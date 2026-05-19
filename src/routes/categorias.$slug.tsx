@@ -18,6 +18,7 @@ function CategoryPage() {
         .from("businesses")
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified")
         .eq("status", "approved")
+        .eq("is_platform", false)
         .eq("category_id", cat.data.id)
         .order("is_featured", { ascending: false });
       return { name: cat.data.name, items: (list.data ?? []) as BusinessCardData[] };

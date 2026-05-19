@@ -108,7 +108,9 @@ function AdminUsersPage() {
             return (
               <Card key={u.id} className="p-3 flex items-center gap-3">
                 <div className="size-10 rounded-full bg-muted grid place-items-center overflow-hidden shrink-0">
-                  {u.avatar_url ? (
+                  {u.selfie_url ? (
+                    <img src={u.selfie_url} alt="selfie" className="size-full object-cover" />
+                  ) : u.avatar_url ? (
                     <img src={u.avatar_url} alt="" className="size-full object-cover" />
                   ) : (
                     <User className="size-5 text-muted-foreground" />

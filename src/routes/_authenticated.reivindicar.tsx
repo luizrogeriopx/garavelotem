@@ -113,7 +113,10 @@ function ClaimBusinessPage() {
         if (!legalName.trim()) throw new Error("Informe a razão social");
         if (!isValidCNPJ(cnpj)) throw new Error("CNPJ inválido");
       }
-      const { error } = await supabase.from("business_claims").insert({
+      if (!allAccepted(requiredPolicies, accepted)) {
+        throw new Error("Aceite todas as políticas obrigatórias para enviar");
+      }
+      const { data: inserted, error } = await supabase.from("business_claims").insert({
         business_id: businessId,
         user_id: user.id,
         entity_type: entityType,
@@ -125,8 +128,17 @@ function ClaimBusinessPage() {
         whatsapp: whatsapp ? onlyDigits(whatsapp) : null,
         email: email.trim(),
         message: message.trim() || null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (requiredPolicies && inserted) {
+        await recordAcceptances({
+          userId: user.id,
+          policies: requiredPolicies,
+          context: "claim",
+          businessId,
+          claimId: inserted.id,
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Solicitação enviada! Aguarde análise.");

@@ -383,6 +383,24 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
       <div>
+        <Label htmlFor="username">Username da empresa (URL curta)</Label>
+        <p className="text-xs text-muted-foreground mb-1">
+          Opcional. Letras minúsculas, números e _ (3 a 30). Sua página fica em{" "}
+          <span className="font-mono">garavelotem.com/{form.username || "seu_username"}</span>.
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">@</span>
+          <Input
+            id="username"
+            placeholder="termogelo"
+            maxLength={30}
+            value={form.username}
+            onChange={(e) =>
+              set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+            }
+          />
+      </div>
+      <div>
         <Label>Localização no mapa</Label>
         <LocationPicker
           lat={coords.lat}

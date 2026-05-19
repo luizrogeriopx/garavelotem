@@ -186,7 +186,7 @@ function AdminBusinessesPage() {
   const clearSelection = () => setSelected(new Set());
 
   const bulkUpdate = useMutation({
-    mutationFn: async (patch: Record<string, unknown>) => {
+    mutationFn: async (patch: Partial<{ status: Status; is_verified: boolean; plan_id: string; is_featured: boolean; category_id: string }>) => {
       const ids = Array.from(selected);
       if (!ids.length) return;
       const { error } = await supabase.from("businesses").update(patch).in("id", ids);

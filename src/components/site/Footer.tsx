@@ -37,9 +37,15 @@ export function Footer() {
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest opacity-70 mb-3">Legal</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="opacity-80 hover:opacity-100">Política de privacidade</a></li>
-            <li><a href="#" className="opacity-80 hover:opacity-100">Termos de uso</a></li>
-            <li><a href="#" className="opacity-80 hover:opacity-100">Contato</a></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "termos-de-uso" }} className="opacity-80 hover:opacity-100">Termos de uso</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "politica-de-privacidade" }} className="opacity-80 hover:opacity-100">Política de privacidade</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "termos-do-comerciante" }} className="opacity-80 hover:opacity-100">Termos do comerciante</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "politica-lgpd" }} className="opacity-80 hover:opacity-100">Política LGPD</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "aviso-legal" }} className="opacity-80 hover:opacity-100">Aviso legal</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "anuncios-proibidos" }} className="opacity-80 hover:opacity-100">Anúncios proibidos</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "selo-verificado" }} className="opacity-80 hover:opacity-100">Selo verificado</Link></li>
+            <li><Link to="/politicas/$slug" params={{ slug: "anti-golpe" }} className="opacity-80 hover:opacity-100">Política anti-golpe</Link></li>
+            <li><Link to="/politicas" className="opacity-80 hover:opacity-100 font-medium">Ver todas as políticas</Link></li>
           </ul>
         </div>
       </div>

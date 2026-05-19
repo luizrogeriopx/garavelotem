@@ -369,6 +369,89 @@ export type Database = {
         }
         Relationships: []
       }
+      policies: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_required: boolean
+          required_for: string[]
+          slug: string
+          sort_order: number
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          required_for?: string[]
+          slug: string
+          sort_order?: number
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          required_for?: string[]
+          slug?: string
+          sort_order?: number
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      policy_acceptances: {
+        Row: {
+          accepted_at: string
+          business_id: string | null
+          claim_id: string | null
+          context: string
+          id: string
+          policy_id: string
+          policy_slug: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          business_id?: string | null
+          claim_id?: string | null
+          context: string
+          id?: string
+          policy_id: string
+          policy_slug: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          business_id?: string | null
+          claim_id?: string | null
+          context?: string
+          id?: string
+          policy_id?: string
+          policy_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_acceptances_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_comments: {
         Row: {
           content: string

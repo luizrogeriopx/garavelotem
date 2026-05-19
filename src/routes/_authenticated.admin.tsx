@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState, redirect } from "@tanstack/react-router";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { Card } from "@/components/ui/card";
-import { Shield, Store, Image, Tag, CreditCard, Percent, Users, Landmark, ArrowRightLeft, ShieldCheck } from "lucide-react";
+import { Shield, Store, Image, Tag, CreditCard, Percent, Users, Landmark, ArrowRightLeft, ShieldCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -23,6 +23,7 @@ const tabs = [
   { to: "/admin/banners", label: "Banners", icon: Image },
   { to: "/admin/categorias", label: "Categorias", icon: Tag },
   { to: "/admin/planos", label: "Planos", icon: CreditCard },
+  { to: "/admin/politicas", label: "Políticas", icon: FileText },
 ];
 
 function AdminLayout() {

@@ -12,6 +12,12 @@ import {
 } from "@/lib/br-validation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 export const Route = createFileRoute("/_authenticated/completar-cadastro")({
   component: CompleteProfilePage,
@@ -21,6 +27,8 @@ function CompleteProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("signup");
   const [f, setF] = useState({
     full_name: "",
     birth_date: "",
@@ -80,6 +88,10 @@ function CompleteProfilePage() {
       toast.error("Idade mínima de 16 anos.");
       return;
     }
+    if (!allAccepted(requiredPolicies, accepted)) {
+      toast.error("Aceite todas as políticas obrigatórias para concluir.");
+      return;
+    }
     setLoading(true);
     try {
       const { error } = await supabase
@@ -96,6 +108,13 @@ function CompleteProfilePage() {
         })
         .eq("id", user.id);
       if (error) throw error;
+      if (requiredPolicies) {
+        await recordAcceptances({
+          userId: user.id,
+          policies: requiredPolicies,
+          context: "signup",
+        });
+      }
       toast.success("Cadastro concluído!");
       navigate({ to: "/conta" });
     } catch (e) {
@@ -158,6 +177,12 @@ function CompleteProfilePage() {
                 value={f.phone} onChange={(e) => set("phone", formatPhoneBR(e.target.value))} />
             </div>
           </div>
+
+          <PolicyAcceptanceList
+            context="signup"
+            accepted={accepted}
+            onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+          />
 
           <Button type="submit" disabled={loading} className="w-full rounded-full bg-brand text-brand-foreground font-semibold">
             {loading && <Loader2 className="size-4 animate-spin" />}

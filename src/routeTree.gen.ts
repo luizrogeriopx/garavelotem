@@ -19,7 +19,9 @@ import { Route as DivulgarRouteImport } from './routes/divulgar'
 import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PoliticasIndexRouteImport } from './routes/politicas.index'
 import { Route as CategoriasIndexRouteImport } from './routes/categorias.index'
+import { Route as PoliticasSlugRouteImport } from './routes/politicas.$slug'
 import { Route as EmpresaSlugRouteImport } from './routes/empresa.$slug'
 import { Route as CheckoutRetornoRouteImport } from './routes/checkout.retorno'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
@@ -31,6 +33,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminReivindicacoesRouteImport } from './routes/_authenticated.admin.reivindicacoes'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
+import { Route as AuthenticatedAdminPoliticasRouteImport } from './routes/_authenticated.admin.politicas'
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated.admin.planos'
 import { Route as AuthenticatedAdminMigracoesRouteImport } from './routes/_authenticated.admin.migracoes'
 import { Route as AuthenticatedAdminInstituicoesRouteImport } from './routes/_authenticated.admin.instituicoes'
@@ -91,9 +94,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PoliticasIndexRoute = PoliticasIndexRouteImport.update({
+  id: '/politicas/',
+  path: '/politicas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriasIndexRoute = CategoriasIndexRouteImport.update({
   id: '/categorias/',
   path: '/categorias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticasSlugRoute = PoliticasSlugRouteImport.update({
+  id: '/politicas/$slug',
+  path: '/politicas/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresaSlugRoute = EmpresaSlugRouteImport.update({
@@ -155,6 +168,12 @@ const AuthenticatedAdminPromocoesRoute =
   AuthenticatedAdminPromocoesRouteImport.update({
     id: '/promocoes',
     path: '/promocoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPoliticasRoute =
+  AuthenticatedAdminPoliticasRouteImport.update({
+    id: '/politicas',
+    path: '/politicas',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminPlanosRoute =
@@ -236,13 +255,16 @@ export interface FileRoutesByFullPath {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
+  '/politicas/': typeof PoliticasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -269,13 +291,16 @@ export interface FileRoutesByTo {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias': typeof CategoriasIndexRoute
+  '/politicas': typeof PoliticasIndexRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -304,13 +329,16 @@ export interface FileRoutesById {
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/checkout/retorno': typeof CheckoutRetornoRoute
   '/empresa/$slug': typeof EmpresaSlugRoute
+  '/politicas/$slug': typeof PoliticasSlugRoute
   '/categorias/': typeof CategoriasIndexRoute
+  '/politicas/': typeof PoliticasIndexRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
   '/_authenticated/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/_authenticated/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/_authenticated/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/_authenticated/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/_authenticated/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -339,13 +367,16 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias/'
+    | '/politicas/'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
+    | '/admin/politicas'
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
@@ -372,13 +403,16 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias'
+    | '/politicas'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
+    | '/admin/politicas'
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
@@ -406,13 +440,16 @@ export interface FileRouteTypes {
     | '/categorias/$slug'
     | '/checkout/retorno'
     | '/empresa/$slug'
+    | '/politicas/$slug'
     | '/categorias/'
+    | '/politicas/'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/empresas'
     | '/_authenticated/admin/instituicoes'
     | '/_authenticated/admin/migracoes'
     | '/_authenticated/admin/planos'
+    | '/_authenticated/admin/politicas'
     | '/_authenticated/admin/promocoes'
     | '/_authenticated/admin/reivindicacoes'
     | '/_authenticated/admin/usuarios'
@@ -436,7 +473,9 @@ export interface RootRouteChildren {
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   CheckoutRetornoRoute: typeof CheckoutRetornoRoute
   EmpresaSlugRoute: typeof EmpresaSlugRoute
+  PoliticasSlugRoute: typeof PoliticasSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
+  PoliticasIndexRoute: typeof PoliticasIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -512,11 +551,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politicas/': {
+      id: '/politicas/'
+      path: '/politicas'
+      fullPath: '/politicas/'
+      preLoaderRoute: typeof PoliticasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categorias/': {
       id: '/categorias/'
       path: '/categorias'
       fullPath: '/categorias/'
       preLoaderRoute: typeof CategoriasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politicas/$slug': {
+      id: '/politicas/$slug'
+      path: '/politicas/$slug'
+      fullPath: '/politicas/$slug'
+      preLoaderRoute: typeof PoliticasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresa/$slug': {
@@ -594,6 +647,13 @@ declare module '@tanstack/react-router' {
       path: '/promocoes'
       fullPath: '/admin/promocoes'
       preLoaderRoute: typeof AuthenticatedAdminPromocoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/politicas': {
+      id: '/_authenticated/admin/politicas'
+      path: '/politicas'
+      fullPath: '/admin/politicas'
+      preLoaderRoute: typeof AuthenticatedAdminPoliticasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/planos': {
@@ -676,6 +736,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminInstituicoesRoute: typeof AuthenticatedAdminInstituicoesRoute
   AuthenticatedAdminMigracoesRoute: typeof AuthenticatedAdminMigracoesRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
+  AuthenticatedAdminPoliticasRoute: typeof AuthenticatedAdminPoliticasRoute
   AuthenticatedAdminPromocoesRoute: typeof AuthenticatedAdminPromocoesRoute
   AuthenticatedAdminReivindicacoesRoute: typeof AuthenticatedAdminReivindicacoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -688,6 +749,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminInstituicoesRoute: AuthenticatedAdminInstituicoesRoute,
   AuthenticatedAdminMigracoesRoute: AuthenticatedAdminMigracoesRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
+  AuthenticatedAdminPoliticasRoute: AuthenticatedAdminPoliticasRoute,
   AuthenticatedAdminPromocoesRoute: AuthenticatedAdminPromocoesRoute,
   AuthenticatedAdminReivindicacoesRoute: AuthenticatedAdminReivindicacoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
@@ -736,7 +798,9 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriasSlugRoute: CategoriasSlugRoute,
   CheckoutRetornoRoute: CheckoutRetornoRoute,
   EmpresaSlugRoute: EmpresaSlugRoute,
+  PoliticasSlugRoute: PoliticasSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
+  PoliticasIndexRoute: PoliticasIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

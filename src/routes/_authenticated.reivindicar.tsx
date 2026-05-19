@@ -26,6 +26,12 @@ import {
   isValidCNPJ,
   onlyDigits,
 } from "@/lib/br-validation";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 export const Route = createFileRoute("/_authenticated/reivindicar")({
   component: ClaimBusinessPage,
@@ -36,6 +42,9 @@ type EntityType = "pf" | "pj";
 function ClaimBusinessPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("claim");
+
 
   const [search, setSearch] = useState("");
   const [businessId, setBusinessId] = useState<string>("");
@@ -104,7 +113,10 @@ function ClaimBusinessPage() {
         if (!legalName.trim()) throw new Error("Informe a razão social");
         if (!isValidCNPJ(cnpj)) throw new Error("CNPJ inválido");
       }
-      const { error } = await supabase.from("business_claims").insert({
+      if (!allAccepted(requiredPolicies, accepted)) {
+        throw new Error("Aceite todas as políticas obrigatórias para enviar");
+      }
+      const { data: inserted, error } = await supabase.from("business_claims").insert({
         business_id: businessId,
         user_id: user.id,
         entity_type: entityType,
@@ -116,8 +128,17 @@ function ClaimBusinessPage() {
         whatsapp: whatsapp ? onlyDigits(whatsapp) : null,
         email: email.trim(),
         message: message.trim() || null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (requiredPolicies && inserted) {
+        await recordAcceptances({
+          userId: user.id,
+          policies: requiredPolicies,
+          context: "claim",
+          businessId,
+          claimId: inserted.id,
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Solicitação enviada! Aguarde análise.");
@@ -238,6 +259,14 @@ function ClaimBusinessPage() {
             />
           </div>
         </div>
+
+        <PolicyAcceptanceList
+          context="claim"
+          accepted={accepted}
+          onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+        />
+
+
 
         <Button
           onClick={() => submit.mutate()}

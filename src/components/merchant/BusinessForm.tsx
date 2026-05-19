@@ -13,6 +13,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { formatCNPJ, lookupCNPJ, onlyDigits } from "@/lib/br-validation";
+import {
+  PolicyAcceptanceList,
+  usePoliciesForContext,
+  recordAcceptances,
+  allAccepted,
+} from "@/components/site/PolicyAcceptance";
 
 function slugify(s: string) {
   return s
@@ -32,6 +38,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [legalName, setLegalName] = useState("");
   const [cnpjStatus, setCnpjStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [checkingCnpj, setCheckingCnpj] = useState(false);
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("business");
   const [form, setForm] = useState({
     name: "",
     category_id: "",
@@ -134,6 +142,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       }
     }
 
+    if (!businessId && !allAccepted(requiredPolicies, accepted)) {
+      toast.error("Aceite todas as políticas obrigatórias para enviar.");
+      return;
+    }
+
     setLoading(true);
     try {
       const base = {
@@ -161,13 +174,21 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         if (error) throw error;
         toast.success("Alterações salvas.");
       } else {
-        const { error } = await supabase.from("businesses").insert({
+        const { data: inserted, error } = await supabase.from("businesses").insert({
           ...base,
           owner_id: user.id,
           slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
           status: "pending",
-        });
+        }).select("id").single();
         if (error) throw error;
+        if (requiredPolicies && inserted) {
+          await recordAcceptances({
+            userId: user.id,
+            policies: requiredPolicies,
+            context: "business",
+            businessId: inserted.id,
+          });
+        }
         toast.success("Empresa enviada para análise.");
       }
       navigate({ to: "/conta" });
@@ -320,6 +341,13 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
+      {!businessId && (
+        <PolicyAcceptanceList
+          context="business"
+          accepted={accepted}
+          onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+        />
+      )}
       <Button type="submit" disabled={loading} className="w-full rounded-full bg-brand text-brand-foreground font-semibold">
         {loading && <Loader2 className="size-4 animate-spin" />}
         {businessId ? "Salvar alterações" : "Enviar para aprovação"}

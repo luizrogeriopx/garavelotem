@@ -71,11 +71,18 @@ function ClaimBusinessPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("business_claims")
-        .select("id,status,created_at,admin_note,business_id,businesses:business_id(name,slug)")
+        .select("id,status,created_at,admin_note,business_id")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      if (!data || data.length === 0) return [];
+      const ids = Array.from(new Set(data.map((c) => c.business_id)));
+      const { data: bizs } = await supabase
+        .from("businesses")
+        .select("id,name,slug")
+        .in("id", ids);
+      const map = new Map((bizs ?? []).map((b) => [b.id, b]));
+      return data.map((c) => ({ ...c, businesses: map.get(c.business_id) ?? null }));
     },
   });
 

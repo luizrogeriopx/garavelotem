@@ -299,6 +299,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         category_id: item.category_id ?? null,
         short_description: item.short_description ?? null,
         logo_url: logoUrl,
+        cover_url: coverUrl,
         city: "Aparecida de Goiânia",
         state: "GO",
         entity_type: "pf",

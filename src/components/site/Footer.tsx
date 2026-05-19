@@ -31,6 +31,7 @@ export function Footer() {
             <li><Link to="/promocoes" className="opacity-80 hover:opacity-100">Promoções</Link></li>
             <li><Link to="/planos" className="opacity-80 hover:opacity-100">Planos Pro</Link></li>
             <li><Link to="/divulgar" className="opacity-80 hover:opacity-100">Divulgar empresa</Link></li>
+            <li><Link to="/reivindicar" className="opacity-80 hover:opacity-100">Reivindicar empresa</Link></li>
           </ul>
         </div>
         <div>

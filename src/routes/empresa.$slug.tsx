@@ -25,7 +25,7 @@ function BusinessPage() {
 }
 
 export function BusinessPageView({ business: b }: { business: any }) {
-  const hours = (b.hours ?? {}) as Record<string, string>;
+  const hours = (b.hours ?? {}) as Record<string, unknown>;
 
   return (
     <div className="max-w-4xl mx-auto pb-10">

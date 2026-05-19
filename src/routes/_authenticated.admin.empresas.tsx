@@ -32,7 +32,9 @@ import {
   User,
   FileCheck,
   Ban,
+  Tag,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";

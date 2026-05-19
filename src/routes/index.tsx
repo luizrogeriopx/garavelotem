@@ -125,6 +125,21 @@ function Home() {
       </section>
 
       <section>
+        <SectionHeader accent="Plano Free" title="Classificados" to="/empresas" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {(classificados.data ?? []).map((b) => (
+            <BusinessCard key={b.id} b={b} />
+          ))}
+          {!classificados.data &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="aspect-[5/6] rounded-2xl bg-muted animate-pulse" />
+            ))}
+        </div>
+      </section>
+
+
+
+      <section>
         <SectionHeader accent="Ao vivo" title="Promoções do dia" to="/promocoes" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {(promos.data ?? []).map((p) => (

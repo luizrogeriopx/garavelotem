@@ -93,6 +93,7 @@ type PlaceResult = {
   rating?: number;
   userRatingCount?: number;
   addressComponents?: Array<{ longText: string; shortText: string; types: string[] }>;
+  photos?: Array<{ name: string }>;
 };
 
 export const searchPlaces = createServerFn({ method: "POST" })

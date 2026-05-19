@@ -274,12 +274,15 @@ export const importPlaces = createServerFn({ method: "POST" })
         if (n > 50) break;
       }
 
-      // Try to fetch and upload the photo
+      // Try to fetch and upload the photo (used for both logo and cover)
       let logoUrl: string | null = null;
+      let coverUrl: string | null = null;
       if (item.photo_name) {
         const photoUri = await fetchPlacePhotoUrl(item.photo_name, LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY);
         if (photoUri) {
-          logoUrl = await uploadPhotoToStorage(photoUri, item.place_id);
+          const uploaded = await uploadPhotoToStorage(photoUri, item.place_id);
+          logoUrl = uploaded;
+          coverUrl = uploaded;
         }
       }
 
@@ -296,6 +299,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         category_id: item.category_id ?? null,
         short_description: item.short_description ?? null,
         logo_url: logoUrl,
+        cover_url: coverUrl,
         city: "Aparecida de Goiânia",
         state: "GO",
         entity_type: "pf",

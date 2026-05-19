@@ -44,6 +44,3 @@ export function buildClaimInviteLink(opts: { whatsapp: string; slug: string; ori
   // em alguns navegadores e versões do WhatsApp Desktop.
   return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
 }
-
-// mantém import válido — whatsappLink ainda é usado em outros pontos do app
-void whatsappLink;

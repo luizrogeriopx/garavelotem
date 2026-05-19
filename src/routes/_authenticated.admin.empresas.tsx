@@ -257,10 +257,54 @@ function AdminBusinessesPage() {
         </Button>
       </div>
 
+      <Card className="p-3 flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="h-4 w-4 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nome, bairro, WhatsApp…"
+            className="pl-8 h-9"
+          />
+        </div>
+        <Select value={planFilter} onValueChange={setPlanFilter}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue placeholder="Plano" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os planos</SelectItem>
+            {(plans ?? []).map((p) => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as categorias</SelectItem>
+            {(categories ?? []).map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(query || planFilter !== "all" || categoryFilter !== "all") && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => { setQuery(""); setPlanFilter("all"); setCategoryFilter("all"); }}
+          >
+            <X className="h-4 w-4 mr-1" />Limpar filtros
+          </Button>
+        )}
+        <span className="text-xs text-muted-foreground ml-auto">
+          {filtered.length} de {data?.length ?? 0}
+        </span>
+      </Card>
+
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
-      ) : !data?.length ? (
-        <Card className="p-8 text-center text-muted-foreground">Nenhuma empresa nesta categoria.</Card>
+      ) : !filtered.length ? (
+        <Card className="p-8 text-center text-muted-foreground">
+          {data?.length ? "Nenhuma empresa encontrada com esses filtros." : "Nenhuma empresa nesta categoria."}
+        </Card>
       ) : (
         <>
           <Card className="p-3 flex flex-wrap items-center gap-2 sticky top-0 z-10 bg-card/95 backdrop-blur">

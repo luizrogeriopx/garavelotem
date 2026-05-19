@@ -38,6 +38,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [legalName, setLegalName] = useState("");
   const [cnpjStatus, setCnpjStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [checkingCnpj, setCheckingCnpj] = useState(false);
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const { data: requiredPolicies } = usePoliciesForContext("business");
   const [form, setForm] = useState({
     name: "",
     category_id: "",

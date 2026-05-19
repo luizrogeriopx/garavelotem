@@ -30,6 +30,7 @@ import { Route as AuthenticatedMinhaEmpresaRouteImport } from './routes/_authent
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
 import { Route as AuthenticatedCompletarCadastroRouteImport } from './routes/_authenticated.completar-cadastro'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedAceitarPoliticasRouteImport } from './routes/_authenticated.aceitar-politicas'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminReivindicacoesRouteImport } from './routes/_authenticated.admin.reivindicacoes'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
@@ -152,6 +153,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAceitarPoliticasRoute =
+  AuthenticatedAceitarPoliticasRouteImport.update({
+    id: '/aceitar-politicas',
+    path: '/aceitar-politicas',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/aceitar-politicas': typeof AuthenticatedAceitarPoliticasRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -283,6 +291,7 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/aceitar-politicas': typeof AuthenticatedAceitarPoliticasRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -321,6 +330,7 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/promocoes': typeof PromocoesRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/aceitar-politicas': typeof AuthenticatedAceitarPoliticasRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/completar-cadastro': typeof AuthenticatedCompletarCadastroRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/promocoes'
     | '/reset-password'
+    | '/aceitar-politicas'
     | '/admin'
     | '/completar-cadastro'
     | '/conta'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/promocoes'
     | '/reset-password'
+    | '/aceitar-politicas'
     | '/admin'
     | '/completar-cadastro'
     | '/conta'
@@ -432,6 +444,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/promocoes'
     | '/reset-password'
+    | '/_authenticated/aceitar-politicas'
     | '/_authenticated/admin'
     | '/_authenticated/completar-cadastro'
     | '/_authenticated/conta'
@@ -628,6 +641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/aceitar-politicas': {
+      id: '/_authenticated/aceitar-politicas'
+      path: '/aceitar-politicas'
+      fullPath: '/aceitar-politicas'
+      preLoaderRoute: typeof AuthenticatedAceitarPoliticasRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
       path: '/usuarios'
@@ -759,6 +779,7 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAceitarPoliticasRoute: typeof AuthenticatedAceitarPoliticasRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCompletarCadastroRoute: typeof AuthenticatedCompletarCadastroRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
@@ -770,6 +791,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAceitarPoliticasRoute: AuthenticatedAceitarPoliticasRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCompletarCadastroRoute: AuthenticatedCompletarCadastroRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,

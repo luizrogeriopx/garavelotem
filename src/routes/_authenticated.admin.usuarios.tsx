@@ -30,6 +30,7 @@ type ProfileRow = {
   selfie_url: string | null;
   profile_completed: boolean;
   created_at: string;
+  blocked_until: string | null;
   roles: string[];
 };
 

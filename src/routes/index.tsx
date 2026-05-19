@@ -55,6 +55,7 @@ function Home() {
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,is_featured")
         .eq("status", "approved")
         .eq("is_featured", true)
+        .eq("is_platform", false)
         .limit(60);
       if (error) throw error;
       return shuffle((data ?? []) as BusinessCardData[]).slice(0, 6);
@@ -70,6 +71,7 @@ function Home() {
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,is_featured")
         .eq("status", "approved")
         .eq("is_featured", false)
+        .eq("is_platform", false)
         .limit(120);
       if (error) throw error;
       return shuffle((data ?? []) as BusinessCardData[]).slice(0, 6);

@@ -27,13 +27,24 @@ function getKeys() {
 
 function formatGooglePlacesError(status: number, body: string) {
   const connectionHint =
-    "A conexão usada pelo app é 'Luiz's Google Maps Platform'. Reabra essa conexão em Connectors e confirme que a chave Google cadastrada nela é a mesma que você liberou no Google Cloud.";
+    "A conexão usada pelo app é 'Google Maps - Conta Nova'. Reabra essa conexão em Connectors e confirme que a chave Google cadastrada nela é a mesma que você liberou no Google Cloud.";
   try {
     const parsed = JSON.parse(body) as {
       error?: { status?: string; message?: string; details?: Array<{ reason?: string; metadata?: { activationUrl?: string } }> };
     };
     const activationUrl = parsed.error?.details?.find((detail) => detail.metadata?.activationUrl)?.metadata?.activationUrl;
     const reason = parsed.error?.details?.find((detail) => detail.reason)?.reason;
+    if (status === 403 && reason === "SERVICE_DISABLED") {
+      return [
+        "A chave está correta, mas a Places API (New) ainda está desativada no projeto Google dessa chave.",
+        "No Google Cloud, ative 'Places API (New)' (places.googleapis.com) no projeto informado pelo próprio Google e confirme que o billing está ativo.",
+        activationUrl ? `Link de ativação: ${activationUrl}` : null,
+        "Depois de ativar, aguarde alguns minutos e tente buscar novamente.",
+        connectionHint,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    }
     if (status === 403 && reason === "API_KEY_SERVICE_BLOCKED") {
       return [
         "A chave do Google Maps está bloqueando o uso da Places API (New).",

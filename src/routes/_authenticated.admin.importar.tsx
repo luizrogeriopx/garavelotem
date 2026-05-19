@@ -29,6 +29,7 @@ type Place = {
   hours: string[];
   rating: number | null;
   rating_count: number | null;
+  photo_name: string | null;
   already_imported: boolean;
 };
 

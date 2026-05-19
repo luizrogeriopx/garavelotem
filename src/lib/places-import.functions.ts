@@ -153,10 +153,14 @@ export const searchPlaces = createServerFn({ method: "POST" })
     const existingSet = new Set((existing ?? []).map((e) => e.google_place_id));
 
     return {
-      results: places.map((p) => {
+      results: await Promise.all(places.map(async (p) => {
         const neighborhood =
           p.addressComponents?.find((c) => (c.types ?? []).some((t) => t === "sublocality" || t === "sublocality_level_1"))
             ?.longText ?? null;
+        const photoName = p.photos?.[0]?.name ?? null;
+        const photoUrl = photoName
+          ? await fetchPlacePhotoUrl(photoName, LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY, 400)
+          : null;
         return {
           place_id: p.id,
           name: p.displayName?.text ?? "Sem nome",
@@ -170,11 +174,13 @@ export const searchPlaces = createServerFn({ method: "POST" })
           hours: p.regularOpeningHours?.weekdayDescriptions ?? [],
           rating: p.rating ?? null,
           rating_count: p.userRatingCount ?? null,
-          photo_name: p.photos?.[0]?.name ?? null,
+          photo_name: photoName,
+          photo_url: photoUrl,
           already_imported: existingSet.has(p.id),
         };
-      }),
+      })),
     };
+
   });
 
 const ImportItem = z.object({
@@ -194,10 +200,11 @@ async function fetchPlacePhotoUrl(
   photoName: string,
   lovableKey: string,
   gmapsKey: string,
+  maxWidthPx = 1200,
 ): Promise<string | null> {
   try {
     const res = await fetch(
-      `${GATEWAY_URL}/places/v1/${photoName}/media?maxWidthPx=1200&skipHttpRedirect=true`,
+      `${GATEWAY_URL}/places/v1/${photoName}/media?maxWidthPx=${maxWidthPx}&skipHttpRedirect=true`,
       {
         headers: {
           Authorization: `Bearer ${lovableKey}`,
@@ -212,6 +219,7 @@ async function fetchPlacePhotoUrl(
     return null;
   }
 }
+
 
 async function uploadPhotoToStorage(
   photoUrl: string,

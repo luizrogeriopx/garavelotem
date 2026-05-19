@@ -50,6 +50,69 @@ export type Database = {
         }
         Relationships: []
       }
+      business_claims: {
+        Row: {
+          admin_note: string | null
+          business_id: string
+          cnpj: string | null
+          cpf: string | null
+          created_at: string
+          email: string
+          entity_type: Database["public"]["Enums"]["claim_entity_type"]
+          full_name: string
+          id: string
+          legal_name: string | null
+          message: string | null
+          phone: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["claim_status"]
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          business_id: string
+          cnpj?: string | null
+          cpf?: string | null
+          created_at?: string
+          email: string
+          entity_type: Database["public"]["Enums"]["claim_entity_type"]
+          full_name: string
+          id?: string
+          legal_name?: string | null
+          message?: string | null
+          phone: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["claim_status"]
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          business_id?: string
+          cnpj?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string
+          entity_type?: Database["public"]["Enums"]["claim_entity_type"]
+          full_name?: string
+          id?: string
+          legal_name?: string | null
+          message?: string | null
+          phone?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["claim_status"]
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       business_posts: {
         Row: {
           business_id: string
@@ -658,6 +721,8 @@ export type Database = {
     Enums: {
       app_role: "admin" | "merchant" | "user"
       business_status: "pending" | "approved" | "rejected" | "suspended"
+      claim_entity_type: "pf" | "pj"
+      claim_status: "pending" | "approved" | "rejected"
       entity_type: "pf" | "pj"
       institution_kind:
         | "posto_saude"
@@ -798,6 +863,8 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "merchant", "user"],
       business_status: ["pending", "approved", "rejected", "suspended"],
+      claim_entity_type: ["pf", "pj"],
+      claim_status: ["pending", "approved", "rejected"],
       entity_type: ["pf", "pj"],
       institution_kind: [
         "posto_saude",

@@ -32,7 +32,6 @@ import {
   User,
   FileCheck,
   Ban,
-  Tag,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";

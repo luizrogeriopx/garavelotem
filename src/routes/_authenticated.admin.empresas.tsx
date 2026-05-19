@@ -88,6 +88,19 @@ function AdminBusinessesPage() {
     },
   });
 
+  const { data: claimTemplate } = useQuery({
+    queryKey: ["app_settings", "claim_invite_template"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "claim_invite_template")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value ?? null;
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-businesses", tab],
     queryFn: async () => {
@@ -419,7 +432,7 @@ function AdminBusinessesPage() {
                 {b.whatsapp && (
                   <Button asChild variant="outline" size="sm" className="text-green-700 hover:text-green-700">
                     <a
-                      href={buildClaimInviteLink({ whatsapp: b.whatsapp, slug: b.slug })}
+                      href={buildClaimInviteLink({ whatsapp: b.whatsapp, slug: b.slug, username: b.username, template: claimTemplate })}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

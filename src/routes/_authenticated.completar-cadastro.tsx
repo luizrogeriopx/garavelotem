@@ -108,6 +108,13 @@ function CompleteProfilePage() {
         })
         .eq("id", user.id);
       if (error) throw error;
+      if (requiredPolicies) {
+        await recordAcceptances({
+          userId: user.id,
+          policies: requiredPolicies,
+          context: "signup",
+        });
+      }
       toast.success("Cadastro concluído!");
       navigate({ to: "/conta" });
     } catch (e) {

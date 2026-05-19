@@ -125,7 +125,7 @@ function PostCard({ post, user, qc }: { post: Post; user: ReturnType<typeof useA
           </button>
         </div>
         {post.caption && <p className="mt-2 text-sm whitespace-pre-wrap">{post.caption}</p>}
-        {showComments && <Comments postId={post.id} businessId={post.id} user={user} qc={qc} />}
+        {showComments && <Comments postId={post.id} user={user} qc={qc} />}
       </div>
     </article>
   );

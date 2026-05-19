@@ -242,13 +242,74 @@ function AdminBusinessesPage() {
       ) : !data?.length ? (
         <Card className="p-8 text-center text-muted-foreground">Nenhuma empresa nesta categoria.</Card>
       ) : (
-        <div className="grid gap-3">
-          {data.map((b) => (
-            <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
-                  {b.logo_url && <img src={b.logo_url} alt="" className="h-full w-full object-cover" />}
-                </div>
+        <>
+          <Card className="p-3 flex flex-wrap items-center gap-2 sticky top-0 z-10 bg-card/95 backdrop-blur">
+            <div className="flex items-center gap-2 mr-2">
+              <Checkbox
+                checked={selected.size > 0 && selected.size === allIds.length}
+                onCheckedChange={toggleAll}
+                aria-label="Selecionar todas"
+              />
+              <span className="text-sm text-muted-foreground">
+                {selected.size > 0 ? `${selected.size} selecionada(s)` : "Selecionar todas"}
+              </span>
+            </div>
+            {selected.size > 0 && (
+              <>
+                {plans && (
+                  <Select onValueChange={(v) => bulkChangePlan(v)}>
+                    <SelectTrigger className="h-8 w-[140px]"><SelectValue placeholder="Alterar plano" /></SelectTrigger>
+                    <SelectContent>
+                      {plans.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+                {categories && (
+                  <Select onValueChange={(v) => bulkUpdate.mutate({ category_id: v })}>
+                    <SelectTrigger className="h-8 w-[160px]"><SelectValue placeholder="Alterar categoria" /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Button size="sm" variant="outline" onClick={() => bulkUpdate.mutate({ is_verified: true })}>
+                  <ShieldCheck className="h-4 w-4 mr-1" />Verificar
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => bulkUpdate.mutate({ is_verified: false })}>
+                  <ShieldOff className="h-4 w-4 mr-1" />Remover selo
+                </Button>
+                <Button size="sm" onClick={() => bulkUpdate.mutate({ status: "approved" })}>
+                  <CheckCircle2 className="h-4 w-4 mr-1" />Aprovar
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => bulkUpdate.mutate({ status: "rejected" })}>
+                  <XCircle className="h-4 w-4 mr-1" />Recusar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive"
+                  onClick={() => {
+                    if (confirm(`Excluir ${selected.size} empresa(s) definitivamente?`)) bulkDelete.mutate();
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />Excluir
+                </Button>
+                <Button size="sm" variant="ghost" onClick={clearSelection}>Limpar</Button>
+              </>
+            )}
+          </Card>
+          <div className="grid gap-3">
+            {data.map((b) => (
+              <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Checkbox
+                    checked={selected.has(b.id)}
+                    onCheckedChange={() => toggleOne(b.id)}
+                    aria-label={`Selecionar ${b.name}`}
+                  />
+                  <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
+                    {b.logo_url && <img src={b.logo_url} alt="" className="h-full w-full object-cover" />}
+                  </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>

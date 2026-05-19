@@ -187,13 +187,60 @@ const ImportItem = z.object({
   lng: z.number().nullable().optional(),
   category_id: z.string().uuid().nullable().optional(),
   short_description: z.string().nullable().optional(),
+  photo_name: z.string().nullable().optional(),
 });
+
+async function fetchPlacePhotoUrl(
+  photoName: string,
+  lovableKey: string,
+  gmapsKey: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${GATEWAY_URL}/places/v1/${photoName}/media?maxWidthPx=1200&skipHttpRedirect=true`,
+      {
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": gmapsKey,
+        },
+      },
+    );
+    if (!res.ok) return null;
+    const json = (await res.json()) as { photoUri?: string };
+    return json.photoUri ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function uploadPhotoToStorage(
+  photoUrl: string,
+  placeId: string,
+): Promise<string | null> {
+  try {
+    const imgRes = await fetch(photoUrl);
+    if (!imgRes.ok) return null;
+    const contentType = imgRes.headers.get("content-type") ?? "image/jpeg";
+    const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
+    const bytes = new Uint8Array(await imgRes.arrayBuffer());
+    const path = `imported/${placeId}-${Date.now()}.${ext}`;
+    const { error } = await supabaseAdmin.storage
+      .from("business-assets")
+      .upload(path, bytes, { contentType, upsert: true });
+    if (error) return null;
+    const { data } = supabaseAdmin.storage.from("business-assets").getPublicUrl(path);
+    return data.publicUrl ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export const importPlaces = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ items: z.array(ImportItem).min(1).max(50) }))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
+    const { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY } = getKeys();
 
     let imported = 0;
     const skipped: string[] = [];
@@ -227,6 +274,15 @@ export const importPlaces = createServerFn({ method: "POST" })
         if (n > 50) break;
       }
 
+      // Try to fetch and upload the photo
+      let logoUrl: string | null = null;
+      if (item.photo_name) {
+        const photoUri = await fetchPlacePhotoUrl(item.photo_name, LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY);
+        if (photoUri) {
+          logoUrl = await uploadPhotoToStorage(photoUri, item.place_id);
+        }
+      }
+
       const { error } = await supabaseAdmin.from("businesses").insert({
         name: item.name,
         slug,
@@ -239,6 +295,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         lng: item.lng ?? null,
         category_id: item.category_id ?? null,
         short_description: item.short_description ?? null,
+        logo_url: logoUrl,
         city: "Aparecida de Goiânia",
         state: "GO",
         entity_type: "pf",

@@ -185,6 +185,7 @@ export type Database = {
           state: string | null
           status: Database["public"]["Enums"]["business_status"]
           updated_at: string
+          username: string | null
           views_count: number
           whatsapp: string | null
           whatsapp_clicks: number
@@ -225,6 +226,7 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["business_status"]
           updated_at?: string
+          username?: string | null
           views_count?: number
           whatsapp?: string | null
           whatsapp_clicks?: number
@@ -265,6 +267,7 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["business_status"]
           updated_at?: string
+          username?: string | null
           views_count?: number
           whatsapp?: string | null
           whatsapp_clicks?: number

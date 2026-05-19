@@ -44,6 +44,7 @@ import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated.admin.configuracoes'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
+import { Route as AuthenticatedAdminAvaliacoesRouteImport } from './routes/_authenticated.admin.avaliacoes'
 import { Route as AuthenticatedAdminAlteracoesRouteImport } from './routes/_authenticated.admin.alteracoes'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedEmpresaIdPromocoesRouteImport } from './routes/_authenticated.empresa.$id.promocoes'
@@ -240,6 +241,12 @@ const AuthenticatedAdminBannersRoute =
     path: '/banners',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAvaliacoesRoute =
+  AuthenticatedAdminAvaliacoesRouteImport.update({
+    id: '/avaliacoes',
+    path: '/avaliacoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAlteracoesRoute =
   AuthenticatedAdminAlteracoesRouteImport.update({
     id: '/alteracoes',
@@ -295,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/categorias/': typeof CategoriasIndexRoute
   '/politicas/': typeof PoliticasIndexRoute
   '/admin/alteracoes': typeof AuthenticatedAdminAlteracoesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
@@ -336,6 +344,7 @@ export interface FileRoutesByTo {
   '/categorias': typeof CategoriasIndexRoute
   '/politicas': typeof PoliticasIndexRoute
   '/admin/alteracoes': typeof AuthenticatedAdminAlteracoesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
@@ -379,6 +388,7 @@ export interface FileRoutesById {
   '/categorias/': typeof CategoriasIndexRoute
   '/politicas/': typeof PoliticasIndexRoute
   '/_authenticated/admin/alteracoes': typeof AuthenticatedAdminAlteracoesRoute
+  '/_authenticated/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/categorias/'
     | '/politicas/'
     | '/admin/alteracoes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/configuracoes'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/politicas'
     | '/admin/alteracoes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/configuracoes'
@@ -505,6 +517,7 @@ export interface FileRouteTypes {
     | '/categorias/'
     | '/politicas/'
     | '/_authenticated/admin/alteracoes'
+    | '/_authenticated/admin/avaliacoes'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/configuracoes'
@@ -791,6 +804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBannersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/avaliacoes': {
+      id: '/_authenticated/admin/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AuthenticatedAdminAvaliacoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/alteracoes': {
       id: '/_authenticated/admin/alteracoes'
       path: '/alteracoes'
@@ -831,6 +851,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAlteracoesRoute: typeof AuthenticatedAdminAlteracoesRoute
+  AuthenticatedAdminAvaliacoesRoute: typeof AuthenticatedAdminAvaliacoesRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
@@ -847,6 +868,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAlteracoesRoute: AuthenticatedAdminAlteracoesRoute,
+  AuthenticatedAdminAvaliacoesRoute: AuthenticatedAdminAvaliacoesRoute,
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,

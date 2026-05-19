@@ -134,6 +134,30 @@ export type Database = {
         }
         Relationships: []
       }
+      business_followers: {
+        Row: {
+          business_id: string
+          created_at: string
+          follower_business_id: string | null
+          follower_user_id: string | null
+          id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          follower_business_id?: string | null
+          follower_user_id?: string | null
+          id?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          follower_business_id?: string | null
+          follower_user_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       business_posts: {
         Row: {
           business_id: string
@@ -187,6 +211,7 @@ export type Database = {
           hours: Json
           id: string
           is_featured: boolean
+          is_platform: boolean
           is_verified: boolean
           lat: number | null
           legal_name: string | null
@@ -228,6 +253,7 @@ export type Database = {
           hours?: Json
           id?: string
           is_featured?: boolean
+          is_platform?: boolean
           is_verified?: boolean
           lat?: number | null
           legal_name?: string | null
@@ -269,6 +295,7 @@ export type Database = {
           hours?: Json
           id?: string
           is_featured?: boolean
+          is_platform?: boolean
           is_verified?: boolean
           lat?: number | null
           legal_name?: string | null
@@ -535,6 +562,7 @@ export type Database = {
       }
       post_comments: {
         Row: {
+          as_business_id: string | null
           content: string
           created_at: string
           id: string
@@ -543,6 +571,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          as_business_id?: string | null
           content: string
           created_at?: string
           id?: string
@@ -551,6 +580,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          as_business_id?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -570,18 +600,21 @@ export type Database = {
       }
       post_likes: {
         Row: {
+          as_business_id: string | null
           created_at: string
           id: string
           post_id: string
           user_id: string
         }
         Insert: {
+          as_business_id?: string | null
           created_at?: string
           id?: string
           post_id: string
           user_id: string
         }
         Update: {
+          as_business_id?: string | null
           created_at?: string
           id?: string
           post_id?: string
@@ -766,27 +799,42 @@ export type Database = {
       }
       reviews: {
         Row: {
+          admin_note: string | null
+          as_business_id: string | null
           business_id: string
           comment: string | null
           created_at: string
           id: string
           rating: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["review_status"]
           user_id: string
         }
         Insert: {
+          admin_note?: string | null
+          as_business_id?: string | null
           business_id: string
           comment?: string | null
           created_at?: string
           id?: string
           rating: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
           user_id: string
         }
         Update: {
+          admin_note?: string | null
+          as_business_id?: string | null
           business_id?: string
           comment?: string | null
           created_at?: string
           id?: string
           rating?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
           user_id?: string
         }
         Relationships: [
@@ -903,6 +951,7 @@ export type Database = {
         | "bombeiros"
         | "prefeitura"
         | "outros"
+      review_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1048,6 +1097,7 @@ export const Constants = {
         "prefeitura",
         "outros",
       ],
+      review_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

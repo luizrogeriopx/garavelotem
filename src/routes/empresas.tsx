@@ -16,6 +16,7 @@ function EmpresasPage() {
         .from("businesses")
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,is_featured")
         .eq("status", "approved")
+        .eq("is_platform", false)
         .order("is_featured", { ascending: false })
         .order("name");
       if (error) throw error;

@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Share2, Clock } from "lucide-react";
 import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 import { whatsappLink } from "@/lib/format";
 import { BusinessFeed } from "@/components/site/BusinessFeed";
+import { BusinessReviews } from "@/components/site/BusinessReviews";
+import { FollowButton } from "@/components/site/FollowButton";
 
 export const Route = createFileRoute("/empresa/$slug")({
   component: BusinessPage,
@@ -72,9 +74,7 @@ export function BusinessPageView({ business: b }: { business: any }) {
           <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
             <Share2 className="size-4" /> Compartilhar
           </button>
-          <button className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2">
-            <Heart className="size-4" /> Salvar
-          </button>
+          <FollowButton businessId={b.id} />
         </div>
 
         {b.address && (
@@ -142,6 +142,8 @@ export function BusinessPageView({ business: b }: { business: any }) {
             </section>
           );
         })()}
+
+        <BusinessReviews businessId={b.id} />
       </div>
     </div>
   );

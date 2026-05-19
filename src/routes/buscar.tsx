@@ -23,6 +23,7 @@ function SearchPage() {
         .from("businesses")
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified")
         .eq("status", "approved")
+        .eq("is_platform", false)
         .or(`name.ilike.${term},short_description.ilike.${term},neighborhood.ilike.${term}`)
         .limit(50);
       if (error) throw error;

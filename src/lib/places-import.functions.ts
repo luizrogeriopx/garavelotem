@@ -25,7 +25,12 @@ function getKeys() {
   return { LOVABLE_API_KEY, GOOGLE_MAPS_API_KEY };
 }
 
-function formatGooglePlacesError(status: number, body: string) {
+function keyFingerprint(key: string) {
+  return `${key.slice(0, 6)}...${key.slice(-4)} (${key.length} caracteres)`;
+}
+
+function formatGooglePlacesError(status: number, body: string, googleMapsKey: string) {
+  const keyHint = `Chave usada pelo app: ${keyFingerprint(googleMapsKey)}.`;
   try {
     const parsed = JSON.parse(body) as {
       error?: { status?: string; message?: string; details?: Array<{ reason?: string; metadata?: { activationUrl?: string } }> };
@@ -37,6 +42,7 @@ function formatGooglePlacesError(status: number, body: string) {
         "A chave do Google Maps está bloqueando o uso da Places API (New).",
         "No Google Cloud, abra a chave de API usada na conexão e, em 'Restrições de API', adicione/permita 'Places API (New)' (places.googleapis.com).",
         "Confirme também que a Places API (New) está ativada e que o billing está habilitado no mesmo projeto da chave.",
+        keyHint,
       ].join(" ");
     }
     if (status === 403 && parsed.error?.status === "PERMISSION_DENIED") {
@@ -44,6 +50,7 @@ function formatGooglePlacesError(status: number, body: string) {
         "Places API (New) não está ativa na chave/projeto do Google Maps conectado.",
         "Ative a Places API (New) no Google Cloud, confirme que a cobrança está habilitada e aguarde alguns minutos.",
         activationUrl ? `Link de ativação: ${activationUrl}` : null,
+        keyHint,
       ]
         .filter(Boolean)
         .join(" ");
@@ -51,7 +58,7 @@ function formatGooglePlacesError(status: number, body: string) {
   } catch {
     // Keep the fallback below when Google returns non-JSON errors.
   }
-  return `Google Places falhou [${status}]: ${body}`;
+  return `Google Places falhou [${status}]: ${body} ${keyHint}`;
 }
 
 function slugify(s: string): string {
@@ -122,7 +129,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(formatGooglePlacesError(res.status, txt));
+      throw new Error(formatGooglePlacesError(res.status, txt, GOOGLE_MAPS_API_KEY));
     }
     const json = (await res.json()) as { places?: PlaceResult[] };
     const places = json.places ?? [];

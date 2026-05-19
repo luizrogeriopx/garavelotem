@@ -111,6 +111,10 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setCnpj(existing.cnpj ? formatCNPJ(existing.cnpj) : "");
       setLegalName(existing.legal_name ?? "");
       setOwnerIdState(existing.owner_id ?? null);
+      setCoords({
+        lat: existing.lat != null ? Number(existing.lat) : null,
+        lng: existing.lng != null ? Number(existing.lng) : null,
+      });
     }
   }, [existing]);
 

@@ -41,7 +41,11 @@ export function FollowButton({ businessId }: { businessId: string }) {
   const follow = useMutation({
     mutationFn: async (asBizId: string | null) => {
       if (!user) throw new Error("Faça login para seguir.");
-      const payload = asBizId
+      const payload: {
+        business_id: string;
+        follower_user_id: string | null;
+        follower_business_id: string | null;
+      } = asBizId
         ? { business_id: businessId, follower_business_id: asBizId, follower_user_id: null }
         : { business_id: businessId, follower_user_id: user.id, follower_business_id: null };
       const { error } = await supabase.from("business_followers").insert(payload);

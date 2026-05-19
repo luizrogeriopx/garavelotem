@@ -382,25 +382,38 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
-      <div>
-        <Label htmlFor="username">Username da empresa (URL curta)</Label>
-        <p className="text-xs text-muted-foreground mb-1">
-          Opcional. Letras minúsculas, números e _ (3 a 30). Sua página fica em{" "}
-          <span className="font-mono">garavelotem.com/{form.username || "seu_username"}</span>.
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">@</span>
-          <Input
-            id="username"
-            placeholder="termogelo"
-            maxLength={30}
-            value={form.username}
-            onChange={(e) =>
-              set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
-            }
-          />
-        </div>
-      </div>
+      {(() => {
+        const isPro = ((existing as any)?.plans?.slug) === "pro";
+        return (
+          <div>
+            <Label htmlFor="username" className="flex items-center gap-2">
+              Username da empresa (URL curta)
+              {!isPro && <span className="text-[10px] uppercase font-bold bg-highlight/20 text-highlight px-1.5 py-0.5 rounded">Pro</span>}
+            </Label>
+            <p className="text-xs text-muted-foreground mb-1">
+              {isPro ? (
+                <>Opcional. Letras minúsculas, números e _ (3 a 30). Sua página fica em{" "}
+                <span className="font-mono">garavelotem.com/{form.username || "seu_username"}</span>.</>
+              ) : (
+                <>Disponível apenas para empresas no plano <strong>Pro</strong>. Faça upgrade para personalizar a URL da sua página.</>
+              )}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">@</span>
+              <Input
+                id="username"
+                placeholder="termogelo"
+                maxLength={30}
+                disabled={!isPro}
+                value={form.username}
+                onChange={(e) =>
+                  set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+                }
+              />
+            </div>
+          </div>
+        );
+      })()}
       <div>
         <Label>Localização no mapa</Label>
         <LocationPicker

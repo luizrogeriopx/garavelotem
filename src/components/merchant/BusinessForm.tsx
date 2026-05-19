@@ -341,6 +341,13 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
+      {!businessId && (
+        <PolicyAcceptanceList
+          context="business"
+          accepted={accepted}
+          onToggle={(slug, v) => setAccepted((s) => ({ ...s, [slug]: v }))}
+        />
+      )}
       <Button type="submit" disabled={loading} className="w-full rounded-full bg-brand text-brand-foreground font-semibold">
         {loading && <Loader2 className="size-4 animate-spin" />}
         {businessId ? "Salvar alterações" : "Enviar para aprovação"}

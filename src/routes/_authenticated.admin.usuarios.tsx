@@ -130,7 +130,10 @@ function AdminUsersPage() {
                     {u.email ?? "—"} · {u.phone ? formatPhoneBR(u.phone) : "sem tel."} · CPF {u.cpf ? formatCPF(u.cpf) : "—"}
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+                  <Button size="sm" variant="outline" onClick={() => setAcceptancesFor(u)}>
+                    <FileCheck className="h-4 w-4 mr-1" /> Aceites
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => setEditing(u)}>
                     <Pencil className="h-4 w-4 mr-1" /> Editar
                   </Button>

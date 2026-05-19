@@ -44,22 +44,34 @@ function AdminUsersPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const [{ data: profiles, error: pe }, { data: roles, error: re }] = await Promise.all([
+      const [{ data: profiles, error: pe }, { data: roles, error: re }, { data: bizs, error: be }] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, phone, avatar_url, cpf, rg, birth_date, email, selfie_url, profile_completed, created_at, blocked_until")
           .order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
+        supabase.from("businesses").select("id, name, slug, owner_id").not("owner_id", "is", null),
       ]);
       if (pe) throw pe;
       if (re) throw re;
+      if (be) throw be;
       const roleMap = new Map<string, string[]>();
       (roles ?? []).forEach((r: any) => {
         const arr = roleMap.get(r.user_id) ?? [];
         arr.push(r.role);
         roleMap.set(r.user_id, arr);
       });
-      return (profiles ?? []).map((p: any) => ({ ...p, roles: roleMap.get(p.id) ?? [] })) as ProfileRow[];
+      const bizMap = new Map<string, { id: string; name: string; slug: string }[]>();
+      (bizs ?? []).forEach((b: any) => {
+        const arr = bizMap.get(b.owner_id) ?? [];
+        arr.push({ id: b.id, name: b.name, slug: b.slug });
+        bizMap.set(b.owner_id, arr);
+      });
+      return (profiles ?? []).map((p: any) => ({
+        ...p,
+        roles: roleMap.get(p.id) ?? [],
+        businesses: bizMap.get(p.id) ?? [],
+      })) as ProfileRow[];
     },
   });
 

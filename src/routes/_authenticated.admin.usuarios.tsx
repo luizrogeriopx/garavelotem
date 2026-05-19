@@ -35,6 +35,7 @@ function AdminUsersPage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<ProfileRow | null>(null);
+  const [acceptancesFor, setAcceptancesFor] = useState<ProfileRow | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],

@@ -55,6 +55,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     neighborhood: "Setor Garavelo",
     logo_url: "",
     cover_url: "",
+    username: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });

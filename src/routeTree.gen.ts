@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminReivindicacoesRouteImport } from './routes/_authenticated.admin.reivindicacoes'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
+import { Route as AuthenticatedAdminPoliticasRouteImport } from './routes/_authenticated.admin.politicas'
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated.admin.planos'
 import { Route as AuthenticatedAdminMigracoesRouteImport } from './routes/_authenticated.admin.migracoes'
 import { Route as AuthenticatedAdminInstituicoesRouteImport } from './routes/_authenticated.admin.instituicoes'
@@ -169,6 +170,12 @@ const AuthenticatedAdminPromocoesRoute =
     path: '/promocoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPoliticasRoute =
+  AuthenticatedAdminPoliticasRouteImport.update({
+    id: '/politicas',
+    path: '/politicas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPlanosRoute =
   AuthenticatedAdminPlanosRouteImport.update({
     id: '/planos',
@@ -257,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -292,6 +300,7 @@ export interface FileRoutesByTo {
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -329,6 +338,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/_authenticated/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
+  '/_authenticated/admin/politicas': typeof AuthenticatedAdminPoliticasRoute
   '/_authenticated/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/_authenticated/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
+    | '/admin/politicas'
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
@@ -401,6 +412,7 @@ export interface FileRouteTypes {
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
+    | '/admin/politicas'
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
@@ -437,6 +449,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/instituicoes'
     | '/_authenticated/admin/migracoes'
     | '/_authenticated/admin/planos'
+    | '/_authenticated/admin/politicas'
     | '/_authenticated/admin/promocoes'
     | '/_authenticated/admin/reivindicacoes'
     | '/_authenticated/admin/usuarios'
@@ -636,6 +649,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPromocoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/politicas': {
+      id: '/_authenticated/admin/politicas'
+      path: '/politicas'
+      fullPath: '/admin/politicas'
+      preLoaderRoute: typeof AuthenticatedAdminPoliticasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/planos': {
       id: '/_authenticated/admin/planos'
       path: '/planos'
@@ -716,6 +736,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminInstituicoesRoute: typeof AuthenticatedAdminInstituicoesRoute
   AuthenticatedAdminMigracoesRoute: typeof AuthenticatedAdminMigracoesRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
+  AuthenticatedAdminPoliticasRoute: typeof AuthenticatedAdminPoliticasRoute
   AuthenticatedAdminPromocoesRoute: typeof AuthenticatedAdminPromocoesRoute
   AuthenticatedAdminReivindicacoesRoute: typeof AuthenticatedAdminReivindicacoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -728,6 +749,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminInstituicoesRoute: AuthenticatedAdminInstituicoesRoute,
   AuthenticatedAdminMigracoesRoute: AuthenticatedAdminMigracoesRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,
+  AuthenticatedAdminPoliticasRoute: AuthenticatedAdminPoliticasRoute,
   AuthenticatedAdminPromocoesRoute: AuthenticatedAdminPromocoesRoute,
   AuthenticatedAdminReivindicacoesRoute: AuthenticatedAdminReivindicacoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

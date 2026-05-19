@@ -5,6 +5,8 @@ import { MapPin, Phone, MessageCircle, Share2, Heart, Clock } from "lucide-react
 import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 import { whatsappLink } from "@/lib/format";
 import { BusinessFeed } from "@/components/site/BusinessFeed";
+import { BusinessReviews } from "@/components/site/BusinessReviews";
+import { FollowButton } from "@/components/site/FollowButton";
 
 export const Route = createFileRoute("/empresa/$slug")({
   component: BusinessPage,

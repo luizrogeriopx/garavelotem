@@ -142,6 +142,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       }
     }
 
+    if (!businessId && !allAccepted(requiredPolicies, accepted)) {
+      toast.error("Aceite todas as políticas obrigatórias para enviar.");
+      return;
+    }
+
     setLoading(true);
     try {
       const base = {

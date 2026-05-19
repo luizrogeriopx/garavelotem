@@ -54,15 +54,17 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
 
-  // Perfil do usuário (para PF)
+  // Perfil do titular (owner da empresa quando editando; senão o usuário atual)
+  const [ownerIdState, setOwnerIdState] = useState<string | null>(null);
+  const effectiveOwnerId = ownerIdState ?? user?.id ?? null;
   const { data: profile } = useQuery({
-    queryKey: ["profile-for-business", user?.id],
-    enabled: !!user,
+    queryKey: ["profile-for-business", effectiveOwnerId],
+    enabled: !!effectiveOwnerId,
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
         .select("full_name, cpf")
-        .eq("id", user!.id)
+        .eq("id", effectiveOwnerId!)
         .maybeSingle();
       return data;
     },
@@ -106,6 +108,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setEntityType((existing.entity_type as "pf" | "pj") ?? "pf");
       setCnpj(existing.cnpj ? formatCNPJ(existing.cnpj) : "");
       setLegalName(existing.legal_name ?? "");
+      setOwnerIdState(existing.owner_id ?? null);
     }
   }, [existing]);
 

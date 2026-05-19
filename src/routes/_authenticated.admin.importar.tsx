@@ -30,8 +30,10 @@ type Place = {
   rating: number | null;
   rating_count: number | null;
   photo_name: string | null;
+  photo_url: string | null;
   already_imported: boolean;
 };
+
 
 // Aparecida de Goiânia center
 const DEFAULT_LAT = -16.8233;
@@ -209,9 +211,22 @@ function ImportPage() {
                   }
                   className="mt-1"
                 />
+                {r.photo_url ? (
+                  <img
+                    src={r.photo_url}
+                    alt={r.name}
+                    loading="lazy"
+                    className="w-20 h-20 rounded-md object-cover shrink-0 border"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-md bg-muted shrink-0 border flex items-center justify-center text-[10px] text-muted-foreground text-center px-1">
+                    sem foto
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className="font-semibold">{r.name}</h4>
+
                     {r.category_hint && (
                       <span className="text-xs px-2 py-0.5 rounded bg-muted">{r.category_hint}</span>
                     )}

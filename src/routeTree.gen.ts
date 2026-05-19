@@ -38,6 +38,7 @@ import { Route as AuthenticatedAdminPoliticasRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminPlanosRouteImport } from './routes/_authenticated.admin.planos'
 import { Route as AuthenticatedAdminMigracoesRouteImport } from './routes/_authenticated.admin.migracoes'
 import { Route as AuthenticatedAdminInstituicoesRouteImport } from './routes/_authenticated.admin.instituicoes'
+import { Route as AuthenticatedAdminImportarRouteImport } from './routes/_authenticated.admin.importar'
 import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authenticated.admin.empresas'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
@@ -201,6 +202,12 @@ const AuthenticatedAdminInstituicoesRoute =
     path: '/instituicoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminImportarRoute =
+  AuthenticatedAdminImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminEmpresasRoute =
   AuthenticatedAdminEmpresasRouteImport.update({
     id: '/empresas',
@@ -269,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -306,6 +314,7 @@ export interface FileRoutesByTo {
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -345,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/_authenticated/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/_authenticated/admin/instituicoes': typeof AuthenticatedAdminInstituicoesRoute
   '/_authenticated/admin/migracoes': typeof AuthenticatedAdminMigracoesRoute
   '/_authenticated/admin/planos': typeof AuthenticatedAdminPlanosRoute
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
+    | '/admin/importar'
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/empresas'
+    | '/admin/importar'
     | '/admin/instituicoes'
     | '/admin/migracoes'
     | '/admin/planos'
@@ -459,6 +471,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/empresas'
+    | '/_authenticated/admin/importar'
     | '/_authenticated/admin/instituicoes'
     | '/_authenticated/admin/migracoes'
     | '/_authenticated/admin/planos'
@@ -697,6 +710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInstituicoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/importar': {
+      id: '/_authenticated/admin/importar'
+      path: '/importar'
+      fullPath: '/admin/importar'
+      preLoaderRoute: typeof AuthenticatedAdminImportarRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/empresas': {
       id: '/_authenticated/admin/empresas'
       path: '/empresas'
@@ -753,6 +773,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminEmpresasRoute: typeof AuthenticatedAdminEmpresasRoute
+  AuthenticatedAdminImportarRoute: typeof AuthenticatedAdminImportarRoute
   AuthenticatedAdminInstituicoesRoute: typeof AuthenticatedAdminInstituicoesRoute
   AuthenticatedAdminMigracoesRoute: typeof AuthenticatedAdminMigracoesRoute
   AuthenticatedAdminPlanosRoute: typeof AuthenticatedAdminPlanosRoute
@@ -766,6 +787,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminEmpresasRoute: AuthenticatedAdminEmpresasRoute,
+  AuthenticatedAdminImportarRoute: AuthenticatedAdminImportarRoute,
   AuthenticatedAdminInstituicoesRoute: AuthenticatedAdminInstituicoesRoute,
   AuthenticatedAdminMigracoesRoute: AuthenticatedAdminMigracoesRoute,
   AuthenticatedAdminPlanosRoute: AuthenticatedAdminPlanosRoute,

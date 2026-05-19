@@ -250,7 +250,104 @@ function AdminBusinessesPage() {
         business={transferFor}
         onClose={() => setTransferFor(null)}
       />
+      <AcceptancesDialog
+        business={acceptsFor}
+        onClose={() => setAcceptsFor(null)}
+      />
     </div>
+  );
+}
+
+function AcceptancesDialog({
+  business,
+  onClose,
+}: {
+  business: { id: string; name: string; owner_id: string | null } | null;
+  onClose: () => void;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["business-acceptances", business?.id, business?.owner_id],
+    enabled: !!business,
+    queryFn: async () => {
+      // Acceptances tied to this business (context business/claim)
+      const { data: byBiz } = await supabase
+        .from("policy_acceptances")
+        .select("id,policy_slug,context,accepted_at,user_id,claim_id")
+        .eq("business_id", business!.id)
+        .order("accepted_at", { ascending: false });
+      // Owner signup acceptances
+      let byOwner: any[] = [];
+      if (business!.owner_id) {
+        const { data: own } = await supabase
+          .from("policy_acceptances")
+          .select("id,policy_slug,context,accepted_at,user_id")
+          .eq("user_id", business!.owner_id)
+          .eq("context", "signup")
+          .order("accepted_at", { ascending: false });
+        byOwner = own ?? [];
+      }
+      const allRows = [...(byBiz ?? []), ...byOwner];
+      const slugs = Array.from(new Set(allRows.map((r) => r.policy_slug)));
+      const titleMap = new Map<string, string>();
+      if (slugs.length) {
+        const { data: pols } = await supabase
+          .from("policies")
+          .select("slug,title")
+          .in("slug", slugs);
+        (pols ?? []).forEach((p: any) => titleMap.set(p.slug, p.title));
+      }
+      return { byBiz: byBiz ?? [], byOwner, titleMap };
+    },
+  });
+
+  const renderRow = (r: any) => (
+    <li key={r.id} className="py-2 text-sm flex justify-between gap-2 border-b last:border-0">
+      <div>
+        <p className="font-medium">{data?.titleMap.get(r.policy_slug) ?? r.policy_slug}</p>
+        <p className="text-xs text-muted-foreground">
+          Contexto: {r.context}
+          {r.claim_id ? " · via reivindicação" : ""}
+        </p>
+      </div>
+      <span className="text-xs text-muted-foreground whitespace-nowrap">
+        {new Date(r.accepted_at).toLocaleString("pt-BR")}
+      </span>
+    </li>
+  );
+
+  return (
+    <Dialog open={!!business} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Aceites de políticas — {business?.name}</DialogTitle>
+          <DialogDescription>Histórico de aceites registrados.</DialogDescription>
+        </DialogHeader>
+        {isLoading ? (
+          <p className="text-muted-foreground py-4">Carregando…</p>
+        ) : !data || (data.byBiz.length === 0 && data.byOwner.length === 0) ? (
+          <p className="text-muted-foreground py-4">Nenhum aceite registrado para esta empresa.</p>
+        ) : (
+          <div className="space-y-4">
+            {data.byBiz.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">
+                  Vinculados à empresa
+                </h4>
+                <ul>{data.byBiz.map(renderRow)}</ul>
+              </div>
+            )}
+            {data.byOwner.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">
+                  Cadastro do proprietário
+                </h4>
+                <ul>{data.byOwner.map(renderRow)}</ul>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

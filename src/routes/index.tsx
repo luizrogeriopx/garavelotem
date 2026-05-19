@@ -34,32 +34,61 @@ function SectionHeader({ title, accent, to }: { title: string; accent?: string; 
   );
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const loadSeed = Math.random().toString(36).slice(2);
+
 function Home() {
+
   const featured = useQuery({
-    queryKey: ["featured-businesses"],
+    queryKey: ["featured-businesses-pro", loadSeed],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
         .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,is_featured")
         .eq("status", "approved")
-        .order("is_featured", { ascending: false })
-        .limit(6);
+        .eq("is_featured", true)
+        .limit(60);
       if (error) throw error;
-      return (data ?? []) as BusinessCardData[];
+      return shuffle((data ?? []) as BusinessCardData[]).slice(0, 6);
     },
+    staleTime: 0,
+  });
+
+  const classificados = useQuery({
+    queryKey: ["classificados-free", loadSeed],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,is_featured")
+        .eq("status", "approved")
+        .eq("is_featured", false)
+        .limit(120);
+      if (error) throw error;
+      return shuffle((data ?? []) as BusinessCardData[]).slice(0, 6);
+    },
+    staleTime: 0,
   });
 
   const promos = useQuery({
-    queryKey: ["home-promos"],
+    queryKey: ["home-promos", loadSeed],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("promotions")
         .select("id,title,description,image_url,original_price_cents,price_cents,discount_percent,businesses(name,whatsapp,slug)")
         .eq("is_active", true)
-        .limit(8);
+        .limit(60);
       if (error) throw error;
-      return (data ?? []) as unknown as PromotionCardData[];
+      return shuffle((data ?? []) as unknown as PromotionCardData[]).slice(0, 8);
     },
+    staleTime: 0,
   });
 
   const institutions = useQuery({
@@ -94,6 +123,21 @@ function Home() {
             ))}
         </div>
       </section>
+
+      <section>
+        <SectionHeader accent="Plano Free" title="Classificados" to="/empresas" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {(classificados.data ?? []).map((b) => (
+            <BusinessCard key={b.id} b={b} />
+          ))}
+          {!classificados.data &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="aspect-[5/6] rounded-2xl bg-muted animate-pulse" />
+            ))}
+        </div>
+      </section>
+
+
 
       <section>
         <SectionHeader accent="Ao vivo" title="Promoções do dia" to="/promocoes" />

@@ -21,7 +21,10 @@ function BusinessPage() {
   });
 
   if (!b) return <div className="max-w-4xl mx-auto px-4 py-10 text-muted-foreground">Carregando...</div>;
+  return <BusinessPageView business={b} />;
+}
 
+export function BusinessPageView({ business: b }: { business: any }) {
   const hours = (b.hours ?? {}) as Record<string, string>;
 
   return (

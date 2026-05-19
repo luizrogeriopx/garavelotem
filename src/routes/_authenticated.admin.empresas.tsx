@@ -145,6 +145,30 @@ function AdminBusinessesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const blockBizFn = useServerFn(blockBusiness);
+  const blockBiz = useMutation({
+    mutationFn: async ({ id, until }: { id: string; until: string | null }) =>
+      blockBizFn({ data: { businessId: id, until } }),
+    onSuccess: (_d, vars) => {
+      toast.success(vars.until ? "Empresa bloqueada" : "Bloqueio removido");
+      qc.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const promptBlock = (b: { id: string; name: string; blocked_until: string | null }) => {
+    if (b.blocked_until && new Date(b.blocked_until) > new Date()) {
+      if (confirm(`Remover bloqueio de "${b.name}"?`)) blockBiz.mutate({ id: b.id, until: null });
+      return;
+    }
+    const days = prompt(`Bloquear "${b.name}" por quantos dias? (deixe vazio para 7)`, "7");
+    if (days === null) return;
+    const n = Number(days || 7);
+    if (!Number.isFinite(n) || n <= 0) return toast.error("Número inválido");
+    const until = new Date(Date.now() + n * 86_400_000).toISOString();
+    blockBiz.mutate({ id: b.id, until });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">

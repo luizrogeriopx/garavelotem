@@ -165,6 +165,11 @@ function AdminUsersPage() {
                         <ShieldCheck className="h-3 w-3" />Admin
                       </Badge>
                     )}
+                    {u.blocked_until && new Date(u.blocked_until) > new Date() && (
+                      <Badge variant="destructive" className="gap-1">
+                        <Ban className="h-3 w-3" />Bloqueado até {new Date(u.blocked_until).toLocaleDateString("pt-BR")}
+                      </Badge>
+                    )}
                     {!u.profile_completed && <Badge variant="outline">Cadastro incompleto</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
@@ -187,6 +192,22 @@ function AdminUsersPage() {
                       <ShieldCheck className="h-4 w-4 mr-1" /> Tornar admin
                     </Button>
                   )}
+                  <Button size="sm" variant="outline" onClick={() => promptBlockUser(u)}>
+                    <Ban className="h-4 w-4 mr-1" />
+                    {u.blocked_until && new Date(u.blocked_until) > new Date() ? "Desbloquear" : "Bloquear"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => {
+                      if (confirm(`Excluir permanentemente ${u.full_name ?? u.email}? Esta ação não pode ser desfeita.`)) {
+                        deleteMut.mutate(u.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </Card>
             );

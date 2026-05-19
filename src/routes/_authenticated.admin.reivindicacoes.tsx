@@ -114,7 +114,6 @@ function AdminClaimsPage() {
 
             <div className="grid sm:grid-cols-2 gap-2 text-sm">
               <div><strong>Solicitante:</strong> {c.full_name}</div>
-              <div><strong>Conta:</strong> {c.profiles?.full_name ?? "—"} ({c.profiles?.email ?? "—"})</div>
               {c.entity_type === "pf" ? (
                 <div><strong>CPF:</strong> {c.cpf ? formatCPF(c.cpf) : "—"}</div>
               ) : (

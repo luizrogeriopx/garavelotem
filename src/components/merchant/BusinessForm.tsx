@@ -387,6 +387,13 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           onChange={(lat, lng) => setCoords({ lat, lng })}
         />
       </div>
+      <div>
+        <Label>Horário de funcionamento (opcional)</Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Informe os dias e horários em que sua empresa atende. Desligue o switch nos dias fechados.
+        </p>
+        <HoursEditor value={hours} onChange={setHours} />
+      </div>
       {!businessId && (
         <PolicyAcceptanceList
           context="business"

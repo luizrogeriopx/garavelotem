@@ -19,6 +19,7 @@ import {
   recordAcceptances,
   allAccepted,
 } from "@/components/site/PolicyAcceptance";
+import { LocationPicker } from "@/components/merchant/LocationPicker";
 
 function slugify(s: string) {
   return s
@@ -53,6 +54,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     cover_url: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
+  const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
 
   // Perfil do titular (owner da empresa quando editando; senão o usuário atual)
   const [ownerIdState, setOwnerIdState] = useState<string | null>(null);
@@ -109,6 +111,10 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setCnpj(existing.cnpj ? formatCNPJ(existing.cnpj) : "");
       setLegalName(existing.legal_name ?? "");
       setOwnerIdState(existing.owner_id ?? null);
+      setCoords({
+        lat: existing.lat != null ? Number(existing.lat) : null,
+        lng: existing.lng != null ? Number(existing.lng) : null,
+      });
     }
   }, [existing]);
 
@@ -168,6 +174,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         cnpj: entityType === "pj" ? onlyDigits(cnpj) : null,
         legal_name: entityType === "pj" ? legalName || null : profile?.full_name ?? null,
         cpf: entityType === "pf" ? profile?.cpf ?? null : null,
+        lat: coords.lat,
+        lng: coords.lng,
       };
       if (businessId) {
         const { error } = await supabase
@@ -343,6 +351,14 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       <div>
         <Label htmlFor="bairro">Bairro</Label>
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
+      </div>
+      <div>
+        <Label>Localização no mapa</Label>
+        <LocationPicker
+          lat={coords.lat}
+          lng={coords.lng}
+          onChange={(lat, lng) => setCoords({ lat, lng })}
+        />
       </div>
       {!businessId && (
         <PolicyAcceptanceList

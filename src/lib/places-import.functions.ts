@@ -155,7 +155,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
     return {
       results: places.map((p) => {
         const neighborhood =
-          p.addressComponents?.find((c) => c.types.includes("sublocality") || c.types.includes("sublocality_level_1"))
+          p.addressComponents?.find((c) => (c.types ?? []).some((t) => t === "sublocality" || t === "sublocality_level_1"))
             ?.longText ?? null;
         return {
           place_id: p.id,

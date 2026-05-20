@@ -13,7 +13,7 @@ type FollowRow = {
   follower_business_id: string | null;
 };
 
-export function FollowButton({ businessId }: { businessId: string }) {
+export function FollowButton({ businessId, compact = false }: { businessId: string; compact?: boolean }) {
   const qc = useQueryClient();
   const { user } = useAuth();
   const { data: myBizs } = useMyBusinesses();

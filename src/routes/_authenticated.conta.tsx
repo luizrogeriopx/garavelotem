@@ -13,6 +13,7 @@ import {
 import { useNotifications } from "@/hooks/use-notifications";
 import { formatDistanceToNowStrict } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 import { QrReader } from "@/components/QrReader";

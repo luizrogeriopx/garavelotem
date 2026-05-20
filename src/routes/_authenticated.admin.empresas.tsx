@@ -390,20 +390,20 @@ function AdminBusinessesPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold truncate">{b.name}</p>
-                    {b.is_verified && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
+                    {b.is_verified && <Badge variant="secondary" className="gap-1 whitespace-nowrap"><ShieldCheck className="h-3 w-3" />Verificada</Badge>}
                     {b.blocked_until && new Date(b.blocked_until) > new Date() && (
-                      <Badge variant="destructive" className="gap-1">
+                      <Badge variant="destructive" className="gap-1 whitespace-nowrap">
                         <Ban className="h-3 w-3" />Bloqueada até {new Date(b.blocked_until).toLocaleDateString("pt-BR")}
                       </Badge>
                     )}
-                    {user && b.owner_id === user.id && <Badge variant="outline">Sem dono</Badge>}
+                    {user && b.owner_id === user.id && <Badge variant="outline" className="whitespace-nowrap">Sem dono</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
                     {b.neighborhood ? `${b.neighborhood} · ` : ""}{b.city} · {b.whatsapp ?? "sem WhatsApp"}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex flex-wrap gap-2 items-center sm:shrink-0">
                 {plans && (
                   <Select
                     value={b.plan_id ?? undefined}

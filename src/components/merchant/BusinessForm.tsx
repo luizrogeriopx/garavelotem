@@ -329,13 +329,33 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       </div>
       <div>
         <Label>Categoria *</Label>
-        <Select value={form.category_id} onValueChange={(v) => set("category_id", v)}>
+        <Select 
+          value={form.category_id} 
+          onValueChange={(v) => {
+            set("category_id", v);
+            set("subcategory_id", "");
+          }}
+        >
           <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
           <SelectContent>
             {categories?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
+
+      {form.category_id && subcategories && subcategories.length > 0 && (
+        <div>
+          <Label>Subcategoria *</Label>
+          <Select value={form.subcategory_id} onValueChange={(v) => set("subcategory_id", v)}>
+            <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
+            <SelectContent>
+              {subcategories.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div>
         <Label htmlFor="short">Frase curta (aparece nos cards)</Label>
         <Input id="short" maxLength={80} value={form.short_description} onChange={(e) => set("short_description", e.target.value)} />

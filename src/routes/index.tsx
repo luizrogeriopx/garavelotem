@@ -6,7 +6,9 @@ import { BannerCarousel } from "@/components/site/BannerCarousel";
 import { BusinessCard, type BusinessCardData } from "@/components/site/BusinessCard";
 import { PromotionCard, type PromotionCardData } from "@/components/site/PromotionCard";
 import { InstitutionCard, type InstitutionCardData } from "@/components/site/InstitutionCard";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight, Sparkles, Download, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: Home,

@@ -621,6 +621,7 @@ function CreateBusinessDialog({
   const [form, setForm] = useState({
     name: "",
     category_id: "",
+    subcategory_id: "",
     whatsapp: "",
     neighborhood: "Setor Garavelo",
     short_description: "",

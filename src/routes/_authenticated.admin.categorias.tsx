@@ -60,11 +60,17 @@ function AdminCategoriesPage() {
       }
     },
     onSuccess: () => {
-      toast.success("Categoria salva");
+      toast.success("Sucesso", {
+        description: "A categoria foi salva corretamente.",
+        icon: <CheckCircle2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
       setEditing(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha ao salvar", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   const remove = useMutation({

@@ -13,7 +13,7 @@ type FollowRow = {
   follower_business_id: string | null;
 };
 
-export function FollowButton({ businessId }: { businessId: string }) {
+export function FollowButton({ businessId, compact = false }: { businessId: string; compact?: boolean }) {
   const qc = useQueryClient();
   const { user } = useAuth();
   const { data: myBizs } = useMyBusinesses();
@@ -70,13 +70,18 @@ export function FollowButton({ businessId }: { businessId: string }) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const sizeCls = compact
+    ? "text-xs px-3 py-1.5 rounded-full"
+    : "text-sm py-3 rounded-xl";
+  const iconCls = compact ? "size-3.5" : "size-4";
+
   if (!user) {
     return (
       <Link
         to="/login"
-        className="bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2"
+        className={`bg-card shadow-card font-semibold ${sizeCls} flex items-center justify-center gap-2`}
       >
-        <Heart className="size-4" /> Seguir
+        <Heart className={iconCls} /> Seguir
       </Link>
     );
   }
@@ -89,26 +94,29 @@ export function FollowButton({ businessId }: { businessId: string }) {
         onClick={() =>
           isFollowing ? unfollow.mutate(myUserFollow!.id) : follow.mutate(null)
         }
-        className={`shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2 ${
+        className={`shadow-card font-semibold ${sizeCls} flex items-center justify-center gap-2 ${
           isFollowing ? "bg-brand text-brand-foreground" : "bg-card"
         }`}
       >
-        <Heart className={`size-4 ${isFollowing ? "fill-current" : ""}`} />
+        <Heart className={`${iconCls} ${isFollowing ? "fill-current" : ""}`} />
         {isFollowing ? "Seguindo" : "Seguir"}
-        {count > 0 && <span className="opacity-70">· {count}</span>}
+        {!compact && count > 0 && <span className="opacity-70">· {count}</span>}
       </button>
     );
   }
 
+  const anyFollowing = !!myUserFollow || myBizFollows.size > 0;
   return (
     <div className="relative">
       <button
         onClick={() => setPickerOpen((o) => !o)}
-        className="w-full bg-card shadow-card font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2"
+        className={`w-full shadow-card font-semibold ${sizeCls} flex items-center justify-center gap-2 ${
+          anyFollowing ? "bg-brand text-brand-foreground" : "bg-card"
+        }`}
       >
-        <Heart className="size-4" />
-        Seguir
-        {count > 0 && <span className="opacity-70">· {count}</span>}
+        <Heart className={`${iconCls} ${anyFollowing ? "fill-current" : ""}`} />
+        {anyFollowing ? "Seguindo" : "Seguir"}
+        {!compact && count > 0 && <span className="opacity-70">· {count}</span>}
         <ChevronDown className="size-3" />
       </button>
       {pickerOpen && (

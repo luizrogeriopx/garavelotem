@@ -81,13 +81,38 @@ export function BusinessPageView({ business: b }: { business: any }) {
           <section className="mt-8">
             <h2 className="font-display font-bold text-lg text-brand">Endereço</h2>
             <p className="text-sm text-muted-foreground mt-1">{b.address} — {b.neighborhood}, {b.city}/{b.state}</p>
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${b.address}, ${b.neighborhood}`)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 bg-brand text-brand-foreground text-sm font-semibold px-4 py-2 rounded-full"
-            >
-              <MapPin className="size-4" /> Ver rota
-            </a>
+            {(() => {
+              const query = encodeURIComponent(`${b.address}, ${b.neighborhood}, ${b.city} - ${b.state}`);
+              const hasCoords = b.lat != null && b.lng != null;
+              const ll = hasCoords ? `${b.lat},${b.lng}` : null;
+              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+              const wazeUrl = ll
+                ? `https://waze.com/ul?ll=${ll}&navigate=yes`
+                : `https://waze.com/ul?q=${query}&navigate=yes`;
+              const uberUrl = ll
+                ? `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${b.lat}&dropoff[longitude]=${b.lng}&dropoff[nickname]=${encodeURIComponent(b.name)}`
+                : `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[nickname]=${encodeURIComponent(b.name)}&dropoff[formatted_address]=${query}`;
+              const noveNoveUrl = ll
+                ? `https://99app.com/passenger?dropoff_lat=${b.lat}&dropoff_lng=${b.lng}&dropoff_name=${encodeURIComponent(b.name)}`
+                : `https://99app.com/passenger?dropoff_address=${query}`;
+              const btn = "bg-card shadow-card text-sm font-semibold px-3 py-2 rounded-full inline-flex items-center justify-center gap-2";
+              return (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-brand text-brand-foreground`}>
+                    <MapPin className="size-4" /> Google Maps
+                  </a>
+                  <a href={wazeUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                    <MapPin className="size-4" /> Waze
+                  </a>
+                  <a href={uberUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                    Uber
+                  </a>
+                  <a href={noveNoveUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                    99
+                  </a>
+                </div>
+              );
+            })()}
           </section>
         )}
 
@@ -112,21 +137,24 @@ export function BusinessPageView({ business: b }: { business: any }) {
         })()}
 
         {(() => {
+          const DAY_ORDER = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
           const DAY_LABELS: Record<string, string> = {
-            mon: "Segunda", tue: "Terça", wed: "Quarta", thu: "Quinta",
-            fri: "Sexta", sat: "Sábado", sun: "Domingo",
+            sun: "Domingo", mon: "Segunda", tue: "Terça", wed: "Quarta",
+            thu: "Quinta", fri: "Sexta", sat: "Sábado",
           };
-          const entries = Object.entries(hours).map(([d, h]) => {
-            let label = DAY_LABELS[d] ?? d;
-            let text = "";
-            if (typeof h === "string") {
-              text = h;
-            } else if (h && typeof h === "object") {
-              const o = h as { closed?: boolean; open?: string; close?: string };
-              text = o.closed ? "Fechado" : `${o.open ?? ""} - ${o.close ?? ""}`;
-            }
-            return { d, label, text };
-          });
+          const entries = DAY_ORDER
+            .filter((d) => d in hours)
+            .map((d) => {
+              const h = hours[d];
+              let text = "";
+              if (typeof h === "string") {
+                text = h;
+              } else if (h && typeof h === "object") {
+                const o = h as { closed?: boolean; open?: string; close?: string };
+                text = o.closed ? "Fechado" : `${o.open ?? ""} - ${o.close ?? ""}`;
+              }
+              return { d, label: DAY_LABELS[d], text };
+            });
           if (entries.length === 0) return null;
           return (
             <section className="mt-8">
@@ -134,7 +162,7 @@ export function BusinessPageView({ business: b }: { business: any }) {
               <ul className="mt-2 text-sm">
                 {entries.map(({ d, label, text }) => (
                   <li key={d} className="flex justify-between py-1 border-b border-border last:border-0">
-                    <span className="capitalize text-muted-foreground">{label}</span>
+                    <span className="text-muted-foreground">{label}</span>
                     <span>{text}</span>
                   </li>
                 ))}

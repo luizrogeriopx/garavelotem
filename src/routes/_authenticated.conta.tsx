@@ -324,11 +324,30 @@ function AccountPage() {
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function StatCard({ 
+  icon, 
+  label, 
+  value, 
+  onClick, 
+  highlight 
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  value: number; 
+  onClick?: () => void;
+  highlight?: boolean;
+}) {
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon} {label}</div>
-      <p className="font-display font-extrabold text-2xl text-brand mt-1">{value}</p>
+    <Card 
+      className={`p-4 transition-all ${onClick ? 'cursor-pointer hover:border-brand/40' : ''} ${highlight ? 'bg-highlight/5 border-highlight/40 shadow-sm' : ''}`}
+      onClick={onClick}
+    >
+      <div className={`flex items-center gap-2 text-xs ${highlight ? 'text-highlight font-semibold' : 'text-muted-foreground'}`}>
+        {icon} {label}
+      </div>
+      <p className={`font-display font-extrabold text-2xl mt-1 ${highlight ? 'text-highlight' : 'text-brand'}`}>
+        {value}
+      </p>
     </Card>
   );
 }

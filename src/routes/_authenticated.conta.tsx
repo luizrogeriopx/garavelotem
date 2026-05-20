@@ -127,7 +127,7 @@ function AccountPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6">
         <StatCard 
           icon={<Bell className="size-4" />} 
           label="Notificações" 
@@ -135,6 +135,7 @@ function AccountPage() {
           onClick={() => setActiveTab("notifications")} 
           highlight={unreadCount > 0} 
         />
+        <StatCard icon={<Ticket className="size-4" />} label="Meus Cupons" value={0} onClick={() => setActiveTab("coupons")} />
         <StatCard icon={<Store className="size-4" />} label="Empresas" value={businesses?.length ?? 0} onClick={() => setActiveTab("businesses")} />
         <StatCard icon={<Eye className="size-4" />} label="Visualizações" value={totals.views} />
         <StatCard icon={<MessageCircle className="size-4" />} label="WhatsApp" value={totals.clicks} />

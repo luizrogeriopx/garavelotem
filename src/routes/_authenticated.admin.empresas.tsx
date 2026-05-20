@@ -657,6 +657,7 @@ function CreateBusinessDialog({
         name: form.name.trim(),
         slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
         category_id: form.category_id || null,
+        subcategory_id: form.subcategory_id || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),
         neighborhood: form.neighborhood || null,
         short_description: form.short_description.trim() || null,

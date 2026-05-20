@@ -43,7 +43,7 @@ function AccountPage() {
   const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
   const [profileChangeOpen, setProfileChangeOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(user?.id);
-  const [activeTab, setActiveTab] = useState<"businesses" | "notifications">("businesses");
+  const [activeTab, setActiveTab] = useState<"businesses" | "notifications" | "coupons">("businesses");
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["my-businesses", user?.id],

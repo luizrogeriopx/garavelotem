@@ -220,6 +220,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lng: coords.lng,
         hours,
         username: form.username.trim() ? form.username.trim().toLowerCase() : null,
+        instagram: form.instagram.trim() || null,
+        facebook: form.facebook.trim() || null,
+        youtube: form.youtube.trim() || null,
+        tiktok: form.tiktok.trim() || null,
+        threads: form.threads.trim() || null,
       };
       if (businessId) {
         const { error } = await supabase

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Heart, MessageCircle, Send, Trash2, CornerDownRight } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, CornerDownRight, Share2, Bookmark, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { formatDistanceToNowStrict } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { IdentityBadge } from "./IdentityBadge";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { FollowButton } from "./FollowButton";
@@ -94,26 +96,47 @@ function PostHeader({ business }: { business: BizHeader }) {
   const linkProps = business.username
     ? ({ to: "/$username" as const, params: { username: business.username } } as const)
     : ({ to: "/empresa/$slug" as const, params: { slug: business.slug } } as const);
+  const handle = business.username ?? business.slug;
   return (
     <div className="flex items-center gap-3 p-3">
       <Link {...linkProps} className="shrink-0">
-        <div className="size-10 rounded-full bg-muted overflow-hidden ring-1 ring-border">
-          {business.logo_url && (
-            <img src={business.logo_url} alt="" className="size-full object-cover" />
-          )}
+        <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-fuchsia-600">
+          <div className="size-11 rounded-full bg-card p-[2px]">
+            <div className="size-full rounded-full bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground">
+              {business.logo_url ? (
+                <img src={business.logo_url} alt="" className="size-full object-cover" />
+              ) : (
+                <span>{business.name.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+          </div>
         </div>
       </Link>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 leading-tight">
         <Link {...linkProps} className="font-semibold text-sm flex items-center gap-1 hover:underline truncate">
-          <span className="truncate">{business.name}</span>
-          {isPro && <VerifiedBadge className="size-4 shrink-0" />}
+          <span className="truncate">{handle}</span>
+          {isPro && <VerifiedBadge className="size-3.5 shrink-0" />}
+        </Link>
+        <Link {...linkProps} className="block text-xs text-muted-foreground truncate hover:underline">
+          {business.name}
         </Link>
       </div>
-      <div className="shrink-0">
+      <div className="shrink-0 flex items-center gap-1">
         <FollowButton businessId={business.id} compact />
+        <button className="p-1.5 text-muted-foreground hover:text-foreground" aria-label="Mais opções">
+          <MoreHorizontal className="size-5" />
+        </button>
       </div>
     </div>
   );
+}
+
+function relativeTime(iso: string) {
+  try {
+    return formatDistanceToNowStrict(new Date(iso), { addSuffix: true, locale: ptBR });
+  } catch {
+    return "";
+  }
 }
 
 function PostCard({
@@ -198,48 +221,89 @@ function PostCard({
   ];
   const avatars = likers.slice(0, 5);
 
+  const handle = business?.username ?? business?.slug ?? "";
+
   return (
     <article className="bg-card rounded-2xl shadow-card overflow-hidden">
       {business && <PostHeader business={business} />}
       <img src={post.image_url} alt={post.caption ?? ""} className="w-full aspect-square object-cover bg-muted" />
-      <div className="p-3">
-        <div className="flex items-center gap-3">
+      <div className="px-3 pt-2 pb-3">
+        <div className="flex items-center gap-1 -ml-1.5">
           <button
             onClick={() => toggleLike.mutate()}
-            className="flex items-center gap-1 text-sm font-semibold"
+            className="p-1.5 hover:opacity-70 transition-opacity"
             aria-label={liked ? "Descurtir" : "Curtir"}
           >
-            <Heart className={`size-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
-            <span>{liked ? "Curtiu" : "Curtir"}</span>
+            <Heart className={`size-6 ${liked ? "fill-red-500 text-red-500" : ""}`} strokeWidth={1.8} />
           </button>
           <button
             onClick={() => setShowComments((s) => !s)}
-            className="flex items-center gap-1 text-sm font-semibold ml-auto"
+            className="p-1.5 hover:opacity-70 transition-opacity"
+            aria-label="Comentar"
           >
-            <MessageCircle className="size-5" />
-            <span>{commentCount ?? 0}</span>
+            <MessageCircle className="size-6" strokeWidth={1.8} />
+          </button>
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/empresa/${business?.slug ?? ""}`;
+              if (navigator.share) navigator.share({ url }).catch(() => {});
+              else { navigator.clipboard.writeText(url); toast.success("Link copiado"); }
+            }}
+            className="p-1.5 hover:opacity-70 transition-opacity"
+            aria-label="Compartilhar"
+          >
+            <Share2 className="size-6" strokeWidth={1.8} />
+          </button>
+          <button className="p-1.5 ml-auto hover:opacity-70 transition-opacity" aria-label="Salvar">
+            <Bookmark className="size-6" strokeWidth={1.8} />
           </button>
         </div>
-        {likers.length > 0 && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-            <div className="flex -space-x-2 shrink-0">
-              {avatars.map((a) => (
-                <div key={a.key} className="size-6 rounded-full bg-muted overflow-hidden ring-2 ring-card flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
-                  {a.src ? (
-                    <img src={a.src} alt={a.name} className="size-full object-cover" />
-                  ) : (
-                    <span>{a.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-              ))}
-            </div>
+
+        {likeCount > 0 && (
+          <div className="mt-1 flex items-center gap-2 text-sm">
+            {avatars.length > 0 && (
+              <div className="flex -space-x-2 shrink-0">
+                {avatars.slice(0, 3).map((a) => (
+                  <div key={a.key} className="size-5 rounded-full bg-muted overflow-hidden ring-2 ring-card flex items-center justify-center text-[9px] font-semibold text-muted-foreground">
+                    {a.src ? (
+                      <img src={a.src} alt={a.name} className="size-full object-cover" />
+                    ) : (
+                      <span>{a.name.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
             <span className="truncate">
-              Curtido por <span className="font-semibold text-foreground">{likers[0].name}</span>
-              {likers.length > 1 && <> e outras {likers.length - 1}</>}
+              {likers.length > 0 ? (
+                <>Curtido por <span className="font-semibold">{likers[0].name}</span>{likeCount > 1 && <> e outras <span className="font-semibold">{likeCount - 1}</span></>}</>
+              ) : (
+                <><span className="font-semibold">{likeCount}</span> {likeCount === 1 ? "curtida" : "curtidas"}</>
+              )}
             </span>
           </div>
         )}
-        {post.caption && <p className="mt-2 text-sm whitespace-pre-wrap">{post.caption}</p>}
+
+        {post.caption && (
+          <p className="mt-1 text-sm whitespace-pre-wrap leading-snug">
+            {handle && <span className="font-semibold mr-1.5">{handle}</span>}
+            {post.caption}
+          </p>
+        )}
+
+        {(commentCount ?? 0) > 0 && !showComments && (
+          <button
+            onClick={() => setShowComments(true)}
+            className="mt-1 text-sm text-muted-foreground hover:underline block"
+          >
+            Ver {commentCount === 1 ? "1 comentário" : `todos os ${commentCount} comentários`}
+          </button>
+        )}
+
+        <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+          {relativeTime(post.created_at)}
+        </p>
+
         {showComments && <Comments postId={post.id} user={user} qc={qc} />}
       </div>
     </article>

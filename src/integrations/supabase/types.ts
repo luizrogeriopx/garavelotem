@@ -466,6 +466,59 @@ export type Database = {
           },
         ]
       }
+      coupons: {
+        Row: {
+          business_id: string
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_discount_value: number | null
+          usage_count: number | null
+          usage_limit: number
+        }
+        Insert: {
+          business_id: string
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_discount_value?: number | null
+          usage_count?: number | null
+          usage_limit: number
+        }
+        Update: {
+          business_id?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_discount_value?: number | null
+          usage_count?: number | null
+          usage_limit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           business_id: string
@@ -1038,6 +1091,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_coupons: {
+        Row: {
+          claimed_at: string
+          coupon_id: string
+          id: string
+          status: string | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          coupon_id: string
+          id?: string
+          status?: string | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          coupon_id?: string
+          id?: string
+          status?: string | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_coupons_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1064,6 +1152,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_coupon: { Args: { p_coupon_id: string }; Returns: undefined }
       create_notification: {
         Args: {
           p_business_id: string
@@ -1086,6 +1175,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_user_coupon: {
+        Args: { p_user_coupon_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "merchant" | "user"
@@ -1094,6 +1187,7 @@ export type Database = {
       change_request_target: "profile" | "business"
       claim_entity_type: "pf" | "pj"
       claim_status: "pending" | "approved" | "rejected"
+      discount_type: "fixed" | "percentage"
       entity_type: "pf" | "pj"
       institution_kind:
         | "posto_saude"
@@ -1247,6 +1341,7 @@ export const Constants = {
       change_request_target: ["profile", "business"],
       claim_entity_type: ["pf", "pj"],
       claim_status: ["pending", "approved", "rejected"],
+      discount_type: ["fixed", "percentage"],
       entity_type: ["pf", "pj"],
       institution_kind: [
         "posto_saude",

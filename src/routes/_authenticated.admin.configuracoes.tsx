@@ -366,3 +366,122 @@ function PwaSettingsCard() {
     </Card>
   );
 }
+
+function PwaIconUploader({
+  value,
+  backgroundColor,
+  label,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  backgroundColor: string;
+  label: string;
+  onChange: (url: string) => void;
+  disabled?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const upload = useMutation({
+    mutationFn: async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Selecione um arquivo de imagem (PNG ou JPG).");
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error("Imagem muito grande. Limite de 2MB.");
+      }
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `pwa/icon-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage
+        .from("app-assets")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("app-assets").getPublicUrl(path);
+      return data.publicUrl;
+    },
+    onSuccess: (url) => {
+      onChange(url);
+      toast.success("Ícone enviado", {
+        description: "Lembre de clicar em Salvar PWA para confirmar.",
+        icon: <ImageIcon className="size-4" />,
+      });
+    },
+    onError: (e: Error) =>
+      toast.error("Falha no upload", {
+        description: e.message,
+        icon: <AlertCircle className="size-4" />,
+      }),
+  });
+
+  return (
+    <div className="space-y-2">
+      <Label>Ícone do app</Label>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) upload.mutate(file);
+          e.target.value = "";
+        }}
+      />
+
+      <div className="flex items-center gap-4 rounded-xl border border-dashed p-4 bg-muted/5">
+        <div
+          className="size-20 shrink-0 rounded-2xl border bg-muted overflow-hidden flex items-center justify-center shadow-sm"
+          style={{ backgroundColor }}
+        >
+          {value ? (
+            <img src={value} alt="Ícone do PWA" className="size-full object-cover" />
+          ) : (
+            <ImageIcon className="size-8 text-muted-foreground/40" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 space-y-2">
+          <div>
+            <p className="text-sm font-medium truncate">{label || "Garavelo Tem"}</p>
+            <p className="text-xs text-muted-foreground">
+              PNG ou JPG quadrado. Recomendado 512×512px. Máx. 2MB.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => inputRef.current?.click()}
+              disabled={disabled || upload.isPending}
+            >
+              {upload.isPending ? (
+                <>
+                  <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Upload className="size-3.5 mr-1.5" />
+                  {value ? "Trocar ícone" : "Enviar ícone"}
+                </>
+              )}
+            </Button>
+            {value && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => onChange("")}
+                disabled={disabled || upload.isPending}
+              >
+                <X className="size-3.5 mr-1.5" />
+                Remover
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -389,7 +389,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Input id="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
       </div>
       {(() => {
-        const isPro = ((existing as any)?.plans?.slug) === "pro";
+        const isPro = ((existing as any)?.plans?.slug) === "pro" || isPlatform;
         return (
           <div>
             <Label htmlFor="username" className="flex items-center gap-2">

@@ -32,7 +32,12 @@ function AdminPromosPage() {
       const { error } = await supabase.from("promotions").update({ is_active }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-promotions"] }),
+    onSuccess: (_d, vars) => {
+      toast.success(vars.is_active ? "Promoção ativada" : "Promoção pausada", {
+        icon: vars.is_active ? <CheckCircle2 className="size-4" /> : <Tag className="size-4 opacity-50" />
+      });
+      qc.invalidateQueries({ queryKey: ["admin-promotions"] });
+    },
   });
 
   const remove = useMutation({

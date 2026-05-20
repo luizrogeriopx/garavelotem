@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Search, MapPin, Phone, Star, Loader2, Download } from "lucide-react";
+import { Search, MapPin, Phone, Star, Loader2, Download, CheckCircle2, Info, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/importar")({
   component: ImportPage,

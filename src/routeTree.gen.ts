@@ -32,6 +32,7 @@ import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedCompletarCadastroRouteImport } from './routes/_authenticated.completar-cadastro'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAceitarPoliticasRouteImport } from './routes/_authenticated.aceitar-politicas'
+import { Route as ApiPublicManifestRouteImport } from './routes/api/public/manifest'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated.admin.usuarios'
 import { Route as AuthenticatedAdminReivindicacoesRouteImport } from './routes/_authenticated.admin.reivindicacoes'
 import { Route as AuthenticatedAdminPromocoesRouteImport } from './routes/_authenticated.admin.promocoes'
@@ -169,6 +170,11 @@ const AuthenticatedAceitarPoliticasRoute =
     path: '/aceitar-politicas',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicManifestRoute = ApiPublicManifestRouteImport.update({
+  id: '/api/public/manifest',
+  path: '/api/public/manifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
@@ -315,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/public/manifest': typeof ApiPublicManifestRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/public/manifest': typeof ApiPublicManifestRoute
   '/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/promocoes': typeof AuthenticatedAdminPromocoesRoute
   '/_authenticated/admin/reivindicacoes': typeof AuthenticatedAdminReivindicacoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/public/manifest': typeof ApiPublicManifestRoute
   '/_authenticated/empresa/$id/editar': typeof AuthenticatedEmpresaIdEditarRoute
   '/_authenticated/empresa/$id/posts': typeof AuthenticatedEmpresaIdPostsRoute
   '/_authenticated/empresa/$id/promocoes': typeof AuthenticatedEmpresaIdPromocoesRoute
@@ -445,6 +454,7 @@ export interface FileRouteTypes {
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
+    | '/api/public/manifest'
     | '/empresa/$id/editar'
     | '/empresa/$id/posts'
     | '/empresa/$id/promocoes'
@@ -487,6 +497,7 @@ export interface FileRouteTypes {
     | '/admin/promocoes'
     | '/admin/reivindicacoes'
     | '/admin/usuarios'
+    | '/api/public/manifest'
     | '/empresa/$id/editar'
     | '/empresa/$id/posts'
     | '/empresa/$id/promocoes'
@@ -530,6 +541,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/promocoes'
     | '/_authenticated/admin/reivindicacoes'
     | '/_authenticated/admin/usuarios'
+    | '/api/public/manifest'
     | '/_authenticated/empresa/$id/editar'
     | '/_authenticated/empresa/$id/posts'
     | '/_authenticated/empresa/$id/promocoes'
@@ -554,6 +566,7 @@ export interface RootRouteChildren {
   PoliticasSlugRoute: typeof PoliticasSlugRoute
   CategoriasIndexRoute: typeof CategoriasIndexRoute
   PoliticasIndexRoute: typeof PoliticasIndexRoute
+  ApiPublicManifestRoute: typeof ApiPublicManifestRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -719,6 +732,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/aceitar-politicas'
       preLoaderRoute: typeof AuthenticatedAceitarPoliticasRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/manifest': {
+      id: '/api/public/manifest'
+      path: '/api/public/manifest'
+      fullPath: '/api/public/manifest'
+      preLoaderRoute: typeof ApiPublicManifestRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
@@ -932,6 +952,7 @@ const rootRouteChildren: RootRouteChildren = {
   PoliticasSlugRoute: PoliticasSlugRoute,
   CategoriasIndexRoute: CategoriasIndexRoute,
   PoliticasIndexRoute: PoliticasIndexRoute,
+  ApiPublicManifestRoute: ApiPublicManifestRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

@@ -14,7 +14,7 @@ async function assertAdmin(userId: string) {
 }
 
 async function countTable(table: string, filter?: (q: any) => any): Promise<number> {
-  let q = (supabaseAdmin.from(table) as any).select("*", { count: "exact", head: true });
+  let q = ((supabaseAdmin as any).from(table) as any).select("*", { count: "exact", head: true });
   if (filter) q = filter(q);
   const { count, error } = await q;
   if (error) return 0;

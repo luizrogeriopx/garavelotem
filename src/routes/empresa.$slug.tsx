@@ -170,20 +170,6 @@ export function BusinessPageView({ business: b }: { business: any }) {
             </section>
           );
         })()}
-          return (
-            <section className="mt-8">
-              <h2 className="font-display font-bold text-lg text-brand flex items-center gap-2"><Clock className="size-4" /> Horários</h2>
-              <ul className="mt-2 text-sm">
-                {entries.map(({ d, label, text }) => (
-                  <li key={d} className="flex justify-between py-1 border-b border-border last:border-0">
-                    <span className="capitalize text-muted-foreground">{label}</span>
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })()}
 
         <BusinessReviews businessId={b.id} />
       </div>

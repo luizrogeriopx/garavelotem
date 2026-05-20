@@ -189,7 +189,39 @@ function AccountPage() {
             Voltar para minhas empresas
           </Button>
         </div>
-      ) : (
+      ) : activeTab === "coupons" ? (
+        <div className="mt-8">
+           <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-lg">Cupons e Promoções</h2>
+            <Button size="sm" className="bg-brand text-brand-foreground rounded-full" onClick={() => setQrOpen(true)}>
+              <QrCode className="size-4 mr-1" /> Validar cupom de cliente
+            </Button>
+          </div>
+          
+          <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Validar Cupom de Cliente</DialogTitle>
+                <DialogDescription>Use a câmera do seu celular para ler o QR Code apresentado pelo cliente.</DialogDescription>
+              </DialogHeader>
+              <QrReader onScan={(code) => { setQrOpen(false); setCouponSearch(code); }} onClose={() => setQrOpen(false)} />
+            </DialogContent>
+          </Dialog>
+
+          <div className="space-y-4">
+             {/* UI for coupons management and user claimed coupons would go here */}
+             <Card className="p-8 text-center text-muted-foreground border-dashed">
+                <Ticket className="size-10 mx-auto opacity-20 mb-2" />
+                <p>Gerencie seus cupons de desconto Pro ou veja os que você retirou.</p>
+                <p className="text-xs mt-1">Funcionalidade em fase final de ativação.</p>
+             </Card>
+          </div>
+          
+          <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => setActiveTab("businesses")}>
+            Voltar para minhas empresas
+          </Button>
+        </div>
+
         <>
           <div className="mt-8 flex items-center justify-between">
             <h2 className="font-display font-bold text-lg">Minhas empresas</h2>

@@ -8,8 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog, Bell, CheckCircle,
 } from "lucide-react";
+import { useNotifications, type Notification } from "@/hooks/use-notifications";
+import { formatDistanceToNowStrict } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";

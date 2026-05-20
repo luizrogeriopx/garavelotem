@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Heart, MessageCircle, Send, Trash2, CornerDownRight, Share2, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, CornerDownRight, Share2, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { formatDistanceToNowStrict } from "date-fns";

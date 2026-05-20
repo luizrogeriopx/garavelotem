@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, Tag } from "lucide-react";
+import { Trash2, Tag, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBRL } from "@/lib/format";
 

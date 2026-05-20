@@ -233,18 +233,18 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label className="font-semibold">Tipo de empresa *</Label>
         <RadioGroup
           value={entityType}
-          onValueChange={(v) => !isEditing && setEntityType(v as "pf" | "pj")}
+          onValueChange={(v) => !lockEditing && setEntityType(v as "pf" | "pj")}
           className="flex flex-col sm:flex-row gap-3 mt-2"
         >
-          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${isEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
-            <RadioGroupItem value="pf" id="pf" disabled={isEditing} />
+          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${lockEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+            <RadioGroupItem value="pf" id="pf" disabled={lockEditing} />
             <div>
               <p className="font-medium text-sm">Pessoa Física</p>
               <p className="text-xs text-muted-foreground">Usa seus dados de cadastro (CPF).</p>
             </div>
           </label>
-          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${isEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
-            <RadioGroupItem value="pj" id="pj" disabled={isEditing} />
+          <label className={`flex items-center gap-2 flex-1 rounded-lg border p-3 has-[:checked]:border-brand has-[:checked]:bg-background ${lockEditing ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+            <RadioGroupItem value="pj" id="pj" disabled={lockEditing} />
             <div>
               <p className="font-medium text-sm">Pessoa Jurídica</p>
               <p className="text-xs text-muted-foreground">Empresa com CNPJ ativo na Receita.</p>
@@ -262,7 +262,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         {entityType === "pj" && (
           <div className="mt-3 space-y-2">
             <Label htmlFor="cnpj" className="flex items-center gap-1">
-              CNPJ * {isEditing && <Lock className="size-3 text-muted-foreground" />}
+              CNPJ * {lockEditing && <Lock className="size-3 text-muted-foreground" />}
             </Label>
             <div className="flex gap-2">
               <Input
@@ -270,10 +270,10 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
                 required
                 placeholder="00.000.000/0000-00"
                 value={cnpj}
-                disabled={isEditing}
+                disabled={lockEditing}
                 onChange={(e) => { setCnpj(formatCNPJ(e.target.value)); setCnpjStatus(null); }}
               />
-              {!isEditing && (
+              {!lockEditing && (
                 <Button type="button" variant="outline" onClick={checkCnpj} disabled={checkingCnpj || !cnpj}>
                   {checkingCnpj ? <Loader2 className="size-4 animate-spin" /> : "Validar"}
                 </Button>
@@ -291,7 +291,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           </div>
         )}
 
-        {isEditing && (
+        {lockEditing && (
           <div className="mt-3 rounded-lg border border-dashed bg-background p-3 text-xs text-muted-foreground space-y-2">
             <p className="flex items-center gap-1">
               <Lock className="size-3" />
@@ -306,9 +306,9 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
 
       <div>
         <Label htmlFor="name" className="flex items-center gap-1">
-          Nome da empresa * {isEditing && <Lock className="size-3 text-muted-foreground" />}
+          Nome da empresa * {lockEditing && <Lock className="size-3 text-muted-foreground" />}
         </Label>
-        <Input id="name" required maxLength={120} value={form.name} disabled={isEditing} onChange={(e) => set("name", e.target.value)} />
+        <Input id="name" required maxLength={120} value={form.name} disabled={lockEditing} onChange={(e) => set("name", e.target.value)} />
       </div>
       <div>
         <Label>Categoria *</Label>

@@ -72,8 +72,14 @@ export function useNotifications(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
 
-    const channel = supabase
-      .channel(`notifications-${userId}`)
+    // Unique channel name per mount avoids "cannot add postgres_changes
+    // callbacks after subscribe()" when React re-runs effects (StrictMode /
+    // fast refresh / navigations) before the previous channel finishes
+    // tearing down.
+    const channelName = `notifications-${userId}-${Math.random().toString(36).slice(2)}`;
+    const channel = supabase.channel(channelName);
+
+    channel
       .on(
         "postgres_changes",
         {

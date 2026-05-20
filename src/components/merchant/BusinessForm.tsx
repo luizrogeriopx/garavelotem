@@ -47,6 +47,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [form, setForm] = useState({
     name: "",
     category_id: "",
+    subcategory_id: "",
     short_description: "",
     description: "",
     whatsapp: "",

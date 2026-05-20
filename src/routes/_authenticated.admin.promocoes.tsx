@@ -46,10 +46,15 @@ function AdminPromosPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Promoção removida");
+      toast.success("Promoção excluída", {
+        icon: <Trash2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-promotions"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha ao excluir", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   if (isLoading) return <p className="text-muted-foreground">Carregando…</p>;

@@ -92,22 +92,17 @@ export function BusinessPageView({ business: b }: { business: any }) {
               const uberUrl = ll
                 ? `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${b.lat}&dropoff[longitude]=${b.lng}&dropoff[nickname]=${encodeURIComponent(b.name)}`
                 : `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[nickname]=${encodeURIComponent(b.name)}&dropoff[formatted_address]=${query}`;
-              // 99 não tem deep link web público para destino; abrimos o site/app oficial.
-              const noveNoveUrl = "https://99app.com.br/";
-              const btn = "shadow-card text-sm font-semibold px-3 py-2 rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap";
+              const btn = "shadow-card text-sm font-semibold px-3 py-2 rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap bg-card";
               return (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-brand text-brand-foreground`}>
+                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={btn}>
                     <MapPin className="size-4" /> Google Maps
                   </a>
-                  <a href={wazeUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
+                  <a href={wazeUrl} target="_blank" rel="noopener noreferrer" className={btn}>
                     <MapPin className="size-4" /> Waze
                   </a>
-                  <a href={uberUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
+                  <a href={uberUrl} target="_blank" rel="noopener noreferrer" className={btn}>
                     Uber
-                  </a>
-                  <a href={noveNoveUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
-                    99
                   </a>
                 </div>
               );

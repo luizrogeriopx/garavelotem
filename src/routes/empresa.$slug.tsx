@@ -137,22 +137,39 @@ export function BusinessPageView({ business: b }: { business: any }) {
         })()}
 
         {(() => {
+          const DAY_ORDER = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
           const DAY_LABELS: Record<string, string> = {
-            mon: "Segunda", tue: "Terça", wed: "Quarta", thu: "Quinta",
-            fri: "Sexta", sat: "Sábado", sun: "Domingo",
+            sun: "Domingo", mon: "Segunda", tue: "Terça", wed: "Quarta",
+            thu: "Quinta", fri: "Sexta", sat: "Sábado",
           };
-          const entries = Object.entries(hours).map(([d, h]) => {
-            let label = DAY_LABELS[d] ?? d;
-            let text = "";
-            if (typeof h === "string") {
-              text = h;
-            } else if (h && typeof h === "object") {
-              const o = h as { closed?: boolean; open?: string; close?: string };
-              text = o.closed ? "Fechado" : `${o.open ?? ""} - ${o.close ?? ""}`;
-            }
-            return { d, label, text };
-          });
+          const entries = DAY_ORDER
+            .filter((d) => d in hours)
+            .map((d) => {
+              const h = hours[d];
+              let text = "";
+              if (typeof h === "string") {
+                text = h;
+              } else if (h && typeof h === "object") {
+                const o = h as { closed?: boolean; open?: string; close?: string };
+                text = o.closed ? "Fechado" : `${o.open ?? ""} - ${o.close ?? ""}`;
+              }
+              return { d, label: DAY_LABELS[d], text };
+            });
           if (entries.length === 0) return null;
+          return (
+            <section className="mt-8">
+              <h2 className="font-display font-bold text-lg text-brand flex items-center gap-2"><Clock className="size-4" /> Horários</h2>
+              <ul className="mt-2 text-sm">
+                {entries.map(({ d, label, text }) => (
+                  <li key={d} className="flex justify-between py-1 border-b border-border last:border-0">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })()}
           return (
             <section className="mt-8">
               <h2 className="font-display font-bold text-lg text-brand flex items-center gap-2"><Clock className="size-4" /> Horários</h2>

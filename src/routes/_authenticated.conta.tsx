@@ -195,7 +195,9 @@ function AccountPage() {
             </Button>
           </div>
 
-
+          </div>
+        </>
+      )}
       <div className="mt-4 space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
         {!isLoading && businesses?.length === 0 && (

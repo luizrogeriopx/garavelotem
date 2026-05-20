@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Heart, MessageCircle, Send, Trash2, CornerDownRight, Share2, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, CornerDownRight, Share2, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -253,9 +253,6 @@ function PostCard({
             aria-label="Compartilhar"
           >
             <Share2 className="size-6" strokeWidth={1.8} />
-          </button>
-          <button className="p-1.5 ml-auto hover:opacity-70 transition-opacity" aria-label="Salvar">
-            <Bookmark className="size-6" strokeWidth={1.8} />
           </button>
         </div>
 

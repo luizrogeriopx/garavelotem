@@ -78,15 +78,36 @@ function PostCard({ post, user, qc }: { post: Post; user: ReturnType<typeof useA
     queryFn: async () => {
       const { data, error } = await supabase
         .from("post_likes")
-        .select("user_id")
+        .select("user_id, as_business_id")
         .eq("post_id", post.id);
       if (error) throw error;
-      return data;
+      return (data ?? []) as { user_id: string; as_business_id: string | null }[];
     },
   });
 
   const liked = !!user && !!likes?.some((l) => l.user_id === user.id);
   const likeCount = likes?.length ?? 0;
+
+  const likeUserIds = Array.from(new Set((likes ?? []).filter((l) => !l.as_business_id).map((l) => l.user_id)));
+  const likeBizIds = Array.from(new Set((likes ?? []).map((l) => l.as_business_id).filter((v): v is string => !!v)));
+
+  const { data: likeProfiles } = useQuery({
+    queryKey: ["post-like-profiles", post.id, likeUserIds.sort().join(",")],
+    enabled: likeUserIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("id,full_name,avatar_url").in("id", likeUserIds);
+      return (data ?? []) as ProfileLite[];
+    },
+  });
+
+  const { data: likeBizs } = useQuery({
+    queryKey: ["post-like-bizs", post.id, likeBizIds.sort().join(",")],
+    enabled: likeBizIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase.from("businesses").select("id,name,slug,username,logo_url").in("id", likeBizIds);
+      return (data ?? []) as BizLite[];
+    },
+  });
 
   const toggleLike = useMutation({
     mutationFn: async () => {
@@ -103,6 +124,11 @@ function PostCard({ post, user, qc }: { post: Post; user: ReturnType<typeof useA
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const avatars: { key: string; src: string | null; alt: string }[] = [
+    ...(likeBizs ?? []).map((b) => ({ key: `b-${b.id}`, src: b.logo_url, alt: b.name })),
+    ...(likeProfiles ?? []).map((p) => ({ key: `u-${p.id}`, src: p.avatar_url, alt: p.full_name ?? "Usuário" })),
+  ].slice(0, 5);
+
   return (
     <article className="bg-card rounded-2xl shadow-card overflow-hidden">
       <img src={post.image_url} alt={post.caption ?? ""} className="w-full aspect-square object-cover bg-muted" />
@@ -116,9 +142,18 @@ function PostCard({ post, user, qc }: { post: Post; user: ReturnType<typeof useA
             <Heart className={`size-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
             {likeCount}
           </button>
+          {avatars.length > 0 && (
+            <div className="flex -space-x-2">
+              {avatars.map((a) => (
+                <div key={a.key} className="size-6 rounded-full bg-muted overflow-hidden ring-2 ring-card">
+                  {a.src && <img src={a.src} alt={a.alt} className="size-full object-cover" />}
+                </div>
+              ))}
+            </div>
+          )}
           <button
             onClick={() => setShowComments((s) => !s)}
-            className="flex items-center gap-1 text-sm font-semibold"
+            className="flex items-center gap-1 text-sm font-semibold ml-auto"
           >
             <MessageCircle className="size-5" />
             Comentários

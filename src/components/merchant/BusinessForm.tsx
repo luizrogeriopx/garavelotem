@@ -148,15 +148,19 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     e.preventDefault();
     if (!user) return;
 
-    if (entityType === "pj") {
-      if (!cnpjStatus?.ok) {
-        toast.error("Valide o CNPJ antes de continuar.");
-        return;
-      }
-    } else {
-      if (!profile?.cpf) {
-        toast.error("Complete seu cadastro pessoal (CPF) antes.");
-        return;
+    const isPlatform = (existing as any)?.is_platform === true;
+
+    if (!isPlatform) {
+      if (entityType === "pj") {
+        if (!cnpjStatus?.ok) {
+          toast.error("Valide o CNPJ antes de continuar.");
+          return;
+        }
+      } else {
+        if (!profile?.cpf) {
+          toast.error("Complete seu cadastro pessoal (CPF) antes.");
+          return;
+        }
       }
     }
 

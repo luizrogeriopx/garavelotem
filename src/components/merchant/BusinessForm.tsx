@@ -98,6 +98,9 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     },
   });
 
+  const isPlatform = (existing as any)?.is_platform === true;
+  const lockEditing = isEditing && !isPlatform;
+
   useEffect(() => {
     if (existing) {
       setForm({

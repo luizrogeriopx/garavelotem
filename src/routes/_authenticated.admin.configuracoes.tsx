@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Send, Loader2, Mail, Bell } from "lucide-react";
+import { Send, Loader2, Mail, Bell, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   component: AdminConfigPage,
@@ -40,10 +40,16 @@ function AdminConfigPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Notificações enviadas com sucesso!");
+      toast.success("Notificações enviadas", {
+        description: "Os usuários selecionados foram alertados.",
+        icon: <Send className="size-4" />
+      });
       setForm({ ...form, title: "", content: "", link: "", sendEmail: false });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha no envio", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   return (

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Search, MapPin, Phone, Star, Loader2, Download } from "lucide-react";
+import { Search, MapPin, Phone, Star, Loader2, Download, CheckCircle2, Info, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/importar")({
   component: ImportPage,
@@ -65,7 +65,7 @@ function ImportPage() {
     onSuccess: (data) => {
       setResults(data.results as Place[]);
       setSelected({});
-      if (data.results.length === 0) toast.info("Nenhum resultado encontrado.");
+      if (data.results.length === 0) toast.info("Nenhum resultado", { description: "Tente mudar os termos da busca.", icon: <Info className="size-4" /> });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -89,9 +89,18 @@ function ImportPage() {
       return importFn({ data: { items } });
     },
     onSuccess: (data) => {
-      toast.success(`${data.imported} empresa(s) importada(s) como pendente.`);
-      if (data.skipped.length) toast.info(`${data.skipped.length} ignoradas (já existem).`);
-      if (data.errors.length) toast.error(`${data.errors.length} erros.`);
+      toast.success("Importação concluída", {
+        description: `${data.imported} empresa(s) importada(s) como pendente.`,
+        icon: <CheckCircle2 className="size-4" />
+      });
+      if (data.skipped.length) toast.info("Empresas ignoradas", { 
+        description: `${data.skipped.length} já existiam no sistema.`,
+        icon: <Info className="size-4" />
+      });
+      if (data.errors.length) toast.error("Ocorreram erros", {
+        description: `${data.errors.length} falhas durante a importação.`,
+        icon: <AlertCircle className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-businesses"] });
       // Mark imported in UI
       setResults((rs) =>

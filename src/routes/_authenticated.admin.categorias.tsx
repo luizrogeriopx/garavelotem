@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import * as Icons from "lucide-react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -60,11 +60,17 @@ function AdminCategoriesPage() {
       }
     },
     onSuccess: () => {
-      toast.success("Categoria salva");
+      toast.success("Sucesso", {
+        description: "A categoria foi salva corretamente.",
+        icon: <CheckCircle2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
       setEditing(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha ao salvar", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   const remove = useMutation({
@@ -73,10 +79,15 @@ function AdminCategoriesPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Categoria removida");
+      toast.success("Categoria removida", {
+        icon: <Trash2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Não foi possível excluir", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   return (

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, Tag } from "lucide-react";
+import { Trash2, Tag, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBRL } from "@/lib/format";
 
@@ -32,7 +32,12 @@ function AdminPromosPage() {
       const { error } = await supabase.from("promotions").update({ is_active }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-promotions"] }),
+    onSuccess: (_d, vars) => {
+      toast.success(vars.is_active ? "Promoção ativada" : "Promoção pausada", {
+        icon: vars.is_active ? <CheckCircle2 className="size-4" /> : <Tag className="size-4 opacity-50" />
+      });
+      qc.invalidateQueries({ queryKey: ["admin-promotions"] });
+    },
   });
 
   const remove = useMutation({
@@ -41,10 +46,15 @@ function AdminPromosPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Promoção removida");
+      toast.success("Promoção excluída", {
+        icon: <Trash2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-promotions"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha ao excluir", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   if (isLoading) return <p className="text-muted-foreground">Carregando…</p>;

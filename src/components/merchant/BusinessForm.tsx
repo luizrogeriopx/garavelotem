@@ -121,6 +121,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setForm({
         name: existing.name ?? "",
         category_id: existing.category_id ?? "",
+        subcategory_id: (existing as any).subcategory_id ?? "",
         short_description: existing.short_description ?? "",
         description: existing.description ?? "",
         whatsapp: existing.whatsapp ?? "",

@@ -89,9 +89,18 @@ function ImportPage() {
       return importFn({ data: { items } });
     },
     onSuccess: (data) => {
-      toast.success(`${data.imported} empresa(s) importada(s) como pendente.`);
-      if (data.skipped.length) toast.info(`${data.skipped.length} ignoradas (já existem).`);
-      if (data.errors.length) toast.error(`${data.errors.length} erros.`);
+      toast.success("Importação concluída", {
+        description: `${data.imported} empresa(s) importada(s) como pendente.`,
+        icon: <CheckCircle2 className="size-4" />
+      });
+      if (data.skipped.length) toast.info("Empresas ignoradas", { 
+        description: `${data.skipped.length} já existiam no sistema.`,
+        icon: <Info className="size-4" />
+      });
+      if (data.errors.length) toast.error("Ocorreram erros", {
+        description: `${data.errors.length} falhas durante a importação.`,
+        icon: <AlertCircle className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-businesses"] });
       // Mark imported in UI
       setResults((rs) =>

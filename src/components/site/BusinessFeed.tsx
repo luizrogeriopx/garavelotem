@@ -192,10 +192,11 @@ function PostCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const avatars: { key: string; src: string | null; alt: string }[] = [
-    ...(likeBizs ?? []).map((b) => ({ key: `b-${b.id}`, src: b.logo_url, alt: b.name })),
-    ...(likeProfiles ?? []).map((p) => ({ key: `u-${p.id}`, src: p.avatar_url, alt: p.full_name ?? "Usuário" })),
-  ].slice(0, 5);
+  const likers: { key: string; src: string | null; name: string }[] = [
+    ...(likeBizs ?? []).map((b) => ({ key: `b-${b.id}`, src: b.logo_url, name: b.name })),
+    ...(likeProfiles ?? []).map((p) => ({ key: `u-${p.id}`, src: p.avatar_url, name: p.full_name ?? "Usuário" })),
+  ];
+  const avatars = likers.slice(0, 5);
 
   return (
     <article className="bg-card rounded-2xl shadow-card overflow-hidden">
@@ -210,17 +211,7 @@ function PostCard({
           >
             <Heart className={`size-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
             <span>{liked ? "Curtiu" : "Curtir"}</span>
-            {likeCount > 0 && <span className="text-muted-foreground">· {likeCount}</span>}
           </button>
-          {avatars.length > 0 && (
-            <div className="flex -space-x-2">
-              {avatars.map((a) => (
-                <div key={a.key} className="size-6 rounded-full bg-muted overflow-hidden ring-2 ring-card">
-                  {a.src && <img src={a.src} alt={a.alt} className="size-full object-cover" />}
-                </div>
-              ))}
-            </div>
-          )}
           <button
             onClick={() => setShowComments((s) => !s)}
             className="flex items-center gap-1 text-sm font-semibold ml-auto"
@@ -229,6 +220,25 @@ function PostCard({
             <span>{commentCount ?? 0}</span>
           </button>
         </div>
+        {likers.length > 0 && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex -space-x-2 shrink-0">
+              {avatars.map((a) => (
+                <div key={a.key} className="size-6 rounded-full bg-muted overflow-hidden ring-2 ring-card flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
+                  {a.src ? (
+                    <img src={a.src} alt={a.name} className="size-full object-cover" />
+                  ) : (
+                    <span>{a.name.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <span className="truncate">
+              Curtido por <span className="font-semibold text-foreground">{likers[0].name}</span>
+              {likers.length > 1 && <> e outras {likers.length - 1}</>}
+            </span>
+          </div>
+        )}
         {post.caption && <p className="mt-2 text-sm whitespace-pre-wrap">{post.caption}</p>}
         {showComments && <Comments postId={post.id} user={user} qc={qc} />}
       </div>

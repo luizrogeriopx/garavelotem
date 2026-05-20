@@ -92,22 +92,21 @@ export function BusinessPageView({ business: b }: { business: any }) {
               const uberUrl = ll
                 ? `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${b.lat}&dropoff[longitude]=${b.lng}&dropoff[nickname]=${encodeURIComponent(b.name)}`
                 : `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[nickname]=${encodeURIComponent(b.name)}&dropoff[formatted_address]=${query}`;
-              const noveNoveUrl = ll
-                ? `https://99app.com/passenger?dropoff_lat=${b.lat}&dropoff_lng=${b.lng}&dropoff_name=${encodeURIComponent(b.name)}`
-                : `https://99app.com/passenger?dropoff_address=${query}`;
-              const btn = "bg-card shadow-card text-sm font-semibold px-3 py-2 rounded-full inline-flex items-center justify-center gap-2";
+              // 99 não tem deep link web público para destino; abrimos o site/app oficial.
+              const noveNoveUrl = "https://99app.com.br/";
+              const btn = "shadow-card text-sm font-semibold px-3 py-2 rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap";
               return (
                 <div className="mt-3 flex flex-wrap gap-2">
                   <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-brand text-brand-foreground`}>
                     <MapPin className="size-4" /> Google Maps
                   </a>
-                  <a href={wazeUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                  <a href={wazeUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
                     <MapPin className="size-4" /> Waze
                   </a>
-                  <a href={uberUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                  <a href={uberUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
                     Uber
                   </a>
-                  <a href={noveNoveUrl} target="_blank" rel="noopener noreferrer" className={btn}>
+                  <a href={noveNoveUrl} target="_blank" rel="noopener noreferrer" className={`${btn} bg-card`}>
                     99
                   </a>
                 </div>

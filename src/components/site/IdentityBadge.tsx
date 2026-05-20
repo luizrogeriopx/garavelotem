@@ -60,10 +60,15 @@ export function IdentityBadge({ business, userName, userAvatarUrl, size = "sm" }
     );
   }
 
+  const initial = (userName ?? "U").charAt(0).toUpperCase();
   return (
     <div className="flex items-center gap-2">
-      <div className={`${avatarSize} rounded-full bg-muted overflow-hidden shrink-0`}>
-        {userAvatarUrl && <img src={userAvatarUrl} alt="" className="size-full object-cover" />}
+      <div className={`${avatarSize} rounded-full bg-muted overflow-hidden shrink-0 flex items-center justify-center text-xs font-semibold text-muted-foreground`}>
+        {userAvatarUrl ? (
+          <img src={userAvatarUrl} alt="" className="size-full object-cover" />
+        ) : (
+          <span>{initial}</span>
+        )}
       </div>
       <span className={`font-semibold ${nameClass}`}>{userName ?? "Usuário"}</span>
     </div>

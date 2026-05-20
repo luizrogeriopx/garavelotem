@@ -13,6 +13,7 @@ import { BottomNav } from "@/components/site/BottomNav";
 import { Footer } from "@/components/site/Footer";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
+import { CustomCssInjector } from "@/components/CustomCssInjector";
 
 function NotFoundComponent() {
   return (
@@ -104,6 +105,7 @@ function RootComponent() {
           <BottomNav />
         </div>
         <Toaster />
+        <CustomCssInjector />
       </AuthProvider>
     </QueryClientProvider>
   );

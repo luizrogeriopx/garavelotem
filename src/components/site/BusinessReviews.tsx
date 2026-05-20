@@ -18,7 +18,7 @@ type ReviewRow = {
   as_business_id: string | null;
 };
 
-type ProfileRow = { id: string; full_name: string | null; avatar_url: string | null };
+type ProfileRow = { id: string; full_name: string | null; avatar_url: string | null; selfie_url?: string | null };
 type BizRow = {
   id: string;
   name: string;
@@ -61,7 +61,7 @@ export function BusinessReviews({ businessId }: { businessId: string }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id,full_name,avatar_url")
+        .select("id,full_name,avatar_url,selfie_url")
         .in("id", userIds);
       if (error) throw error;
       return ((data ?? []) as ProfileRow[]).reduce<Record<string, ProfileRow>>((acc, p) => {
@@ -244,7 +244,7 @@ export function BusinessReviews({ businessId }: { businessId: string }) {
                   <IdentityBadge
                     business={biz}
                     userName={prof?.full_name ?? null}
-                    userAvatarUrl={prof?.avatar_url ?? null}
+                    userAvatarUrl={prof?.avatar_url || prof?.selfie_url || null}
                   />
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((n) => (

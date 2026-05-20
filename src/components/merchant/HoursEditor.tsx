@@ -6,13 +6,13 @@ export type DayHours = { closed: boolean; open: string; close: string };
 export type WeekHours = Record<string, DayHours>;
 
 const DAYS: { key: string; label: string }[] = [
+  { key: "sun", label: "Domingo" },
   { key: "mon", label: "Segunda" },
   { key: "tue", label: "Terça" },
   { key: "wed", label: "Quarta" },
   { key: "thu", label: "Quinta" },
   { key: "fri", label: "Sexta" },
   { key: "sat", label: "Sábado" },
-  { key: "sun", label: "Domingo" },
 ];
 
 export function defaultHours(): WeekHours {

@@ -151,7 +151,6 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     e.preventDefault();
     if (!user) return;
 
-    const isPlatform = (existing as any)?.is_platform === true;
 
     if (!isPlatform) {
       if (entityType === "pj") {

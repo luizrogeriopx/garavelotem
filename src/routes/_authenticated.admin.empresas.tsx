@@ -693,13 +693,30 @@ function CreateBusinessDialog({
           </div>
           <div>
             <Label>Categoria</Label>
-            <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+            <Select 
+              value={form.category_id} 
+              onValueChange={(v) => setForm({ ...form, category_id: v, subcategory_id: "" })}
+            >
               <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
               <SelectContent>
                 {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+          {form.category_id && subcategories && subcategories.length > 0 && (
+            <div>
+              <Label>Subcategoria</Label>
+              <Select 
+                value={form.subcategory_id} 
+                onValueChange={(v) => setForm({ ...form, subcategory_id: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
+                <SelectContent>
+                  {subcategories.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div>
             <Label htmlFor="b-wpp">WhatsApp *</Label>
             <Input id="b-wpp" required placeholder="62999999999" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />

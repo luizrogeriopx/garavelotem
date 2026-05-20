@@ -254,9 +254,6 @@ function PostCard({
           >
             <Share2 className="size-6" strokeWidth={1.8} />
           </button>
-          <button className="p-1.5 ml-auto hover:opacity-70 transition-opacity" aria-label="Salvar">
-            <Bookmark className="size-6" strokeWidth={1.8} />
-          </button>
         </div>
 
         {likeCount > 0 && (

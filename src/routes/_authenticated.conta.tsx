@@ -123,20 +123,78 @@ function AccountPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-6">
-        <StatCard icon={<Store className="size-4" />} label="Empresas" value={businesses?.length ?? 0} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+        <StatCard 
+          icon={<Bell className="size-4" />} 
+          label="Notificações" 
+          value={unreadCount} 
+          onClick={() => setActiveTab("notifications")} 
+          highlight={unreadCount > 0} 
+        />
+        <StatCard icon={<Store className="size-4" />} label="Empresas" value={businesses?.length ?? 0} onClick={() => setActiveTab("businesses")} />
         <StatCard icon={<Eye className="size-4" />} label="Visualizações" value={totals.views} />
         <StatCard icon={<MessageCircle className="size-4" />} label="WhatsApp" value={totals.clicks} />
       </div>
 
-      <div className="mt-8 flex items-center justify-between">
-        <h2 className="font-display font-bold text-lg">Minhas empresas</h2>
-        <Button asChild size="sm" className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full">
-          <Link to="/minha-empresa">
-            <Plus className="size-4" /> Cadastrar empresa
-          </Link>
-        </Button>
-      </div>
+      {activeTab === "notifications" ? (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-lg">Notificações</h2>
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => markAllAsRead.mutate()} className="text-xs">
+                Marcar todas como lidas
+              </Button>
+            )}
+          </div>
+          <div className="space-y-3">
+            {notifications.length === 0 ? (
+              <Card className="p-8 text-center text-muted-foreground">
+                <Bell className="size-10 mx-auto opacity-20 mb-2" />
+                <p>Nenhuma notificação por aqui.</p>
+              </Card>
+            ) : (
+              notifications.map((n) => (
+                <Card 
+                  key={n.id} 
+                  className={`p-4 transition-colors cursor-pointer ${!n.is_read ? 'bg-highlight/5 border-highlight/20' : ''}`}
+                  onClick={() => !n.is_read && markAsRead.mutate(n.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-1.5 size-2 rounded-full shrink-0 ${!n.is_read ? 'bg-highlight' : 'bg-transparent'}`} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-sm font-semibold ${!n.is_read ? 'text-brand' : ''}`}>{n.title}</p>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {formatDistanceToNowStrict(new Date(n.created_at), { addSuffix: true, locale: ptBR })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-0.5">{n.content}</p>
+                      {n.link && (
+                        <Button asChild variant="link" size="sm" className="h-auto p-0 mt-2 text-xs">
+                          <Link to={n.link as any}>Ver detalhes</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+          <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => setActiveTab("businesses")}>
+            Voltar para minhas empresas
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="mt-8 flex items-center justify-between">
+            <h2 className="font-display font-bold text-lg">Minhas empresas</h2>
+            <Button asChild size="sm" className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full">
+              <Link to="/minha-empresa">
+                <Plus className="size-4" /> Cadastrar empresa
+              </Link>
+            </Button>
+          </div>
+
 
       <div className="mt-4 space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}

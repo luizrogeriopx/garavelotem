@@ -42,6 +42,9 @@ function AccountPage() {
   const navigate = useNavigate();
   const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
   const [profileChangeOpen, setProfileChangeOpen] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(user?.id);
+  const [activeTab, setActiveTab] = useState<"businesses" | "notifications">("businesses");
+
 
 
   const { data: businesses, isLoading } = useQuery({

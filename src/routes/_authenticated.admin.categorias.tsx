@@ -79,10 +79,15 @@ function AdminCategoriesPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Categoria removida");
+      toast.success("Categoria removida", {
+        icon: <Trash2 className="size-4" />
+      });
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Não foi possível excluir", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   return (

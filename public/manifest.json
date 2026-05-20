@@ -1,0 +1,24 @@
+{
+  "name": "Garavelo Tem",
+  "short_name": "Garavelo Tem",
+  "description": "O guia comercial completo do Setor Garavelo. Pizzarias, salões, oficinas e muito mais.",
+  "theme_color": "#0B2545",
+  "background_color": "#0B2545",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/680fa4cf-cb95-416c-8f69-2ed500c45153/id-preview-1d3445ca--51a9a3b4-67ba-4af7-a2dc-904b06772fac.lovable.app-1779062112250.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

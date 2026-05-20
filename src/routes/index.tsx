@@ -6,7 +6,9 @@ import { BannerCarousel } from "@/components/site/BannerCarousel";
 import { BusinessCard, type BusinessCardData } from "@/components/site/BusinessCard";
 import { PromotionCard, type PromotionCardData } from "@/components/site/PromotionCard";
 import { InstitutionCard, type InstitutionCardData } from "@/components/site/InstitutionCard";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight, Sparkles, Download, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -46,6 +48,33 @@ function shuffle<T>(arr: T[]): T[] {
 const loadSeed = Math.random().toString(36).slice(2);
 
 function Home() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBanner(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowInstallBanner(false);
+    }
+    setDeferredPrompt(null);
+  };
+
 
   const featured = useQuery({
     queryKey: ["featured-businesses-pro", loadSeed],
@@ -110,6 +139,28 @@ function Home() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-10">
+      {showInstallBanner && (
+        <div className="md:hidden fixed top-20 inset-x-4 z-50 bg-brand text-brand-foreground p-4 rounded-2xl shadow-lg border border-white/10 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-highlight grid place-items-center font-extrabold text-highlight-foreground shrink-0">
+              G
+            </div>
+            <div>
+              <p className="font-bold text-sm leading-tight">Instalar Garavelo Tem</p>
+              <p className="text-xs opacity-80">Acesse o comércio local mais rápido.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleInstallClick} className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full text-xs font-bold px-4">
+              Instalar
+            </Button>
+            <button onClick={() => setShowInstallBanner(false)} className="p-1 hover:bg-white/10 rounded-full">
+              <X className="size-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <CategoryStrip />
       <BannerCarousel />
 

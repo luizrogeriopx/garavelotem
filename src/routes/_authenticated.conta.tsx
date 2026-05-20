@@ -46,6 +46,10 @@ function AccountPage() {
   const [profileChangeOpen, setProfileChangeOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(user?.id);
   const [activeTab, setActiveTab] = useState<"businesses" | "notifications" | "coupons">("businesses");
+  const [couponSearch, setCouponSearch] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState<string | null>(null);
+  const [qrOpen, setQrOpen] = useState(false);
+
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["my-businesses", user?.id],

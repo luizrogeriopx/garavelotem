@@ -28,7 +28,7 @@ type Comment = {
   parent_id: string | null;
 };
 
-type ProfileLite = { id: string; full_name: string | null; avatar_url: string | null };
+type ProfileLite = { id: string; full_name: string | null; avatar_url: string | null; selfie_url?: string | null };
 type BizLite = {
   id: string;
   name: string;
@@ -186,7 +186,7 @@ function PostCard({
     queryKey: ["post-like-profiles", post.id, likeUserIds.sort().join(",")],
     enabled: likeUserIds.length > 0,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("id,full_name,avatar_url").in("id", likeUserIds);
+      const { data } = await supabase.from("profiles").select("id,full_name,avatar_url,selfie_url").in("id", likeUserIds);
       return (data ?? []) as ProfileLite[];
     },
   });
@@ -217,7 +217,7 @@ function PostCard({
 
   const likers: { key: string; src: string | null; name: string }[] = [
     ...(likeBizs ?? []).map((b) => ({ key: `b-${b.id}`, src: b.logo_url, name: b.name })),
-    ...(likeProfiles ?? []).map((p) => ({ key: `u-${p.id}`, src: p.avatar_url, name: p.full_name ?? "Usuário" })),
+    ...(likeProfiles ?? []).map((p) => ({ key: `u-${p.id}`, src: p.avatar_url || p.selfie_url || null, name: p.full_name ?? "Usuário" })),
   ];
   const avatars = likers.slice(0, 5);
 
@@ -360,7 +360,7 @@ function Comments({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id,full_name,avatar_url")
+        .select("id,full_name,avatar_url,selfie_url")
         .in("id", userIds);
       if (error) throw error;
       return ((data ?? []) as ProfileLite[]).reduce<Record<string, ProfileLite>>(
@@ -465,7 +465,7 @@ function Comments({
             <IdentityBadge
               business={biz}
               userName={prof?.full_name ?? null}
-              userAvatarUrl={prof?.avatar_url ?? null}
+              userAvatarUrl={prof?.avatar_url || prof?.selfie_url || null}
             />
             <p className="text-sm mt-1 ml-9">{c.content}</p>
             <div className="ml-9 mt-1 flex items-center gap-3 text-xs">

@@ -136,6 +136,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         logo_url: existing.logo_url ?? "",
         cover_url: existing.cover_url ?? "",
         username: (existing as any).username ?? "",
+        instagram: (existing as any).instagram ?? "",
+        facebook: (existing as any).facebook ?? "",
+        youtube: (existing as any).youtube ?? "",
+        tiktok: (existing as any).tiktok ?? "",
+        threads: (existing as any).threads ?? "",
       });
       const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
       setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);

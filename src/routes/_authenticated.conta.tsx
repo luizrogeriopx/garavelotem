@@ -296,7 +296,8 @@ function AccountPage() {
             </Card>
           );
         })}
-      </div>
+        </>
+      )}
       {migrateBiz && (
         <MigrateToPjDialog
           open={!!migrateBiz}

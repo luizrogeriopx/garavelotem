@@ -206,10 +206,12 @@ export type Database = {
           description: string | null
           email: string | null
           entity_type: Database["public"]["Enums"]["entity_type"]
+          facebook: string | null
           gallery: Json
           google_place_id: string | null
           hours: Json
           id: string
+          instagram: string | null
           is_featured: boolean
           is_platform: boolean
           is_verified: boolean
@@ -231,11 +233,14 @@ export type Database = {
           state: string | null
           status: Database["public"]["Enums"]["business_status"]
           subcategory_id: string | null
+          threads: string | null
+          tiktok: string | null
           updated_at: string
           username: string | null
           views_count: number
           whatsapp: string | null
           whatsapp_clicks: number
+          youtube: string | null
         }
         Insert: {
           address?: string | null
@@ -249,10 +254,12 @@ export type Database = {
           description?: string | null
           email?: string | null
           entity_type?: Database["public"]["Enums"]["entity_type"]
+          facebook?: string | null
           gallery?: Json
           google_place_id?: string | null
           hours?: Json
           id?: string
+          instagram?: string | null
           is_featured?: boolean
           is_platform?: boolean
           is_verified?: boolean
@@ -274,11 +281,14 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["business_status"]
           subcategory_id?: string | null
+          threads?: string | null
+          tiktok?: string | null
           updated_at?: string
           username?: string | null
           views_count?: number
           whatsapp?: string | null
           whatsapp_clicks?: number
+          youtube?: string | null
         }
         Update: {
           address?: string | null
@@ -292,10 +302,12 @@ export type Database = {
           description?: string | null
           email?: string | null
           entity_type?: Database["public"]["Enums"]["entity_type"]
+          facebook?: string | null
           gallery?: Json
           google_place_id?: string | null
           hours?: Json
           id?: string
+          instagram?: string | null
           is_featured?: boolean
           is_platform?: boolean
           is_verified?: boolean
@@ -317,11 +329,14 @@ export type Database = {
           state?: string | null
           status?: Database["public"]["Enums"]["business_status"]
           subcategory_id?: string | null
+          threads?: string | null
+          tiktok?: string | null
           updated_at?: string
           username?: string | null
           views_count?: number
           whatsapp?: string | null
           whatsapp_clicks?: number
+          youtube?: string | null
         }
         Relationships: [
           {

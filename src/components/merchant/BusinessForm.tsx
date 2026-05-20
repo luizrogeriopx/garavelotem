@@ -57,6 +57,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     logo_url: "",
     cover_url: "",
     username: "",
+    instagram: "",
+    facebook: "",
+    youtube: "",
+    tiktok: "",
+    threads: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
@@ -131,6 +136,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         logo_url: existing.logo_url ?? "",
         cover_url: existing.cover_url ?? "",
         username: (existing as any).username ?? "",
+        instagram: (existing as any).instagram ?? "",
+        facebook: (existing as any).facebook ?? "",
+        youtube: (existing as any).youtube ?? "",
+        tiktok: (existing as any).tiktok ?? "",
+        threads: (existing as any).threads ?? "",
       });
       const g = Array.isArray(existing.gallery) ? (existing.gallery as string[]) : [];
       setGallery([g[0] ?? "", g[1] ?? "", g[2] ?? ""]);
@@ -210,6 +220,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         lng: coords.lng,
         hours,
         username: form.username.trim() ? form.username.trim().toLowerCase() : null,
+        instagram: form.instagram.trim() || null,
+        facebook: form.facebook.trim() || null,
+        youtube: form.youtube.trim() || null,
+        tiktok: form.tiktok.trim() || null,
+        threads: form.threads.trim() || null,
       };
       if (businessId) {
         const { error } = await supabase
@@ -364,6 +379,33 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         <Label htmlFor="desc">Descrição completa</Label>
         <Textarea id="desc" rows={4} maxLength={1000} value={form.description} onChange={(e) => set("description", e.target.value)} />
       </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border rounded-xl p-4 bg-muted/10">
+        <div className="sm:col-span-2">
+          <Label className="font-semibold">Redes Sociais (Username ou Link)</Label>
+          <p className="text-xs text-muted-foreground mb-2">Informe o link ou apenas o @usuario de suas redes sociais.</p>
+        </div>
+        <div>
+          <Label htmlFor="instagram">Instagram</Label>
+          <Input id="instagram" placeholder="@seu_perfil" value={form.instagram} onChange={(e) => set("instagram", e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="facebook">Facebook</Label>
+          <Input id="facebook" placeholder="fb.com/suapagina" value={form.facebook} onChange={(e) => set("facebook", e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="tiktok">TikTok</Label>
+          <Input id="tiktok" placeholder="@seu_perfil" value={form.tiktok} onChange={(e) => set("tiktok", e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="youtube">YouTube</Label>
+          <Input id="youtube" placeholder="youtube.com/c/seu_canal" value={form.youtube} onChange={(e) => set("youtube", e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="threads">Threads</Label>
+          <Input id="threads" placeholder="@seu_perfil" value={form.threads} onChange={(e) => set("threads", e.target.value)} />
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <Label>Logo</Label>

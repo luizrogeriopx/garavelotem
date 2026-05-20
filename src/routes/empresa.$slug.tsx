@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, MessageCircle, Share2, Clock } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Share2, Clock, Instagram, Facebook, Youtube, AtSign } from "lucide-react";
 import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 import { whatsappLink } from "@/lib/format";
 import { BusinessFeed } from "@/components/site/BusinessFeed";
@@ -76,6 +76,37 @@ export function BusinessPageView({ business: b }: { business: any }) {
           </button>
           <FollowButton businessId={b.id} />
         </div>
+
+        {(() => {
+          const socialLinks = [
+            { id: "instagram", icon: <Instagram className="size-4" />, value: b.instagram, base: "https://instagram.com/" },
+            { id: "facebook", icon: <Facebook className="size-4" />, value: b.facebook, base: "https://facebook.com/" },
+            { id: "youtube", icon: <Youtube className="size-4" />, value: b.youtube, base: "https://youtube.com/" },
+            { id: "tiktok", icon: <AtSign className="size-4" />, value: b.tiktok, base: "https://tiktok.com/@" },
+            { id: "threads", icon: <AtSign className="size-4" />, value: b.threads, base: "https://threads.net/@" },
+          ].filter(l => l.value);
+
+          if (socialLinks.length === 0) return null;
+
+          return (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {socialLinks.map((link) => {
+                const url = link.value?.startsWith("http") ? link.value : `${link.base}${link.value?.replace("@", "")}`;
+                return (
+                  <a
+                    key={link.id}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="size-10 rounded-xl bg-card shadow-card flex items-center justify-center text-muted-foreground hover:text-brand transition-colors"
+                  >
+                    {link.icon}
+                  </a>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {b.address && (
           <section className="mt-8">

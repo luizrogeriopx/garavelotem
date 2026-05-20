@@ -208,9 +208,19 @@ export function Header() {
             </Link>
           </Button>
           {user ? (
-            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
-              <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex relative">
+                <Link to="/conta">
+                  <Bell className="size-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border-2 border-brand" />
+                  )}
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+                <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
+              </Button>
+            </>
           ) : (
             <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
               <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>Entrar</Link>

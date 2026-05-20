@@ -89,6 +89,20 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     },
   });
 
+  const { data: subcategories } = useQuery({
+    queryKey: ["subcategories", form.category_id],
+    enabled: !!form.category_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subcategories")
+        .select("id, name")
+        .eq("category_id", form.category_id)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: existing } = useQuery({
     queryKey: ["business", businessId],
     enabled: !!businessId,

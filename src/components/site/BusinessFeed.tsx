@@ -96,26 +96,47 @@ function PostHeader({ business }: { business: BizHeader }) {
   const linkProps = business.username
     ? ({ to: "/$username" as const, params: { username: business.username } } as const)
     : ({ to: "/empresa/$slug" as const, params: { slug: business.slug } } as const);
+  const handle = business.username ?? business.slug;
   return (
     <div className="flex items-center gap-3 p-3">
       <Link {...linkProps} className="shrink-0">
-        <div className="size-10 rounded-full bg-muted overflow-hidden ring-1 ring-border">
-          {business.logo_url && (
-            <img src={business.logo_url} alt="" className="size-full object-cover" />
-          )}
+        <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-fuchsia-600">
+          <div className="size-11 rounded-full bg-card p-[2px]">
+            <div className="size-full rounded-full bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground">
+              {business.logo_url ? (
+                <img src={business.logo_url} alt="" className="size-full object-cover" />
+              ) : (
+                <span>{business.name.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+          </div>
         </div>
       </Link>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 leading-tight">
         <Link {...linkProps} className="font-semibold text-sm flex items-center gap-1 hover:underline truncate">
-          <span className="truncate">{business.name}</span>
-          {isPro && <VerifiedBadge className="size-4 shrink-0" />}
+          <span className="truncate">{handle}</span>
+          {isPro && <VerifiedBadge className="size-3.5 shrink-0" />}
+        </Link>
+        <Link {...linkProps} className="block text-xs text-muted-foreground truncate hover:underline">
+          {business.name}
         </Link>
       </div>
-      <div className="shrink-0">
+      <div className="shrink-0 flex items-center gap-1">
         <FollowButton businessId={business.id} compact />
+        <button className="p-1.5 text-muted-foreground hover:text-foreground" aria-label="Mais opções">
+          <MoreHorizontal className="size-5" />
+        </button>
       </div>
     </div>
   );
+}
+
+function relativeTime(iso: string) {
+  try {
+    return formatDistanceToNowStrict(new Date(iso), { addSuffix: true, locale: ptBR });
+  } catch {
+    return "";
+  }
 }
 
 function PostCard({

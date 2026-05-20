@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, MessageCircle, Share2, Clock } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Share2, Clock, Instagram, Facebook, Youtube, AtSign } from "lucide-react";
 import { VerifiedBadge } from "@/components/site/VerifiedBadge";
 import { whatsappLink } from "@/lib/format";
 import { BusinessFeed } from "@/components/site/BusinessFeed";

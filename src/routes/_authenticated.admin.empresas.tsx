@@ -632,7 +632,21 @@ function CreateBusinessDialog({
     [plans]
   );
 
-  const reset = () => setForm({ name: "", category_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
+  const { data: subcategories } = useQuery({
+    queryKey: ["admin-subcategories", form.category_id],
+    enabled: !!form.category_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subcategories")
+        .select("id, name")
+        .eq("category_id", form.category_id)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const reset = () => setForm({ name: "", category_id: "", subcategory_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -62,8 +62,6 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [hours, setHours] = useState<WeekHours>(defaultHours());
   const [changeReqOpen, setChangeReqOpen] = useState(false);
   const isEditing = !!businessId;
-  const isPlatform = (existing as any)?.is_platform === true;
-  const lockEditing = isEditing && !isPlatform;
 
   // Perfil do titular (owner da empresa quando editando; senão o usuário atual)
   const [ownerIdState, setOwnerIdState] = useState<string | null>(null);

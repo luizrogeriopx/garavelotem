@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin, User as UserIcon, Shield, LogOut, Heart, LayoutGrid, Tag, Sparkles } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon, Shield, LogOut, Heart, LayoutGrid, Tag, Sparkles, Bell } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { supabase } from "@/integrations/supabase/client";
+import { useNotifications } from "@/hooks/use-notifications";
 
 type Suggestion = {
   id: string;
@@ -118,6 +119,7 @@ function SuggestionsList({
 
 export function Header() {
   const { user, signOut } = useAuth();
+  const { unreadCount } = useNotifications(user?.id);
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -206,9 +208,19 @@ export function Header() {
             </Link>
           </Button>
           {user ? (
-            <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
-              <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex relative">
+                <Link to="/conta">
+                  <Bell className="size-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border-2 border-brand" />
+                  )}
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
+                <Link to="/conta"><UserIcon className="size-4" /> Minha conta</Link>
+              </Button>
+            </>
           ) : (
             <Button asChild variant="ghost" size="sm" className="text-brand-foreground hover:bg-white/10 hidden sm:inline-flex">
               <Link to="/login" search={{ redirect: "/conta", mode: "signin" }}>Entrar</Link>

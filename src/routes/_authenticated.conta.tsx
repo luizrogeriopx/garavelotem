@@ -8,8 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog,
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog, Bell, CheckCircle,
 } from "lucide-react";
+import { useNotifications, type Notification } from "@/hooks/use-notifications";
+import { formatDistanceToNowStrict } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
@@ -39,7 +42,8 @@ function AccountPage() {
   const navigate = useNavigate();
   const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
   const [profileChangeOpen, setProfileChangeOpen] = useState(false);
-
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(user?.id);
+  const [activeTab, setActiveTab] = useState<"businesses" | "notifications">("businesses");
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["my-businesses", user?.id],
@@ -117,122 +121,182 @@ function AccountPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-6">
-        <StatCard icon={<Store className="size-4" />} label="Empresas" value={businesses?.length ?? 0} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+        <StatCard 
+          icon={<Bell className="size-4" />} 
+          label="Notificações" 
+          value={unreadCount} 
+          onClick={() => setActiveTab("notifications")} 
+          highlight={unreadCount > 0} 
+        />
+        <StatCard icon={<Store className="size-4" />} label="Empresas" value={businesses?.length ?? 0} onClick={() => setActiveTab("businesses")} />
         <StatCard icon={<Eye className="size-4" />} label="Visualizações" value={totals.views} />
         <StatCard icon={<MessageCircle className="size-4" />} label="WhatsApp" value={totals.clicks} />
       </div>
 
-      <div className="mt-8 flex items-center justify-between">
-        <h2 className="font-display font-bold text-lg">Minhas empresas</h2>
-        <Button asChild size="sm" className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full">
-          <Link to="/minha-empresa">
-            <Plus className="size-4" /> Cadastrar empresa
-          </Link>
-        </Button>
-      </div>
-
-      <div className="mt-4 space-y-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
-        {!isLoading && businesses?.length === 0 && (
-          <Card className="p-8 text-center">
-            <Store className="size-10 mx-auto text-muted-foreground" />
-            <p className="font-semibold mt-3">Você ainda não cadastrou nenhuma empresa</p>
-            <p className="text-sm text-muted-foreground mt-1">Comece agora e apareça para milhares de moradores do Garavelo.</p>
-            <Button asChild className="mt-4 rounded-full bg-brand text-brand-foreground">
-              <Link to="/minha-empresa">Cadastrar minha empresa</Link>
+      {activeTab === "notifications" ? (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-lg">Notificações</h2>
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => markAllAsRead.mutate()} className="text-xs">
+                Marcar todas como lidas
+              </Button>
+            )}
+          </div>
+          <div className="space-y-3">
+            {notifications.length === 0 ? (
+              <Card className="p-8 text-center text-muted-foreground">
+                <Bell className="size-10 mx-auto opacity-20 mb-2" />
+                <p>Nenhuma notificação por aqui.</p>
+              </Card>
+            ) : (
+              notifications.map((n) => (
+                <Card 
+                  key={n.id} 
+                  className={`p-4 transition-colors cursor-pointer ${!n.is_read ? 'bg-highlight/5 border-highlight/20' : ''}`}
+                  onClick={() => !n.is_read && markAsRead.mutate(n.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-1.5 size-2 rounded-full shrink-0 ${!n.is_read ? 'bg-highlight' : 'bg-transparent'}`} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-sm font-semibold ${!n.is_read ? 'text-brand' : ''}`}>{n.title}</p>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {formatDistanceToNowStrict(new Date(n.created_at), { addSuffix: true, locale: ptBR })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-0.5">{n.content}</p>
+                      {n.link && (
+                        <Button asChild variant="link" size="sm" className="h-auto p-0 mt-2 text-xs">
+                          <Link to={n.link as any}>Ver detalhes</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+          <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => setActiveTab("businesses")}>
+            Voltar para minhas empresas
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="mt-8 flex items-center justify-between">
+            <h2 className="font-display font-bold text-lg">Minhas empresas</h2>
+            <Button asChild size="sm" className="bg-highlight hover:bg-highlight/90 text-highlight-foreground rounded-full">
+              <Link to="/minha-empresa">
+                <Plus className="size-4" /> Cadastrar empresa
+              </Link>
             </Button>
-          </Card>
-        )}
-        {businesses?.map((b) => {
-          const promo = promoStats?.[b.id];
-          return (
-            <Card key={b.id} className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="size-14 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
-                  {b.logo_url ? (
-                    <img src={b.logo_url} alt={b.name} className="size-full object-cover" />
-                  ) : (
-                    <Store className="size-6 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-semibold truncate">{b.name}</p>
-                    <StatusBadge status={b.status} />
-                    <PlanBadge slug={b.plan_slug} name={b.plan_name} />
-                    <Badge variant="outline" className="uppercase text-[10px]">{b.entity_type === "pj" ? "PJ" : "PF"}</Badge>
-                    {b.migration_status === "pending" && (
-                      <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Migração em análise</Badge>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+            {!isLoading && businesses?.length === 0 && (
+              <Card className="p-8 text-center">
+                <Store className="size-10 mx-auto text-muted-foreground" />
+                <p className="font-semibold mt-3">Você ainda não cadastrou nenhuma empresa</p>
+                <p className="text-sm text-muted-foreground mt-1">Comece agora e apareça para milhares de moradores do Garavelo.</p>
+                <Button asChild className="mt-4 rounded-full bg-brand text-brand-foreground">
+                  <Link to="/minha-empresa">Cadastrar minha empresa</Link>
+                </Button>
+              </Card>
+            )}
+            {businesses?.map((b) => {
+              const promo = promoStats?.[b.id];
+              return (
+                <Card key={b.id} className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="size-14 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
+                      {b.logo_url ? (
+                        <img src={b.logo_url} alt={b.name} className="size-full object-cover" />
+                      ) : (
+                        <Store className="size-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold truncate">{b.name}</p>
+                        <StatusBadge status={b.status} />
+                        <PlanBadge slug={b.plan_slug} name={b.plan_name} />
+                        <Badge variant="outline" className="uppercase text-[10px]">{b.entity_type === "pj" ? "PJ" : "PF"}</Badge>
+                        {b.migration_status === "pending" && (
+                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Migração em análise</Badge>
+                        )}
+                        {b.is_verified && (
+                          <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1"><Eye className="size-3" /> {b.views_count}</span>
+                        <span className="inline-flex items-center gap-1"><MessageCircle className="size-3" /> {b.whatsapp_clicks}</span>
+                        <span className="inline-flex items-center gap-1"><Tag className="size-3" /> {promo?.active ?? 0} ativas / {promo?.total ?? 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button asChild size="sm" variant="outline" className="rounded-full">
+                      <Link to="/empresa/$id/editar" params={{ id: b.id }}>
+                        <Pencil className="size-4" /> Editar
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" className="bg-brand text-brand-foreground rounded-full">
+                      <Link to="/empresa/$id/promocoes" params={{ id: b.id }}>
+                        <Tag className="size-4" /> Promoções ({promo?.total ?? 0})
+                      </Link>
+                    </Button>
+                    {b.plan_slug === "pro" && (
+                      <Button asChild size="sm" variant="outline" className="rounded-full">
+                        <Link to="/empresa/$id/posts" params={{ id: b.id }}>
+                          <MessageCircle className="size-4" /> Posts
+                        </Link>
+                      </Button>
                     )}
-                    {b.is_verified && (
-                      <Badge className="bg-highlight text-highlight-foreground hover:bg-highlight">Verificada</Badge>
+                    {b.status === "approved" && (
+                      <Button asChild size="sm" variant="ghost" className="rounded-full">
+                        {b.username ? (
+                          <Link to="/$username" params={{ username: b.username }}>
+                            <ExternalLink className="size-4" /> Ver página
+                          </Link>
+                        ) : (
+                          <Link to="/empresa/$slug" params={{ slug: b.slug }}>
+                            <ExternalLink className="size-4" /> Ver página
+                          </Link>
+                        )}
+                      </Button>
+                    )}
+                    {b.entity_type === "pf" && b.migration_status !== "pending" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={() => setMigrateBiz({ id: b.id, name: b.name })}
+                      >
+                        <ArrowRightLeft className="size-4" /> Migrar para PJ
+                      </Button>
+                    )}
+                    {b.status === "approved" && b.plan_slug !== "pro" && (
+                      <Button
+                        asChild
+                        size="sm"
+                        className="rounded-full bg-highlight text-highlight-foreground hover:bg-highlight/90 ml-auto"
+                      >
+                        <Link to="/planos" search={{ businessId: b.id }}>
+                          <Sparkles className="size-4" /> Migrar para Pro
+                        </Link>
+                      </Button>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><Eye className="size-3" /> {b.views_count}</span>
-                    <span className="inline-flex items-center gap-1"><MessageCircle className="size-3" /> {b.whatsapp_clicks}</span>
-                    <span className="inline-flex items-center gap-1"><Tag className="size-3" /> {promo?.active ?? 0} ativas / {promo?.total ?? 0}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <Button asChild size="sm" variant="outline" className="rounded-full">
-                  <Link to="/empresa/$id/editar" params={{ id: b.id }}>
-                    <Pencil className="size-4" /> Editar
-                  </Link>
-                </Button>
-                <Button asChild size="sm" className="bg-brand text-brand-foreground rounded-full">
-                  <Link to="/empresa/$id/promocoes" params={{ id: b.id }}>
-                    <Tag className="size-4" /> Promoções ({promo?.total ?? 0})
-                  </Link>
-                </Button>
-                {b.plan_slug === "pro" && (
-                  <Button asChild size="sm" variant="outline" className="rounded-full">
-                    <Link to="/empresa/$id/posts" params={{ id: b.id }}>
-                      <MessageCircle className="size-4" /> Posts
-                    </Link>
-                  </Button>
-                )}
-                {b.status === "approved" && (
-                  <Button asChild size="sm" variant="ghost" className="rounded-full">
-                    {b.username ? (
-                      <Link to="/$username" params={{ username: b.username }}>
-                        <ExternalLink className="size-4" /> Ver página
-                      </Link>
-                    ) : (
-                      <Link to="/empresa/$slug" params={{ slug: b.slug }}>
-                        <ExternalLink className="size-4" /> Ver página
-                      </Link>
-                    )}
-                  </Button>
-                )}
-                {b.entity_type === "pf" && b.migration_status !== "pending" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-full"
-                    onClick={() => setMigrateBiz({ id: b.id, name: b.name })}
-                  >
-                    <ArrowRightLeft className="size-4" /> Migrar para PJ
-                  </Button>
-                )}
-                {b.status === "approved" && b.plan_slug !== "pro" && (
-                  <Button
-                    asChild
-                    size="sm"
-                    className="rounded-full bg-highlight text-highlight-foreground hover:bg-highlight/90 ml-auto"
-                  >
-                    <Link to="/planos" search={{ businessId: b.id }}>
-                      <Sparkles className="size-4" /> Migrar para Pro
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {migrateBiz && (
         <MigrateToPjDialog
           open={!!migrateBiz}
@@ -259,11 +323,30 @@ function AccountPage() {
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function StatCard({ 
+  icon, 
+  label, 
+  value, 
+  onClick, 
+  highlight 
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  value: number; 
+  onClick?: () => void;
+  highlight?: boolean;
+}) {
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon} {label}</div>
-      <p className="font-display font-extrabold text-2xl text-brand mt-1">{value}</p>
+    <Card 
+      className={`p-4 transition-all ${onClick ? 'cursor-pointer hover:border-brand/40' : ''} ${highlight ? 'bg-highlight/5 border-highlight/40 shadow-sm' : ''}`}
+      onClick={onClick}
+    >
+      <div className={`flex items-center gap-2 text-xs ${highlight ? 'text-highlight font-semibold' : 'text-muted-foreground'}`}>
+        {icon} {label}
+      </div>
+      <p className={`font-display font-extrabold text-2xl mt-1 ${highlight ? 'text-highlight' : 'text-brand'}`}>
+        {value}
+      </p>
     </Card>
   );
 }

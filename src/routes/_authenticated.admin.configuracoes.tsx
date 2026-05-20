@@ -40,10 +40,16 @@ function AdminConfigPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Notificações enviadas com sucesso!");
+      toast.success("Notificações enviadas", {
+        description: "Os usuários selecionados foram alertados.",
+        icon: <Send className="size-4" />
+      });
       setForm({ ...form, title: "", content: "", link: "", sendEmail: false });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Falha no envio", {
+      description: e.message,
+      icon: <AlertCircle className="size-4" />
+    }),
   });
 
   return (

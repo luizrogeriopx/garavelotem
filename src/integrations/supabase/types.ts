@@ -495,6 +495,50 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          business_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          link: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          business_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           created_at: string
@@ -1020,6 +1064,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_notification: {
+        Args: {
+          p_business_id: string
+          p_content: string
+          p_link: string
+          p_title: string
+          p_type: Database["public"]["Enums"]["notification_type"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
@@ -1050,6 +1105,14 @@ export type Database = {
         | "bombeiros"
         | "prefeitura"
         | "outros"
+      notification_type:
+        | "new_comment"
+        | "new_like"
+        | "new_review"
+        | "new_follower"
+        | "comment_reply"
+        | "review_reply"
+        | "comment_liked"
       review_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -1195,6 +1258,15 @@ export const Constants = {
         "bombeiros",
         "prefeitura",
         "outros",
+      ],
+      notification_type: [
+        "new_comment",
+        "new_like",
+        "new_review",
+        "new_follower",
+        "comment_reply",
+        "review_reply",
+        "comment_liked",
       ],
       review_status: ["pending", "approved", "rejected"],
     },

@@ -173,3 +173,216 @@ function AdminConfigPage() {
     </div>
   );
 }
+
+const PWA_KEYS = [
+  "pwa_name",
+  "pwa_short_name",
+  "pwa_description",
+  "pwa_theme_color",
+  "pwa_background_color",
+  "pwa_icon_url",
+] as const;
+
+type PwaForm = Record<(typeof PWA_KEYS)[number], string>;
+
+function PwaSettingsCard() {
+  const [pwa, setPwa] = useState<PwaForm>({
+    pwa_name: "",
+    pwa_short_name: "",
+    pwa_description: "",
+    pwa_theme_color: "#0B2545",
+    pwa_background_color: "#0B2545",
+    pwa_icon_url: "",
+  });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["app_settings", "pwa"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("key,value")
+        .like("key", "pwa_%");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    if (!data) return;
+    const next = { ...pwa };
+    for (const row of data as Array<{ key: string; value: string }>) {
+      if ((PWA_KEYS as readonly string[]).includes(row.key)) {
+        (next as any)[row.key] = row.value ?? "";
+      }
+    }
+    setPwa(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const rows = PWA_KEYS.map((k) => ({ key: k, value: pwa[k] ?? "" }));
+      const { error } = await supabase
+        .from("app_settings")
+        .upsert(rows, { onConflict: "key" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("PWA atualizado", {
+        description: "As novas configurações estão valendo para novas instalações.",
+        icon: <Smartphone className="size-4" />,
+      });
+    },
+    onError: (e: Error) =>
+      toast.error("Falha ao salvar", {
+        description: e.message,
+        icon: <AlertCircle className="size-4" />,
+      }),
+  });
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-1">
+        <Smartphone className="size-5 text-brand" />
+        <h2 className="font-bold">Personalização do PWA</h2>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Defina como o app aparece quando o usuário instala o site no celular.
+        Alterações afetam novas instalações — quem já instalou precisa reinstalar para ver mudanças no nome/ícone.
+      </p>
+
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save.mutate();
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="pwa_name">Nome completo</Label>
+            <Input
+              id="pwa_name"
+              value={pwa.pwa_name}
+              onChange={(e) => setPwa({ ...pwa, pwa_name: e.target.value })}
+              placeholder="Garavelo Tem"
+              disabled={isLoading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="pwa_short_name">Nome curto (ícone)</Label>
+            <Input
+              id="pwa_short_name"
+              value={pwa.pwa_short_name}
+              onChange={(e) => setPwa({ ...pwa, pwa_short_name: e.target.value })}
+              placeholder="Garavelo"
+              maxLength={12}
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pwa_description">Descrição</Label>
+          <Textarea
+            id="pwa_description"
+            value={pwa.pwa_description}
+            onChange={(e) => setPwa({ ...pwa, pwa_description: e.target.value })}
+            rows={2}
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="pwa_theme_color">Cor do tema</Label>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="color"
+                value={pwa.pwa_theme_color}
+                onChange={(e) => setPwa({ ...pwa, pwa_theme_color: e.target.value })}
+                className="h-10 w-16 p-1 cursor-pointer"
+                disabled={isLoading}
+              />
+              <Input
+                id="pwa_theme_color"
+                value={pwa.pwa_theme_color}
+                onChange={(e) => setPwa({ ...pwa, pwa_theme_color: e.target.value })}
+                placeholder="#0B2545"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="pwa_background_color">Cor de fundo (splash)</Label>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="color"
+                value={pwa.pwa_background_color}
+                onChange={(e) => setPwa({ ...pwa, pwa_background_color: e.target.value })}
+                className="h-10 w-16 p-1 cursor-pointer"
+                disabled={isLoading}
+              />
+              <Input
+                id="pwa_background_color"
+                value={pwa.pwa_background_color}
+                onChange={(e) => setPwa({ ...pwa, pwa_background_color: e.target.value })}
+                placeholder="#0B2545"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pwa_icon_url">URL do ícone (PNG quadrado 512x512)</Label>
+          <Input
+            id="pwa_icon_url"
+            value={pwa.pwa_icon_url}
+            onChange={(e) => setPwa({ ...pwa, pwa_icon_url: e.target.value })}
+            placeholder="https://..."
+            disabled={isLoading}
+          />
+          {pwa.pwa_icon_url && (
+            <div className="flex items-center gap-3 pt-2">
+              <div
+                className="size-20 rounded-2xl border bg-muted overflow-hidden flex items-center justify-center"
+                style={{ backgroundColor: pwa.pwa_background_color }}
+              >
+                <img
+                  src={pwa.pwa_icon_url}
+                  alt="Pré-visualização do ícone"
+                  className="size-full object-cover"
+                />
+              </div>
+              <div className="text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">{pwa.pwa_short_name || pwa.pwa_name}</p>
+                <p>Pré-visualização do ícone na tela inicial.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <Button
+            type="submit"
+            className="bg-brand text-brand-foreground rounded-full px-8"
+            disabled={save.isPending || isLoading}
+          >
+            {save.isPending ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Save className="size-4 mr-2" />
+                Salvar PWA
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}

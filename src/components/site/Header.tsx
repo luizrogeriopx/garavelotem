@@ -119,6 +119,7 @@ function SuggestionsList({
 
 export function Header() {
   const { user, signOut } = useAuth();
+  const { unreadCount } = useNotifications(user?.id);
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [q, setQ] = useState("");

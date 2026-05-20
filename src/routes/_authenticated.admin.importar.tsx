@@ -65,7 +65,7 @@ function ImportPage() {
     onSuccess: (data) => {
       setResults(data.results as Place[]);
       setSelected({});
-      if (data.results.length === 0) toast.info("Nenhum resultado encontrado.");
+      if (data.results.length === 0) toast.info("Nenhum resultado", { description: "Tente mudar os termos da busca.", icon: <Info className="size-4" /> });
     },
     onError: (e: Error) => toast.error(e.message),
   });

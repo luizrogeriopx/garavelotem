@@ -192,6 +192,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       const base = {
         name: form.name.trim(),
         category_id: form.category_id || null,
+        subcategory_id: form.subcategory_id || null,
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),

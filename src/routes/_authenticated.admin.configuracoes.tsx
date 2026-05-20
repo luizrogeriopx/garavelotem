@@ -33,7 +33,7 @@ function AdminConfigPage() {
         p_target: form.target,
         p_title: form.title,
         p_content: form.content,
-        p_link: form.link || null,
+        p_link: form.link || "",
         p_send_email: form.sendEmail,
       });
 

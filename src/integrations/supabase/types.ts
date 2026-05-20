@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          link: string | null
+          send_email: boolean | null
+          sender_id: string
+          target_audience: string
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          send_email?: boolean | null
+          sender_id: string
+          target_audience: string
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          send_email?: boolean | null
+          sender_id?: string
+          target_audience?: string
+          title?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -1174,6 +1207,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      send_mass_notification: {
+        Args: {
+          p_content: string
+          p_link: string
+          p_send_email: boolean
+          p_target: string
+          p_title: string
+        }
+        Returns: undefined
       }
       validate_user_coupon: {
         Args: { p_user_coupon_id: string }

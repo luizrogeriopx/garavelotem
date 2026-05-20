@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdminStats } from "@/lib/admin-stats.functions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Store,
   Users,
@@ -19,6 +24,9 @@ import {
   ArrowUpRight,
   Loader2,
   Sparkles,
+  Code2,
+  Save,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -258,7 +266,103 @@ function AdminDashboardPage() {
           </Card>
         </section>
       )}
+
+      <CustomCssEditor />
     </div>
+  );
+}
+
+function CustomCssEditor() {
+  const [css, setCss] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  const { data } = useQuery({
+    queryKey: ["app_settings", "custom_css"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "custom_css")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value ?? "";
+    },
+  });
+
+  useEffect(() => {
+    if (data !== undefined && !loaded) {
+      setCss(data ?? "");
+      setLoaded(true);
+    }
+  }, [data, loaded]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("app_settings")
+        .upsert({ key: "custom_css", value: css }, { onConflict: "key" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("CSS salvo", {
+        description: "Recarregue a página para ver as alterações em todo o site.",
+        icon: <Code2 className="size-4" />,
+      });
+    },
+    onError: (e: Error) =>
+      toast.error("Falha ao salvar", {
+        description: e.message,
+        icon: <AlertCircle className="size-4" />,
+      }),
+  });
+
+  return (
+    <section>
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        CSS personalizado
+      </h2>
+      <Card className="p-5 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="size-11 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 flex items-center justify-center shrink-0">
+            <Code2 className="size-5 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">Adicione regras CSS ao site</p>
+            <p className="text-xs text-muted-foreground">
+              Cole abaixo qualquer CSS válido. Será aplicado globalmente em todas as páginas.
+              Use com cuidado — regras inválidas podem afetar o layout.
+            </p>
+          </div>
+        </div>
+
+        <Textarea
+          value={css}
+          onChange={(e) => setCss(e.target.value)}
+          placeholder={"/* Exemplo */\n.brand-banner {\n  border-radius: 1.5rem;\n}"}
+          spellCheck={false}
+          rows={12}
+          className="font-mono text-xs leading-relaxed"
+        />
+
+        <div className="flex justify-end">
+          <Button
+            onClick={() => save.mutate()}
+            disabled={save.isPending}
+            className="bg-brand text-brand-foreground rounded-full px-6"
+          >
+            {save.isPending ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" /> Salvando...
+              </>
+            ) : (
+              <>
+                <Save className="size-4 mr-2" /> Salvar CSS
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
+    </section>
   );
 }
 

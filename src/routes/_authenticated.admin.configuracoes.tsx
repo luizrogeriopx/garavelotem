@@ -334,34 +334,14 @@ function PwaSettingsCard() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="pwa_icon_url">URL do ícone (PNG quadrado 512x512)</Label>
-          <Input
-            id="pwa_icon_url"
-            value={pwa.pwa_icon_url}
-            onChange={(e) => setPwa({ ...pwa, pwa_icon_url: e.target.value })}
-            placeholder="https://..."
-            disabled={isLoading}
-          />
-          {pwa.pwa_icon_url && (
-            <div className="flex items-center gap-3 pt-2">
-              <div
-                className="size-20 rounded-2xl border bg-muted overflow-hidden flex items-center justify-center"
-                style={{ backgroundColor: pwa.pwa_background_color }}
-              >
-                <img
-                  src={pwa.pwa_icon_url}
-                  alt="Pré-visualização do ícone"
-                  className="size-full object-cover"
-                />
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <p className="font-medium text-foreground">{pwa.pwa_short_name || pwa.pwa_name}</p>
-                <p>Pré-visualização do ícone na tela inicial.</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <PwaIconUploader
+          value={pwa.pwa_icon_url}
+          backgroundColor={pwa.pwa_background_color}
+          label={pwa.pwa_short_name || pwa.pwa_name}
+          onChange={(url) => setPwa({ ...pwa, pwa_icon_url: url })}
+          disabled={isLoading}
+        />
+
 
         <div className="flex justify-end pt-2">
           <Button

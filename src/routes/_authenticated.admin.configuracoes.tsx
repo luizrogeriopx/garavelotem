@@ -158,7 +158,9 @@ function AdminConfigPage() {
           </div>
         </form>
       </Card>
-      
+
+      <PwaSettingsCard />
+
       <Card className="p-6 border-dashed bg-muted/5">
          <div className="text-center space-y-2">
             <p className="text-sm font-semibold">Configurações do Servidor de E-mail</p>

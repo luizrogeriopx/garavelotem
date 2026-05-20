@@ -621,6 +621,7 @@ function CreateBusinessDialog({
   const [form, setForm] = useState({
     name: "",
     category_id: "",
+    subcategory_id: "",
     whatsapp: "",
     neighborhood: "Setor Garavelo",
     short_description: "",
@@ -631,7 +632,21 @@ function CreateBusinessDialog({
     [plans]
   );
 
-  const reset = () => setForm({ name: "", category_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
+  const { data: subcategories } = useQuery({
+    queryKey: ["admin-subcategories", form.category_id],
+    enabled: !!form.category_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subcategories")
+        .select("id, name")
+        .eq("category_id", form.category_id)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const reset = () => setForm({ name: "", category_id: "", subcategory_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -642,6 +657,7 @@ function CreateBusinessDialog({
         name: form.name.trim(),
         slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
         category_id: form.category_id || null,
+        subcategory_id: form.subcategory_id || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),
         neighborhood: form.neighborhood || null,
         short_description: form.short_description.trim() || null,
@@ -677,13 +693,30 @@ function CreateBusinessDialog({
           </div>
           <div>
             <Label>Categoria</Label>
-            <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+            <Select 
+              value={form.category_id} 
+              onValueChange={(v) => setForm({ ...form, category_id: v, subcategory_id: "" })}
+            >
               <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
               <SelectContent>
                 {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+          {form.category_id && subcategories && subcategories.length > 0 && (
+            <div>
+              <Label>Subcategoria</Label>
+              <Select 
+                value={form.subcategory_id} 
+                onValueChange={(v) => setForm({ ...form, subcategory_id: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
+                <SelectContent>
+                  {subcategories.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div>
             <Label htmlFor="b-wpp">WhatsApp *</Label>
             <Input id="b-wpp" required placeholder="62999999999" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />

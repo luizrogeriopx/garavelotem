@@ -47,6 +47,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [form, setForm] = useState({
     name: "",
     category_id: "",
+    subcategory_id: "",
     short_description: "",
     description: "",
     whatsapp: "",
@@ -88,6 +89,20 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     },
   });
 
+  const { data: subcategories } = useQuery({
+    queryKey: ["subcategories", form.category_id],
+    enabled: !!form.category_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subcategories")
+        .select("id, name")
+        .eq("category_id", form.category_id)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: existing } = useQuery({
     queryKey: ["business", businessId],
     enabled: !!businessId,
@@ -106,6 +121,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setForm({
         name: existing.name ?? "",
         category_id: existing.category_id ?? "",
+        subcategory_id: (existing as any).subcategory_id ?? "",
         short_description: existing.short_description ?? "",
         description: existing.description ?? "",
         whatsapp: existing.whatsapp ?? "",
@@ -176,6 +192,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       const base = {
         name: form.name.trim(),
         category_id: form.category_id || null,
+        subcategory_id: form.subcategory_id || null,
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),
@@ -312,13 +329,33 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       </div>
       <div>
         <Label>Categoria *</Label>
-        <Select value={form.category_id} onValueChange={(v) => set("category_id", v)}>
+        <Select 
+          value={form.category_id} 
+          onValueChange={(v) => {
+            set("category_id", v);
+            set("subcategory_id", "");
+          }}
+        >
           <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
           <SelectContent>
             {categories?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
+
+      {form.category_id && subcategories && subcategories.length > 0 && (
+        <div>
+          <Label>Subcategoria *</Label>
+          <Select value={form.subcategory_id} onValueChange={(v) => set("subcategory_id", v)}>
+            <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
+            <SelectContent>
+              {subcategories.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div>
         <Label htmlFor="short">Frase curta (aparece nos cards)</Label>
         <Input id="short" maxLength={80} value={form.short_description} onChange={(e) => set("short_description", e.target.value)} />

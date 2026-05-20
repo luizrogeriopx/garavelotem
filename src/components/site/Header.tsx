@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, Store, MapPin, User as UserIcon, Shield, LogOut, Heart, LayoutGrid, Tag, Sparkles } from "lucide-react";
+import { Search, Menu, Store, MapPin, User as UserIcon, Shield, LogOut, Heart, LayoutGrid, Tag, Sparkles, Bell } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";

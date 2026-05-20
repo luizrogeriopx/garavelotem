@@ -377,39 +377,40 @@ function AdminBusinessesPage() {
           </Card>
           <div className="grid gap-3">
             {filtered.map((b) => (
-              <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Card key={b.id} className="p-4 space-y-3">
+                <div className="flex items-start gap-3 min-w-0">
                   <Checkbox
                     checked={selected.has(b.id)}
                     onCheckedChange={() => toggleOne(b.id)}
                     aria-label={`Selecionar ${b.name}`}
+                    className="mt-3 shrink-0"
                   />
                   <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
                     {b.logo_url && <img src={b.logo_url} alt="" className="h-full w-full object-cover" />}
                   </div>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="font-semibold truncate">{b.name}</p>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {b.is_verified && (
-                      <Badge variant="secondary" className="gap-1 whitespace-nowrap text-[10px] py-0 h-5">
-                        <ShieldCheck className="h-3 w-3" />Verificada
-                      </Badge>
-                    )}
-                    {b.blocked_until && new Date(b.blocked_until) > new Date() && (
-                      <Badge variant="destructive" className="gap-1 whitespace-nowrap text-[10px] py-0 h-5">
-                        <Ban className="h-3 w-3" />Bloqueada
-                      </Badge>
-                    )}
-                    {user && b.owner_id === user.id && (
-                      <Badge variant="outline" className="whitespace-nowrap text-[10px] py-0 h-5">Sem dono</Badge>
-                    )}
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <p className="font-semibold leading-snug break-words">{b.name}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap min-h-5">
+                      {b.is_verified && (
+                        <Badge variant="secondary" className="gap-1 whitespace-nowrap text-[10px] py-0 h-5 shrink-0">
+                          <ShieldCheck className="h-3 w-3" />Verificada
+                        </Badge>
+                      )}
+                      {b.blocked_until && new Date(b.blocked_until) > new Date() && (
+                        <Badge variant="destructive" className="gap-1 whitespace-nowrap text-[10px] py-0 h-5 shrink-0">
+                          <Ban className="h-3 w-3" />Bloqueada
+                        </Badge>
+                      )}
+                      {user && b.owner_id === user.id && (
+                        <Badge variant="outline" className="whitespace-nowrap text-[10px] py-0 h-5 shrink-0">Sem dono</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground break-words">
+                      {b.neighborhood ? `${b.neighborhood} · ` : ""}{b.city} · {b.whatsapp ?? "sem WhatsApp"}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {b.neighborhood ? `${b.neighborhood} · ` : ""}{b.city} · {b.whatsapp ?? "sem WhatsApp"}
-                  </p>
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2 items-center sm:shrink-0">
+                <div className="flex flex-wrap gap-2 items-center border-t pt-3">
                 {plans && (
                   <Select
                     value={b.plan_id ?? undefined}

@@ -57,6 +57,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     logo_url: "",
     cover_url: "",
     username: "",
+    instagram: "",
+    facebook: "",
+    youtube: "",
+    tiktok: "",
+    threads: "",
   });
   const [gallery, setGallery] = useState<string[]>(["", "", ""]);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });

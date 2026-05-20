@@ -63,6 +63,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/680fa4cf-cb95-416c-8f69-2ed500c45153/id-preview-1d3445ca--51a9a3b4-67ba-4af7-a2dc-904b06772fac.lovable.app-1779062112250.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/680fa4cf-cb95-416c-8f69-2ed500c45153/id-preview-1d3445ca--51a9a3b4-67ba-4af7-a2dc-904b06772fac.lovable.app-1779062112250.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Garavelo Tem" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -109,17 +109,54 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     },
   });
 
-  const { data: existing, isLoading: isLoadingBusiness } = useQuery({
+  const { data: existing, isLoading: isLoadingBusiness, error: businessError } = useQuery({
     queryKey: ["business", businessId],
     enabled: !!businessId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("businesses")
-        .select("*, plans(slug), business_subcategories(subcategory_id)")
-        .eq("id", businessId!)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const isUuid = uuidRegex.test(businessId!);
+      
+      let query = supabase.from("businesses").select("*, plans(slug)");
+      if (isUuid) {
+        query = query.eq("id", businessId!);
+      } else {
+        query = query.eq("slug", businessId!);
+      }
+
+      const { data: business, error: bizError } = await query.maybeSingle();
+
+      if (bizError) throw bizError;
+      if (!business) return null;
+
+      try {
+        const { data: subcats, error: subcatsError } = await supabase
+          .from("business_subcategories")
+          .select("subcategory_id")
+          .eq("business_id", business.id);
+
+        if (subcatsError) {
+          console.warn("business_subcategories query failed, falling back to subcategory_id:", subcatsError.message);
+          return {
+            ...business,
+            business_subcategories: business.subcategory_id 
+              ? [{ subcategory_id: business.subcategory_id }] 
+              : []
+          };
+        }
+
+        return {
+          ...business,
+          business_subcategories: subcats || []
+        };
+      } catch (err) {
+        console.warn("Failed to fetch business_subcategories, falling back:", err);
+        return {
+          ...business,
+          business_subcategories: business.subcategory_id 
+            ? [{ subcategory_id: business.subcategory_id }] 
+            : []
+        };
+      }
     },
   });
 
@@ -237,21 +274,34 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         threads: form.threads.trim() || null,
       };
       if (businessId) {
+        const targetId = existing?.id || businessId;
         const { error } = await supabase
           .from("businesses")
           .update(base)
-          .eq("id", businessId);
+          .eq("id", targetId);
         if (error) throw error;
 
-        // Sincroniza subcategorias na tabela associativa
-        await supabase.from("business_subcategories").delete().eq("business_id", businessId);
-        if (form.subcategory_ids.length > 0) {
-          const relations = form.subcategory_ids.map((subId) => ({
-            business_id: businessId,
-            subcategory_id: subId,
-          }));
-          const { error: relError } = await supabase.from("business_subcategories").insert(relations);
-          if (relError) throw relError;
+        // Sincroniza subcategorias na tabela associativa se ela existir
+        try {
+          const { error: delError } = await supabase
+            .from("business_subcategories")
+            .delete()
+            .eq("business_id", targetId);
+          
+          if (delError && (delError.code === "PGRST205" || delError.message.includes("schema cache"))) {
+            console.warn("business_subcategories table not found. Saved only primary subcategory.");
+          } else if (delError) {
+            throw delError;
+          } else if (form.subcategory_ids.length > 0) {
+            const relations = form.subcategory_ids.map((subId) => ({
+              business_id: targetId,
+              subcategory_id: subId,
+            }));
+            const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+            if (relError) throw relError;
+          }
+        } catch (subErr) {
+          console.warn("Failed to sync subcategories table:", subErr);
         }
 
         toast.success("Alterações salvas.");
@@ -267,12 +317,18 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         if (inserted) {
           // Insere subcategorias para a nova empresa
           if (form.subcategory_ids.length > 0) {
-            const relations = form.subcategory_ids.map((subId) => ({
-              business_id: inserted.id,
-              subcategory_id: subId,
-            }));
-            const { error: relError } = await supabase.from("business_subcategories").insert(relations);
-            if (relError) throw relError;
+            try {
+              const relations = form.subcategory_ids.map((subId) => ({
+                business_id: inserted.id,
+                subcategory_id: subId,
+              }));
+              const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+              if (relError && relError.code !== "PGRST205" && !relError.message.includes("schema cache")) {
+                throw relError;
+              }
+            } catch (subErr) {
+              console.warn("Failed to insert business_subcategories:", subErr);
+            }
           }
 
           if (requiredPolicies) {
@@ -303,12 +359,16 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     );
   }
 
-  if (isEditing && !isLoadingBusiness && !existing) {
+  if (isEditing && !isLoadingBusiness && (!existing || businessError)) {
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-2 border border-dashed rounded-xl bg-destructive/5 text-destructive mt-6">
         <XCircle className="size-8" />
         <p className="font-semibold text-sm">Empresa não encontrada</p>
-        <p className="text-xs text-muted-foreground font-normal">Não foi possível carregar os dados desta empresa.</p>
+        <p className="text-xs text-muted-foreground font-normal max-w-md text-center px-4">
+          {businessError 
+            ? `Erro ao carregar: ${businessError instanceof Error ? businessError.message : JSON.stringify(businessError)}` 
+            : "Não foi possível carregar os dados desta empresa. Verifique se o link está correto."}
+        </p>
       </div>
     );
   }
@@ -603,7 +663,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           open={changeReqOpen}
           onOpenChange={setChangeReqOpen}
           targetType="business"
-          businessId={businessId}
+          businessId={existing?.id || businessId!}
           title="Solicitar alteração de dados da empresa"
           description="Esses campos só podem ser alterados pelo administrador. Preencha o que precisa ser corrigido."
           fields={[

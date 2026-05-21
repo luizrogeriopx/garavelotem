@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { z } from "zod";
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -252,5 +253,81 @@ export const runBusinessAllocation = createServerFn({ method: "POST" })
 
     console.log(`Business allocation completed. Success: ${successCount}, Errors/Skipped: ${errorCount}`);
     return { success: true, successCount, errorCount };
+  });
+
+export const saveSubcategoryServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      id: z.string().uuid().optional(),
+      name: z.string(),
+      slug: z.string(),
+      category_id: z.string().uuid(),
+      sort_order: z.number().nullable(),
+    }),
+  )
+  .handler(async ({ data: s, context }) => {
+    await assertAdmin(context.userId);
+
+    const payload = {
+      name: s.name,
+      slug: s.slug,
+      category_id: s.category_id,
+      sort_order: s.sort_order,
+    };
+
+    if (s.id) {
+      const { error } = await supabaseAdmin.from("subcategories").update(payload).eq("id", s.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin.from("subcategories").insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { success: true };
+  });
+
+export const deleteSubcategoryServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.string().uuid())
+  .handler(async ({ data: id, context }) => {
+    await assertAdmin(context.userId);
+
+    const { error } = await supabaseAdmin.from("subcategories").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      sourceId: z.string().uuid(),
+      targetId: z.string().uuid(),
+      targetCategoryId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data: { sourceId, targetId, targetCategoryId }, context }) => {
+    await assertAdmin(context.userId);
+
+    // 1. Atualizar todas as empresas na subcategoria antiga para a nova subcategoria
+    const { error: updateError } = await supabaseAdmin
+      .from("businesses")
+      .update({
+        subcategory_id: targetId,
+        category_id: targetCategoryId
+      })
+      .eq("subcategory_id", sourceId);
+    
+    if (updateError) throw new Error(updateError.message);
+
+    // 2. Excluir a subcategoria de origem
+    const { error: deleteError } = await supabaseAdmin
+      .from("subcategories")
+      .delete()
+      .eq("id", sourceId);
+
+    if (deleteError) throw new Error(deleteError.message);
+
+    return { success: true };
   });
 

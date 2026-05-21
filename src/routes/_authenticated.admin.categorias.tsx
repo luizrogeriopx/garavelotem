@@ -11,7 +11,8 @@ import * as Icons from "lucide-react";
 import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, RefreshCw, Sparkles, ChevronDown, ChevronUp, GitMerge, PlusCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
-import { runCategoryMigration, runBusinessAllocation } from "@/lib/migrate-categories.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { runCategoryMigration, runBusinessAllocation, saveSubcategoryServer, deleteSubcategoryServer, mergeSubcategoriesServer } from "@/lib/migrate-categories.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/categorias")({
   component: AdminCategoriesPage,
@@ -46,6 +47,10 @@ function AdminCategoriesPage() {
   const [mergingSub, setMergingSub] = useState<Subcategory | null>(null);
   const [targetMergeSubId, setTargetMergeSubId] = useState<string>("");
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  const saveSubcategoryFn = useServerFn(saveSubcategoryServer);
+  const deleteSubcategoryFn = useServerFn(deleteSubcategoryServer);
+  const mergeSubcategoriesFn = useServerFn(mergeSubcategoriesServer);
 
   const toggleCategory = (catId: string) => {
     setExpandedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
@@ -120,18 +125,13 @@ function AdminCategoriesPage() {
   const saveSub = useMutation({
     mutationFn: async (s: Partial<Subcategory>) => {
       const payload = {
+        id: s.id,
         name: s.name!,
         slug: s.slug || slugify(s.name!),
         category_id: s.category_id!,
         sort_order: s.sort_order !== undefined && s.sort_order !== null ? Number(s.sort_order) : null,
       };
-      if (s.id) {
-        const { error } = await supabase.from("subcategories").update(payload).eq("id", s.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("subcategories").insert(payload);
-        if (error) throw error;
-      }
+      return saveSubcategoryFn({ data: payload });
     },
     onSuccess: () => {
       toast.success("Sucesso", {
@@ -149,8 +149,7 @@ function AdminCategoriesPage() {
 
   const removeSub = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("subcategories").delete().eq("id", id);
-      if (error) throw error;
+      return deleteSubcategoryFn({ data: id });
     },
     onSuccess: () => {
       toast.success("Subcategoria removida", {
@@ -166,24 +165,13 @@ function AdminCategoriesPage() {
 
   const mergeSub = useMutation({
     mutationFn: async ({ sourceId, targetId, targetCategoryId }: { sourceId: string; targetId: string; targetCategoryId: string }) => {
-      // 1. Atualizar todas as empresas na subcategoria antiga para a nova subcategoria
-      const { error: updateError } = await supabase
-        .from("businesses")
-        .update({
-          subcategory_id: targetId,
-          category_id: targetCategoryId
-        })
-        .eq("subcategory_id", sourceId);
-      
-      if (updateError) throw updateError;
-
-      // 2. Excluir a subcategoria de origem
-      const { error: deleteError } = await supabase
-        .from("subcategories")
-        .delete()
-        .eq("id", sourceId);
-
-      if (deleteError) throw deleteError;
+      return mergeSubcategoriesFn({
+        data: {
+          sourceId,
+          targetId,
+          targetCategoryId,
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Mesclagem concluída", {

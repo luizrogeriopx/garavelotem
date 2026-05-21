@@ -137,8 +137,8 @@ function AdminLayout() {
 
 function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile } = useSidebar();
+  const collapsed = !isMobile && state === "collapsed";
 
   return (
     <Sidebar collapsible="icon" className="border-r">

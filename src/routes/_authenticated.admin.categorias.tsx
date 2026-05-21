@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import * as Icons from "lucide-react";
-import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { runCategoryMigration } from "@/lib/migrate-categories.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/categorias")({
   component: AdminCategoriesPage,
@@ -92,7 +93,29 @@ function AdminCategoriesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button 
+          variant="outline" 
+          onClick={async () => {
+            if (confirm("Deseja executar a migração/atualização de categorias e subcategorias agora?")) {
+              const loadingId = toast.loading("Migrando categorias...");
+              try {
+                const res = await runCategoryMigration();
+                if (res.success) {
+                  toast.success("Categorias migradas com sucesso!", { id: loadingId });
+                  qc.invalidateQueries({ queryKey: ["admin-categories"] });
+                } else {
+                  toast.error("Erro desconhecido na migração.", { id: loadingId });
+                }
+              } catch (err: any) {
+                toast.error("Erro na migração: " + err.message, { id: loadingId });
+              }
+            }
+          }}
+        >
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Sincronizar Categorias
+        </Button>
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditing(empty)}><Plus className="h-4 w-4 mr-1" />Nova categoria</Button>

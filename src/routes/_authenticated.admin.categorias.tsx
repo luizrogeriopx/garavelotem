@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import * as Icons from "lucide-react";
-import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
-import { runCategoryMigration } from "@/lib/migrate-categories.functions";
+import { runCategoryMigration, runBusinessAllocation } from "@/lib/migrate-categories.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/categorias")({
   component: AdminCategoriesPage,
@@ -115,6 +115,28 @@ function AdminCategoriesPage() {
         >
           <RefreshCw className="h-4 w-4 mr-1" />
           Sincronizar Categorias
+        </Button>
+        <Button 
+          variant="outline"
+          className="border-primary text-primary hover:bg-primary/10"
+          onClick={async () => {
+            if (confirm("Deseja analisar e alocar as empresas existentes nas subcategorias mais apropriadas agora?")) {
+              const loadingId = toast.loading("Alocando empresas...");
+              try {
+                const res = await runBusinessAllocation();
+                if (res.success) {
+                  toast.success(`Sucesso! ${res.successCount} empresas organizadas nas subcategorias.`, { id: loadingId });
+                } else {
+                  toast.error("Erro ao alocar empresas.", { id: loadingId });
+                }
+              } catch (err: any) {
+                toast.error("Erro na alocação: " + err.message, { id: loadingId });
+              }
+            }
+          }}
+        >
+          <Sparkles className="h-4 w-4 mr-1" />
+          Organizar Empresas (Subcategorias)
         </Button>
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
           <DialogTrigger asChild>

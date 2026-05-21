@@ -196,3 +196,61 @@ export const runCategoryMigration = createServerFn({ method: "POST" })
     console.log("Category migration completed successfully.");
     return { success: true };
   });
+
+import { businessAllocationData } from "./business-allocation-data";
+
+export const runBusinessAllocation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+
+    console.log("Starting business allocation...");
+
+    const { data: allCats } = await supabaseAdmin.from('categories').select('id, slug');
+    const { data: allSubs } = await supabaseAdmin.from('subcategories').select('id, slug, category_id');
+
+    if (!allCats || !allSubs) {
+      throw new Error("Failed to fetch categories or subcategories for allocation mapping.");
+    }
+
+    const catMap = new Map((allCats ?? []).map(c => [c.slug, c.id]));
+    const subMap = new Map();
+    for (const sub of allSubs) {
+      subMap.set(`${sub.category_id}|${sub.slug}`, sub.id);
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const group of businessAllocationData) {
+      const catId = catMap.get(group.categorySlug);
+      if (!catId) {
+        console.warn(`Category slug not found: ${group.categorySlug}`);
+        errorCount += group.ids.length;
+        continue;
+      }
+
+      const subId = subMap.get(`${catId}|${group.subcategorySlug}`);
+      if (!subId) {
+        console.warn(`Subcategory slug not found: ${group.subcategorySlug} under category ${group.categorySlug}`);
+        errorCount += group.ids.length;
+        continue;
+      }
+
+      const { error } = await supabaseAdmin
+        .from('businesses')
+        .update({ category_id: catId, subcategory_id: subId })
+        .in('id', group.ids);
+
+      if (error) {
+        console.error(`Error allocating businesses to ${group.categorySlug} -> ${group.subcategorySlug}:`, error);
+        errorCount += group.ids.length;
+      } else {
+        successCount += group.ids.length;
+      }
+    }
+
+    console.log(`Business allocation completed. Success: ${successCount}, Errors/Skipped: ${errorCount}`);
+    return { success: true, successCount, errorCount };
+  });
+

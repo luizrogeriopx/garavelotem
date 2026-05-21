@@ -73,9 +73,9 @@ function getMonthsArray() {
 
 export const getMerchantAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { businessId: string; range: "7d" | "30d" | "90d" }) => d)
-  .handler(async ({ input, context }) => {
-    const { businessId, range } = input;
+  .inputValidator((d: { businessId: string; range: "7d" | "30d" | "90d" }) => d)
+  .handler(async ({ data, context }) => {
+    const { businessId, range } = data;
     await assertOwnerOrAdmin(context.userId, businessId);
 
     let daysCount = 7;
@@ -123,10 +123,10 @@ export const getMerchantAnalytics = createServerFn({ method: "GET" })
 
 export const getAdminGlobalAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { range: "7d" | "30d" | "90d" | "12m" }) => d)
-  .handler(async ({ input, context }) => {
+  .inputValidator((d: { range: "7d" | "30d" | "90d" | "12m" }) => d)
+  .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { range } = input;
+    const { range } = data;
 
     let sinceDate = new Date();
     let isMonthly = false;

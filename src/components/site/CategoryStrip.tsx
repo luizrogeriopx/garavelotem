@@ -4,10 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import * as Icons from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Cat = { id: string; name: string; slug: string; icon: string | null; color: string | null };
 
-export function CategoryStrip() {
+interface CategoryStripProps {
+  activeSlug?: string;
+}
+
+export function CategoryStrip({ activeSlug }: CategoryStripProps) {
   const { data } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -96,12 +101,18 @@ export function CategoryStrip() {
                 className="flex flex-col items-center gap-2 w-[76px] group"
               >
                 <div
-                  className="size-14 rounded-2xl bg-surface shadow-card grid place-items-center transition-transform group-active:scale-95"
+                  className={cn(
+                    "size-14 rounded-2xl bg-surface shadow-card grid place-items-center transition-all group-active:scale-95 border-2",
+                    activeSlug === c.slug ? "border-brand scale-105 shadow-md" : "border-transparent"
+                  )}
                   style={{ color: c.color ?? undefined }}
                 >
                   <Icon className="size-6" />
                 </div>
-                <span className="text-[11px] font-semibold text-center leading-tight text-foreground">
+                <span className={cn(
+                  "text-[11px] font-semibold text-center leading-tight transition-colors",
+                  activeSlug === c.slug ? "text-brand font-extrabold" : "text-foreground group-hover:text-brand"
+                )}>
                   {c.name}
                 </span>
               </Link>

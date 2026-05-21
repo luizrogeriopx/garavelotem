@@ -137,7 +137,7 @@ function AdminLayout() {
 
 function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = !isMobile && state === "collapsed";
 
   return (
@@ -182,7 +182,14 @@ function AdminSidebar() {
                           active && "bg-brand/10 text-brand hover:bg-brand/15 hover:text-brand font-semibold"
                         )}
                       >
-                        <Link to={item.to}>
+                        <Link
+                          to={item.to}
+                          onClick={() => {
+                            if (isMobile) {
+                              setOpenMobile(false);
+                            }
+                          }}
+                        >
                           <Icon className="size-4" />
                           <span>{item.label}</span>
                         </Link>

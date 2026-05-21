@@ -628,7 +628,7 @@ function CreateBusinessDialog({
   const [form, setForm] = useState({
     name: "",
     category_id: "",
-    subcategory_id: "",
+    subcategory_ids: [] as string[],
     whatsapp: "",
     neighborhood: "Setor Garavelo",
     short_description: "",
@@ -653,26 +653,36 @@ function CreateBusinessDialog({
     },
   });
 
-  const reset = () => setForm({ name: "", category_id: "", subcategory_id: "", whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
+  const reset = () => setForm({ name: "", category_id: "", subcategory_ids: [], whatsapp: "", neighborhood: "Setor Garavelo", short_description: "" });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setLoading(true);
     try {
-      const { error } = await supabase.from("businesses").insert({
+      const { data: inserted, error } = await supabase.from("businesses").insert({
         name: form.name.trim(),
         slug: slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6),
         category_id: form.category_id || null,
-        subcategory_id: form.subcategory_id || null,
+        subcategory_id: form.subcategory_ids[0] || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),
         neighborhood: form.neighborhood || null,
         short_description: form.short_description.trim() || null,
         owner_id: user.id,
         plan_id: freePlan?.id ?? null,
         status: "approved",
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      if (inserted && form.subcategory_ids.length > 0) {
+        const relations = form.subcategory_ids.map((subId) => ({
+          business_id: inserted.id,
+          subcategory_id: subId,
+        }));
+        const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+        if (relError) throw relError;
+      }
+
       toast.success("Empresa criada. Edite os detalhes ou transfira para um usuário.");
       qc.invalidateQueries({ queryKey: ["admin-businesses"] });
       reset();
@@ -702,7 +712,7 @@ function CreateBusinessDialog({
             <Label>Categoria</Label>
             <Select 
               value={form.category_id} 
-              onValueChange={(v) => setForm({ ...form, category_id: v, subcategory_id: "" })}
+              onValueChange={(v) => setForm({ ...form, category_id: v, subcategory_ids: [] })}
             >
               <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
               <SelectContent>
@@ -711,17 +721,33 @@ function CreateBusinessDialog({
             </Select>
           </div>
           {form.category_id && subcategories && subcategories.length > 0 && (
-            <div>
-              <Label>Subcategoria</Label>
-              <Select 
-                value={form.subcategory_id} 
-                onValueChange={(v) => setForm({ ...form, subcategory_id: v })}
-              >
-                <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
-                <SelectContent>
-                  {subcategories.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div className="space-y-2">
+              <Label className="font-semibold text-sm">Subcategorias</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border rounded-xl p-3 bg-muted/10 max-h-40 overflow-y-auto">
+                {subcategories.map((s) => {
+                  const checked = form.subcategory_ids.includes(s.id);
+                  return (
+                    <div key={s.id} className="flex items-center space-x-2 py-0.5">
+                      <Checkbox 
+                        id={`admin-sub-${s.id}`} 
+                        checked={checked} 
+                        onCheckedChange={(isChecked) => {
+                          const updated = isChecked
+                            ? [...form.subcategory_ids, s.id]
+                            : form.subcategory_ids.filter((id) => id !== s.id);
+                          setForm({ ...form, subcategory_ids: updated });
+                        }}
+                      />
+                      <Label 
+                        htmlFor={`admin-sub-${s.id}`} 
+                        className="text-sm font-normal cursor-pointer select-none leading-none"
+                      >
+                        {s.name}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
           <div>

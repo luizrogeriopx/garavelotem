@@ -23,6 +23,7 @@ import { LocationPicker } from "@/components/merchant/LocationPicker";
 import { HoursEditor, defaultHours, normalizeHours, type WeekHours } from "@/components/merchant/HoursEditor";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 import { Lock } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function slugify(s: string) {
   return s
@@ -47,7 +48,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
   const [form, setForm] = useState({
     name: "",
     category_id: "",
-    subcategory_id: "",
+    subcategory_ids: [] as string[],
     short_description: "",
     description: "",
     whatsapp: "",
@@ -112,7 +113,11 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     queryKey: ["business", businessId],
     enabled: !!businessId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("businesses").select("*, plans(slug)").eq("id", businessId!).maybeSingle();
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("*, plans(slug), business_subcategories(subcategory_id)")
+        .eq("id", businessId!)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -123,10 +128,15 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
 
   useEffect(() => {
     if (existing) {
+      const dbSubs = (existing as any).business_subcategories;
+      const subcategoryIds = Array.isArray(dbSubs) && dbSubs.length > 0
+        ? dbSubs.map((bs: any) => bs.subcategory_id)
+        : (existing.subcategory_id ? [existing.subcategory_id] : []);
+
       setForm({
         name: existing.name ?? "",
         category_id: existing.category_id ?? "",
-        subcategory_id: (existing as any).subcategory_id ?? "",
+        subcategory_ids: subcategoryIds,
         short_description: existing.short_description ?? "",
         description: existing.description ?? "",
         whatsapp: existing.whatsapp ?? "",
@@ -156,7 +166,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     }
   }, [existing]);
 
-  const set = <K extends keyof typeof form>(k: K, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const set = <K extends keyof typeof form>(k: K, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
   const checkCnpj = async () => {
     setCheckingCnpj(true);
@@ -202,7 +212,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       const base = {
         name: form.name.trim(),
         category_id: form.category_id || null,
-        subcategory_id: form.subcategory_id || null,
+        subcategory_id: form.subcategory_ids[0] || null,
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
         whatsapp: form.whatsapp.replace(/\D/g, ""),
@@ -232,6 +242,18 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           .update(base)
           .eq("id", businessId);
         if (error) throw error;
+
+        // Sincroniza subcategorias na tabela associativa
+        await supabase.from("business_subcategories").delete().eq("business_id", businessId);
+        if (form.subcategory_ids.length > 0) {
+          const relations = form.subcategory_ids.map((subId) => ({
+            business_id: businessId,
+            subcategory_id: subId,
+          }));
+          const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+          if (relError) throw relError;
+        }
+
         toast.success("Alterações salvas.");
       } else {
         const { data: inserted, error } = await supabase.from("businesses").insert({
@@ -241,13 +263,26 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           status: "pending",
         }).select("id").single();
         if (error) throw error;
-        if (requiredPolicies && inserted) {
-          await recordAcceptances({
-            userId: user.id,
-            policies: requiredPolicies,
-            context: "business",
-            businessId: inserted.id,
-          });
+
+        if (inserted) {
+          // Insere subcategorias para a nova empresa
+          if (form.subcategory_ids.length > 0) {
+            const relations = form.subcategory_ids.map((subId) => ({
+              business_id: inserted.id,
+              subcategory_id: subId,
+            }));
+            const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+            if (relError) throw relError;
+          }
+
+          if (requiredPolicies) {
+            await recordAcceptances({
+              userId: user.id,
+              policies: requiredPolicies,
+              context: "business",
+              businessId: inserted.id,
+            });
+          }
         }
         toast.success("Empresa enviada para análise.");
       }
@@ -348,7 +383,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
           value={form.category_id} 
           onValueChange={(v) => {
             set("category_id", v);
-            set("subcategory_id", "");
+            set("subcategory_ids", []);
           }}
         >
           <SelectTrigger><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger>
@@ -359,16 +394,34 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       </div>
 
       {form.category_id && subcategories && subcategories.length > 0 && (
-        <div>
-          <Label>Subcategoria *</Label>
-          <Select value={form.subcategory_id} onValueChange={(v) => set("subcategory_id", v)}>
-            <SelectTrigger><SelectValue placeholder="Escolha uma subcategoria" /></SelectTrigger>
-            <SelectContent>
-              {subcategories.map((s) => (
-                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="space-y-2">
+          <Label className="font-semibold text-sm">Subcategorias *</Label>
+          <p className="text-xs text-muted-foreground mb-2">Selecione todas as subcategorias que melhor se aplicam à sua empresa.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 border rounded-xl p-4 bg-muted/10 max-h-60 overflow-y-auto">
+            {subcategories.map((s) => {
+              const checked = form.subcategory_ids.includes(s.id);
+              return (
+                <div key={s.id} className="flex items-center space-x-2 py-1">
+                  <Checkbox 
+                    id={`sub-${s.id}`} 
+                    checked={checked} 
+                    onCheckedChange={(isChecked) => {
+                      const updated = isChecked
+                        ? [...form.subcategory_ids, s.id]
+                        : form.subcategory_ids.filter((id) => id !== s.id);
+                      set("subcategory_ids", updated);
+                    }}
+                  />
+                  <Label 
+                    htmlFor={`sub-${s.id}`} 
+                    className="text-sm font-normal cursor-pointer select-none leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {s.name}
+                  </Label>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
       <div>

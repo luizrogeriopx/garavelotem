@@ -303,7 +303,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         }
       }
 
-      const { error } = await supabaseAdmin.from("businesses").insert({
+      const { data: inserted, error } = await supabaseAdmin.from("businesses").insert({
         name: item.name,
         slug,
         google_place_id: item.place_id,
@@ -325,10 +325,19 @@ export const importPlaces = createServerFn({ method: "POST" })
         status: "approved",
         is_verified: false,
         owner_id: null,
-      });
+      }).select("id").single();
       if (error) {
         errors.push(`${item.name}: ${error.message}`);
       } else {
+        if (inserted && item.subcategory_id) {
+          const { error: relError } = await supabaseAdmin.from("business_subcategories").insert({
+            business_id: inserted.id,
+            subcategory_id: item.subcategory_id,
+          });
+          if (relError) {
+            console.error(`Erro ao associar subcategoria para empresa importada ${item.name}:`, relError);
+          }
+        }
         imported += 1;
       }
     }

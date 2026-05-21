@@ -34,15 +34,25 @@ function CategoryPage() {
     queryKey: ["category-items", categoryData?.id, selectedSubcategoryId],
     enabled: !!categoryData?.id,
     queryFn: async () => {
-      let query = supabase
-        .from("businesses")
-        .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified")
-        .eq("status", "approved")
-        .eq("is_platform", false)
-        .eq("category_id", categoryData!.id);
-      
+      let query;
       if (selectedSubcategoryId) {
-        query = query.eq("subcategory_id", selectedSubcategoryId);
+        query = supabase
+          .from("businesses")
+          .select(`
+            id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified,
+            business_subcategories!inner(subcategory_id)
+          `)
+          .eq("status", "approved")
+          .eq("is_platform", false)
+          .eq("category_id", categoryData!.id)
+          .eq("business_subcategories.subcategory_id", selectedSubcategoryId);
+      } else {
+        query = supabase
+          .from("businesses")
+          .select("id,slug,name,short_description,logo_url,cover_url,whatsapp,neighborhood,is_verified")
+          .eq("status", "approved")
+          .eq("is_platform", false)
+          .eq("category_id", categoryData!.id);
       }
 
       const { data } = await query.order("is_featured", { ascending: false });

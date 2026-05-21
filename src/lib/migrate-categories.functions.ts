@@ -309,7 +309,7 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
   .handler(async ({ data: { sourceId, targetId, targetCategoryId }, context }) => {
     await assertAdmin(context.userId);
 
-    // 1. Atualizar todas as empresas na subcategoria antiga para a nova subcategoria
+    // 1. Atualizar todas as empresas na subcategoria antiga para a nova subcategoria na tabela businesses (fallback de compatibilidade)
     const { error: updateError } = await supabaseAdmin
       .from("businesses")
       .update({
@@ -320,7 +320,38 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
     
     if (updateError) throw new Error(updateError.message);
 
-    // 2. Excluir a subcategoria de origem
+    // 2. Buscar todas as empresas associadas à subcategoria de origem na tabela associativa
+    const { data: assocBusinesses, error: fetchAssocError } = await supabaseAdmin
+      .from("business_subcategories")
+      .select("business_id")
+      .eq("subcategory_id", sourceId);
+
+    if (fetchAssocError) throw new Error(fetchAssocError.message);
+
+    if (assocBusinesses && assocBusinesses.length > 0) {
+      // Inserir as novas relações com targetId
+      const newRelations = assocBusinesses.map((b) => ({
+        business_id: b.business_id,
+        subcategory_id: targetId,
+      }));
+
+      // Usar upsert para evitar erros de chave primária duplicada se alguma empresa já possuir ambas subcategorias
+      const { error: insertAssocError } = await supabaseAdmin
+        .from("business_subcategories")
+        .upsert(newRelations, { onConflict: "business_id,subcategory_id" });
+
+      if (insertAssocError) throw new Error(insertAssocError.message);
+
+      // Deletar as associações antigas com a subcategoria de origem
+      const { error: deleteOldAssocError } = await supabaseAdmin
+        .from("business_subcategories")
+        .delete()
+        .eq("subcategory_id", sourceId);
+
+      if (deleteOldAssocError) throw new Error(deleteOldAssocError.message);
+    }
+
+    // 3. Excluir a subcategoria de origem
     const { error: deleteError } = await supabaseAdmin
       .from("subcategories")
       .delete()

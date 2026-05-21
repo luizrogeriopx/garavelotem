@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Plus, Store, CheckCircle2, Clock, XCircle,
-  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog, Bell, Ticket, QrCode
+  Eye, MessageCircle, Tag, Pencil, ExternalLink, Shield, Sparkles, ArrowRightLeft, UserCog, Bell, Ticket, QrCode, TrendingUp, BarChart3, Loader2
 } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -18,6 +18,12 @@ import { MigrateToPjDialog } from "@/components/merchant/MigrateToPjDialog";
 import { ChangeRequestDialog } from "@/components/ChangeRequestDialog";
 import { QrReader } from "@/components/QrReader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useServerFn } from "@tanstack/react-start";
+import { getMerchantAnalytics } from "@/lib/business-analytics.functions";
+import { ChartContainer } from "@/components/ui/chart";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/conta")({
   component: AccountPage,
@@ -43,6 +49,7 @@ function AccountPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [migrateBiz, setMigrateBiz] = useState<{ id: string; name: string } | null>(null);
+  const [statsBiz, setStatsBiz] = useState<{ id: string; name: string } | null>(null);
   const [profileChangeOpen, setProfileChangeOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(user?.id);
   const [activeTab, setActiveTab] = useState<"businesses" | "notifications" | "coupons">("businesses");
@@ -238,6 +245,9 @@ function AccountPage() {
                   <Button asChild size="sm" className="bg-brand text-brand-foreground rounded-full">
                     <Link to="/empresa/$id/promocoes" params={{ id: b.id }}><Tag className="size-4" /> Promoções</Link>
                   </Button>
+                  <Button size="sm" variant="outline" className="rounded-full gap-1 text-xs" onClick={() => setStatsBiz({ id: b.id, name: b.name })}>
+                    <TrendingUp className="size-3.5" /> Estatísticas
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -264,6 +274,14 @@ function AccountPage() {
           { key: "cpf", label: "CPF" },
         ]}
       />
+      {statsBiz && (
+        <MerchantStatsDialog
+          open={!!statsBiz}
+          onOpenChange={(v) => !v && setStatsBiz(null)}
+          businessId={statsBiz.id}
+          businessName={statsBiz.name}
+        />
+      )}
     </div>
   );
 }
@@ -295,5 +313,171 @@ function AdminLinkButton() {
     <Button asChild size="sm" className="rounded-full">
       <Link to="/admin/empresas"><Shield className="size-4" /> Admin</Link>
     </Button>
+  );
+}
+
+interface MerchantStatsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  businessId: string;
+  businessName: string;
+}
+
+function MerchantStatsDialog({ open, onOpenChange, businessId, businessName }: MerchantStatsDialogProps) {
+  const [range, setRange] = useState<"7d" | "30d" | "90d">("7d");
+  const fetchAnalytics = useServerFn(getMerchantAnalytics);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["merchant-analytics", businessId, range],
+    queryFn: () => fetchAnalytics({ businessId, range }),
+    enabled: open && !!businessId,
+  });
+
+  const chartConfig = {
+    views: {
+      label: "Visualizações",
+      color: "hsl(var(--primary))",
+    },
+    clicks: {
+      label: "Cliques no WhatsApp",
+      color: "#10b981", // Emerald-500
+    },
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl sm:p-6">
+        <DialogHeader className="flex flex-col gap-1">
+          <DialogTitle className="font-display font-bold text-xl flex items-center gap-2">
+            <BarChart3 className="size-5 text-brand" /> Estatísticas de acesso
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground text-sm">
+            Acompanhe o desempenho de <span className="font-semibold text-foreground">{businessName}</span> no portal.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex justify-between items-center my-4 gap-2">
+          <div className="flex gap-1.5 bg-muted p-1 rounded-lg">
+            {(["7d", "30d", "90d"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium rounded-md transition-all",
+                  range === r
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {r === "7d" ? "7 Dias" : r === "30d" ? "30 Dias" : "90 Dias"}
+              </button>
+            ))}
+          </div>
+
+          {isLoading && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground animate-pulse">
+              <Loader2 className="size-3 animate-spin" /> Atualizando...
+            </div>
+          )}
+        </div>
+
+        {isLoading && !data ? (
+          <div className="h-[280px] w-full flex items-center justify-center border rounded-2xl bg-muted/10">
+            <div className="text-center space-y-2">
+              <Loader2 className="size-8 animate-spin text-brand mx-auto" />
+              <p className="text-sm text-muted-foreground">Carregando dados estatísticos...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid grid-cols-3 gap-3">
+              <Card className="p-4 bg-muted/20 border-border/40">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Visualizações</p>
+                <p className="text-2xl font-extrabold font-display text-brand mt-1">{data?.summary.totalViews ?? 0}</p>
+              </Card>
+              <Card className="p-4 bg-muted/20 border-border/40">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Cliques Zap</p>
+                <p className="text-2xl font-extrabold font-display text-emerald-600 mt-1">{data?.summary.totalClicks ?? 0}</p>
+              </Card>
+              <Card className="p-4 bg-muted/20 border-border/40">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Conversão</p>
+                <p className="text-2xl font-extrabold font-display text-highlight mt-1">{data?.summary.conversionRate ?? 0}%</p>
+              </Card>
+            </div>
+
+            <Card className="p-4 border-border/40">
+              <ChartContainer config={chartConfig} className="h-[240px] w-full">
+                <AreaChart data={data?.history ?? []} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-clicks)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--color-clicks)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis
+                    dataKey="label"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-[10px]"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    allowDecimals={false}
+                    className="text-[10px]"
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-lg border bg-background p-2.5 shadow-md text-xs space-y-1">
+                            <p className="font-semibold text-muted-foreground">{payload[0].payload.dateStr}</p>
+                            {payload.map((p: any) => (
+                              <div key={p.name} className="flex items-center gap-2">
+                                <span className="size-2 rounded-full" style={{ backgroundColor: p.color }} />
+                                <span className="font-medium">
+                                  {p.name === "views" ? "Visualizações" : "Cliques Zap"}:
+                                </span>
+                                <span className="font-semibold">{p.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="views"
+                    stroke="var(--color-views)"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorViews)"
+                    name="views"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="clicks"
+                    stroke="var(--color-clicks)"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorClicks)"
+                    name="clicks"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </Card>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

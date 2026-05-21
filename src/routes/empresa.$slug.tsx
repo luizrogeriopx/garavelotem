@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,15 @@ function BusinessPage() {
 
 export function BusinessPageView({ business: b }: { business: any }) {
   const hours = (b.hours ?? {}) as Record<string, unknown>;
+
+  useEffect(() => {
+    if (b?.id) {
+      supabase.rpc("record_business_view", { business_id_param: b.id })
+        .then(({ error }) => {
+          if (error) console.error("Error recording view:", error);
+        });
+    }
+  }, [b?.id]);
 
   return (
     <div className="max-w-4xl mx-auto pb-10">
@@ -62,6 +72,12 @@ export function BusinessPageView({ business: b }: { business: any }) {
             href={whatsappLink(b.whatsapp, `Olá! Vi a ${b.name} no Garavelo Tem.`)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => {
+              supabase.rpc("record_business_wpp_click", { business_id_param: b.id })
+                .then(({ error }) => {
+                  if (error) console.error("Error recording wpp click:", error);
+                });
+            }}
             className="bg-whatsapp text-whatsapp-foreground font-semibold text-sm py-3 rounded-xl flex items-center justify-center gap-2 col-span-2"
           >
             <MessageCircle className="size-4" /> WhatsApp

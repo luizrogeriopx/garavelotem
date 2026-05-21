@@ -29,6 +29,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getAdminGlobalAnalytics } from "@/lib/business-analytics.functions";
+import { ChartContainer } from "@/components/ui/chart";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/admin/dashboard")({
   component: AdminDashboardPage,
@@ -89,6 +92,14 @@ function StatCard({
 
 function AdminDashboardPage() {
   const fetchStats = useServerFn(getAdminStats);
+  const [range, setRange] = useState<"7d" | "30d" | "90d" | "12m">("30d");
+  const fetchGlobalAnalytics = useServerFn(getAdminGlobalAnalytics);
+
+  const { data: analyticsData, isLoading: isAnalyticsLoading } = useQuery({
+    queryKey: ["admin-global-analytics", range],
+    queryFn: () => fetchGlobalAnalytics({ range }),
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: () => fetchStats(),
@@ -192,6 +203,190 @@ function AdminDashboardPage() {
             tone="emerald"
           />
         </div>
+      </section>
+
+      {/* Estatísticas de Acesso */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="p-5 lg:col-span-2 space-y-4 border-border/60">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Tráfego e Conversões
+              </h2>
+              <p className="text-xs text-muted-foreground">Estatísticas globais de visualizações e cliques no WhatsApp</p>
+            </div>
+            
+            <div className="flex gap-1 bg-muted p-0.5 rounded-lg self-start">
+              {(["7d", "30d", "90d", "12m"] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRange(r)}
+                  className={cn(
+                    "px-2.5 py-1 text-xs font-medium rounded-md transition-all",
+                    range === r
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {r === "7d" ? "7D" : r === "30d" ? "30D" : r === "90d" ? "90D" : "1 Ano"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {isAnalyticsLoading && !analyticsData ? (
+            <div className="h-[280px] flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <Loader2 className="size-8 animate-spin text-brand mx-auto" />
+                <p className="text-xs text-muted-foreground">Carregando dados de tráfego...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl bg-muted/30">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">Views Globais</span>
+                  <p className="text-xl font-bold font-display text-brand mt-0.5">{analyticsData?.summary.totalViews ?? 0}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-muted/30">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">Cliques Zap</span>
+                  <p className="text-xl font-bold font-display text-emerald-600 mt-0.5">{analyticsData?.summary.totalClicks ?? 0}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-muted/30">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">Conversão</span>
+                  <p className="text-xl font-bold font-display text-highlight mt-0.5">{analyticsData?.summary.conversionRate ?? 0}%</p>
+                </div>
+              </div>
+
+              <ChartContainer
+                config={{
+                  views: { label: "Visualizações", color: "hsl(var(--primary))" },
+                  clicks: { label: "Cliques no WhatsApp", color: "#10b981" }
+                }}
+                className="h-[240px] w-full"
+              >
+                <AreaChart data={analyticsData?.history ?? []} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="adminColorViews" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="adminColorClicks" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-clicks)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--color-clicks)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis
+                    dataKey="label"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    className="text-[10px]"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    allowDecimals={false}
+                    className="text-[10px]"
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-lg border bg-background p-2.5 shadow-md text-xs space-y-1">
+                            <p className="font-semibold text-muted-foreground">{payload[0].payload.dateStr}</p>
+                            {payload.map((p: any) => (
+                              <div key={p.name} className="flex items-center gap-2">
+                                <span className="size-2 rounded-full" style={{ backgroundColor: p.color }} />
+                                <span className="font-medium">
+                                  {p.name === "views" ? "Visualizações" : "Cliques Zap"}:
+                                </span>
+                                <span className="font-semibold">{p.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="views"
+                    stroke="var(--color-views)"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#adminColorViews)"
+                    name="views"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="clicks"
+                    stroke="var(--color-clicks)"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#adminColorClicks)"
+                    name="clicks"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </div>
+          )}
+        </Card>
+
+        {/* Top 5 Empresas */}
+        <Card className="p-5 flex flex-col justify-between border-border/60">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Top Empresas
+              </h2>
+              <p className="text-xs text-muted-foreground">As 5 empresas com mais visualizações no período</p>
+            </div>
+
+            {isAnalyticsLoading && !analyticsData ? (
+              <div className="h-[200px] flex items-center justify-center">
+                <Loader2 className="size-6 animate-spin text-brand" />
+              </div>
+            ) : !analyticsData?.topBusinesses || analyticsData.topBusinesses.length === 0 ? (
+              <div className="h-[200px] flex flex-col items-center justify-center text-center text-muted-foreground text-xs p-4">
+                <Store className="size-8 opacity-30 mb-2" />
+                <p>Nenhuma visualização registrada no período selecionado.</p>
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                {analyticsData.topBusinesses.map((biz, idx) => (
+                  <div key={biz.id} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="size-6 rounded-md bg-brand/10 text-brand text-xs font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">{biz.name}</p>
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+                          <span>{biz.clicks} cliques</span>
+                          <span>•</span>
+                          <span className="text-emerald-600 font-medium">{biz.conversion}% conv.</span>
+                        </span>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="font-mono text-xs text-brand font-semibold shrink-0">
+                      {biz.views} views
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <Button asChild variant="ghost" size="sm" className="w-full text-xs mt-4 justify-between text-muted-foreground hover:text-brand">
+            <Link to="/admin/empresas">
+              Ver todas as empresas <ArrowUpRight className="size-3.5" />
+            </Link>
+          </Button>
+        </Card>
       </section>
 
       {/* Pending actions */}

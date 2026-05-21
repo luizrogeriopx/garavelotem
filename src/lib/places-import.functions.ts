@@ -125,35 +125,64 @@ export const searchPlaces = createServerFn({ method: "POST" })
       };
     }
 
-    const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents,places.photos",
-      },
-      body: JSON.stringify(body),
-    });
+    const allFilteredPlaces: PlaceResult[] = [];
+    const seenPlaceIds = new Set<string>();
+    let nextPageToken: string | undefined = undefined;
+    let attempts = 0;
 
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(formatGooglePlacesError(res.status, txt));
-    }
+    do {
+      const currentBody = { ...body };
+      if (nextPageToken) {
+        currentBody.pageToken = nextPageToken;
+      }
 
-    const json = (await res.json()) as { places?: PlaceResult[] };
-    const places = json.places ?? [];
+      const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
+          "Content-Type": "application/json",
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.location,places.primaryTypeDisplayName,places.regularOpeningHours,places.rating,places.userRatingCount,places.addressComponents,places.photos,nextPageToken",
+        },
+        body: JSON.stringify(currentBody),
+      });
 
-    // Check which already exist
-    const ids = places.map((p) => p.id);
-    const { data: existing } = ids.length
-      ? await supabaseAdmin.from("businesses").select("google_place_id").in("google_place_id", ids)
-      : { data: [] as { google_place_id: string | null }[] };
-    const existingSet = new Set((existing ?? []).map((e) => e.google_place_id));
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(formatGooglePlacesError(res.status, txt));
+      }
+
+      const json = (await res.json()) as { places?: PlaceResult[]; nextPageToken?: string };
+      const places = json.places ?? [];
+      nextPageToken = json.nextPageToken;
+
+      if (places.length === 0) {
+        break;
+      }
+
+      // Check which already exist
+      const ids = places.map((p) => p.id);
+      const { data: existing } = ids.length
+        ? await supabaseAdmin.from("businesses").select("google_place_id").in("google_place_id", ids)
+        : { data: [] as { google_place_id: string | null }[] };
+      const existingSet = new Set((existing ?? []).map((e) => e.google_place_id));
+
+      for (const p of places) {
+        if (!existingSet.has(p.id) && !seenPlaceIds.has(p.id)) {
+          seenPlaceIds.add(p.id);
+          allFilteredPlaces.push(p);
+        }
+      }
+
+      attempts++;
+    } while (allFilteredPlaces.length < 20 && nextPageToken && attempts < 5);
+
+    // Limit to exactly 20 new results
+    const placesToReturn = allFilteredPlaces.slice(0, 20);
 
     return {
-      results: await Promise.all(places.map(async (p) => {
+      results: await Promise.all(placesToReturn.map(async (p) => {
         const neighborhood =
           p.addressComponents?.find((c) => (c.types ?? []).some((t) => t === "sublocality" || t === "sublocality_level_1"))
             ?.longText ?? null;
@@ -176,11 +205,10 @@ export const searchPlaces = createServerFn({ method: "POST" })
           rating_count: p.userRatingCount ?? null,
           photo_name: photoName,
           photo_url: photoUrl,
-          already_imported: existingSet.has(p.id),
+          already_imported: false,
         };
       })),
     };
-
   });
 
 const ImportItem = z.object({

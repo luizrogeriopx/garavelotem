@@ -192,6 +192,7 @@ const ImportItem = z.object({
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
   category_id: z.string().uuid().nullable().optional(),
+  subcategory_id: z.string().uuid().nullable().optional(),
   short_description: z.string().nullable().optional(),
   photo_name: z.string().nullable().optional(),
 });
@@ -313,6 +314,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         lat: item.lat ?? null,
         lng: item.lng ?? null,
         category_id: item.category_id ?? null,
+        subcategory_id: item.subcategory_id ?? null,
         plan_id: freePlanId,
         short_description: item.short_description ?? null,
         logo_url: logoUrl,

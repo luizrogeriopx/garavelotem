@@ -49,6 +49,7 @@ function ImportPage() {
   const [results, setResults] = useState<Place[]>([]);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [categoryId, setCategoryId] = useState<string>("");
+  const [subcategoryId, setSubcategoryId] = useState<string>("");
 
   const { data: categories } = useQuery({
     queryKey: ["admin-categories-import"],
@@ -57,6 +58,21 @@ function ImportPage() {
       if (error) throw error;
       return data;
     },
+  });
+
+  const { data: subcategories } = useQuery({
+    queryKey: ["admin-subcategories-import", categoryId],
+    queryFn: async () => {
+      if (!categoryId) return [];
+      const { data, error } = await supabase
+        .from("subcategories")
+        .select("id,name")
+        .eq("category_id", categoryId)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!categoryId,
   });
 
   const searchMut = useMutation({
@@ -83,6 +99,7 @@ function ImportPage() {
           lat: r.lat,
           lng: r.lng,
           category_id: categoryId || null,
+          subcategory_id: subcategoryId || null,
           photo_name: r.photo_name,
         }));
       if (items.length === 0) throw new Error("Selecione ao menos uma empresa.");
@@ -159,10 +176,13 @@ function ImportPage() {
                 Empresas marcadas como "já importada" não podem ser duplicadas.
               </p>
             </div>
-            <div className="flex items-end gap-3">
+            <div className="flex flex-wrap items-end gap-3">
               <div>
                 <Label>Categoria para todas</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
+                <Select value={categoryId} onValueChange={(v) => {
+                  setCategoryId(v);
+                  setSubcategoryId("");
+                }}>
                   <SelectTrigger className="w-56">
                     <SelectValue placeholder="(opcional)" />
                   </SelectTrigger>
@@ -175,6 +195,25 @@ function ImportPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {categoryId && subcategories && subcategories.length > 0 && (
+                <div>
+                  <Label>Subcategoria</Label>
+                  <Select value={subcategoryId} onValueChange={setSubcategoryId}>
+                    <SelectTrigger className="w-56">
+                      <SelectValue placeholder="(opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subcategories.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <Button
                 variant="outline"
                 onClick={() => {
@@ -195,7 +234,10 @@ function ImportPage() {
                   const catName = categoryId
                     ? (categories ?? []).find((c) => c.id === categoryId)?.name ?? "selecionada"
                     : "Sem categoria";
-                  if (confirm(`Confirma importar ${selectedCount} empresa(s) na categoria "${catName}"?`)) {
+                  const subcatName = subcategoryId && subcategories
+                    ? ` > ${subcategories.find((s) => s.id === subcategoryId)?.name}`
+                    : "";
+                  if (confirm(`Confirma importar ${selectedCount} empresa(s) na categoria "${catName}${subcatName}"?`)) {
                     importMut.mutate();
                   }
                 }}

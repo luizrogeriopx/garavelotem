@@ -109,7 +109,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
     },
   });
 
-  const { data: existing } = useQuery({
+  const { data: existing, isLoading: isLoadingBusiness } = useQuery({
     queryKey: ["business", businessId],
     enabled: !!businessId,
     queryFn: async () => {
@@ -215,7 +215,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
         subcategory_id: form.subcategory_ids[0] || null,
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
-        whatsapp: form.whatsapp.replace(/\D/g, ""),
+        whatsapp: form.whatsapp ? form.whatsapp.replace(/\D/g, "") : null,
         phone: form.phone || null,
         address: form.address || null,
         neighborhood: form.neighborhood || null,
@@ -293,6 +293,25 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       setLoading(false);
     }
   };
+
+  if (isEditing && isLoadingBusiness) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4 mt-6">
+        <Loader2 className="size-8 animate-spin text-brand" />
+        <p className="text-sm text-muted-foreground">Carregando dados da empresa...</p>
+      </div>
+    );
+  }
+
+  if (isEditing && !isLoadingBusiness && !existing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-2 border border-dashed rounded-xl bg-destructive/5 text-destructive mt-6">
+        <XCircle className="size-8" />
+        <p className="font-semibold text-sm">Empresa não encontrada</p>
+        <p className="text-xs text-muted-foreground font-normal">Não foi possível carregar os dados desta empresa.</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6">
@@ -504,8 +523,8 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="wpp">WhatsApp *</Label>
-          <Input id="wpp" required placeholder="62999999999" value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} />
+          <Label htmlFor="wpp">WhatsApp</Label>
+          <Input id="wpp" placeholder="62999999999" value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} />
         </div>
         <div>
           <Label htmlFor="phone">Telefone</Label>

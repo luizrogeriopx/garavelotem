@@ -33,7 +33,7 @@ export function BusinessPageView({ business: b }: { business: any }) {
   useEffect(() => {
     if (b?.id) {
       (supabase.rpc as any)("record_business_view", { business_id_param: b.id })
-        .then(({ error }) => {
+        .then(({ error }: { error: unknown }) => {
           if (error) console.error("Error recording view:", error);
         });
     }

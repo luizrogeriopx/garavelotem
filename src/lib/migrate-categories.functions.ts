@@ -321,7 +321,7 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
     if (updateError) throw new Error(updateError.message);
 
     // 2. Buscar todas as empresas associadas à subcategoria de origem na tabela associativa
-    const { data: assocBusinesses, error: fetchAssocError } = await supabaseAdmin
+    const { data: assocBusinesses, error: fetchAssocError } = await (supabaseAdmin as any)
       .from("business_subcategories")
       .select("business_id")
       .eq("subcategory_id", sourceId);
@@ -336,14 +336,14 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
       }));
 
       // Usar upsert para evitar erros de chave primária duplicada se alguma empresa já possuir ambas subcategorias
-      const { error: insertAssocError } = await supabaseAdmin
+      const { error: insertAssocError } = await (supabaseAdmin as any)
         .from("business_subcategories")
         .upsert(newRelations, { onConflict: "business_id,subcategory_id" });
 
       if (insertAssocError) throw new Error(insertAssocError.message);
 
       // Deletar as associações antigas com a subcategoria de origem
-      const { error: deleteOldAssocError } = await supabaseAdmin
+      const { error: deleteOldAssocError } = await (supabaseAdmin as any)
         .from("business_subcategories")
         .delete()
         .eq("subcategory_id", sourceId);

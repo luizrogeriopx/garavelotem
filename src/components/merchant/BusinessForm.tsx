@@ -129,7 +129,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
       if (!business) return null;
 
       try {
-        const { data: subcats, error: subcatsError } = await supabase
+        const { data: subcats, error: subcatsError } = await (supabase as any)
           .from("business_subcategories")
           .select("subcategory_id")
           .eq("business_id", business.id);
@@ -283,7 +283,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
 
         // Sincroniza subcategorias na tabela associativa se ela existir
         try {
-          const { error: delError } = await supabase
+          const { error: delError } = await (supabase as any)
             .from("business_subcategories")
             .delete()
             .eq("business_id", targetId);

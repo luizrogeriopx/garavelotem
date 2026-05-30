@@ -358,7 +358,7 @@ export const importPlaces = createServerFn({ method: "POST" })
         errors.push(`${item.name}: ${error.message}`);
       } else {
         if (inserted && item.subcategory_id) {
-          const { error: relError } = await supabaseAdmin.from("business_subcategories").insert({
+          const { error: relError } = await (supabaseAdmin as any).from("business_subcategories").insert({
             business_id: inserted.id,
             subcategory_id: item.subcategory_id,
           });

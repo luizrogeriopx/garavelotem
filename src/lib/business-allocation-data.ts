@@ -2,7 +2,7 @@
 export interface BusinessAllocationGroup {
   categorySlug: string;
   subcategorySlug: string;
-  businessIds: string[];
+  ids: string[];
 }
 
 export const businessAllocationData: BusinessAllocationGroup[] = [

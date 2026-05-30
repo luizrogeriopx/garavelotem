@@ -330,7 +330,7 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
 
     if (assocBusinesses && assocBusinesses.length > 0) {
       // Inserir as novas relações com targetId
-      const newRelations = assocBusinesses.map((b) => ({
+      const newRelations = assocBusinesses.map((b: any) => ({
         business_id: b.business_id,
         subcategory_id: targetId,
       }));

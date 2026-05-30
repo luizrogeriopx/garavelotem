@@ -97,7 +97,7 @@ function AdminDashboardPage() {
 
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useQuery({
     queryKey: ["admin-global-analytics", range],
-    queryFn: () => fetchGlobalAnalytics({ range }),
+    queryFn: () => fetchGlobalAnalytics({ data: { range } }),
   });
 
   const { data, isLoading } = useQuery({

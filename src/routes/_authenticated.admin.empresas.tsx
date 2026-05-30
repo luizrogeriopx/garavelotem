@@ -679,7 +679,7 @@ function CreateBusinessDialog({
           business_id: inserted.id,
           subcategory_id: subId,
         }));
-        const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+        const { error: relError } = await (supabase as any).from("business_subcategories").insert(relations);
         if (relError) throw relError;
       }
 

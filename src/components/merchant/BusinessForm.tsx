@@ -297,7 +297,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
               business_id: targetId,
               subcategory_id: subId,
             }));
-            const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+            const { error: relError } = await (supabase as any).from("business_subcategories").insert(relations);
             if (relError) throw relError;
           }
         } catch (subErr) {
@@ -322,7 +322,7 @@ export function BusinessForm({ businessId }: { businessId?: string }) {
                 business_id: inserted.id,
                 subcategory_id: subId,
               }));
-              const { error: relError } = await supabase.from("business_subcategories").insert(relations);
+              const { error: relError } = await (supabase as any).from("business_subcategories").insert(relations);
               if (relError && relError.code !== "PGRST205" && !relError.message.includes("schema cache")) {
                 throw relError;
               }

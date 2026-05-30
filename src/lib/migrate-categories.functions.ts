@@ -96,7 +96,7 @@ export const runCategoryMigration = createServerFn({ method: "POST" })
         if (m.newSubName) updatePayload.name = m.newSubName;
         if (m.newSubSlug) updatePayload.slug = m.newSubSlug;
 
-        const { error: subError } = await supabaseAdmin
+        const { error: subError } = await (supabaseAdmin as any)
           .from('subcategories')
           .update(updatePayload)
           .eq('id', sub.id);

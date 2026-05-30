@@ -73,8 +73,8 @@ export function BusinessPageView({ business: b }: { business: any }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
-              supabase.rpc("record_business_wpp_click", { business_id_param: b.id })
-                .then(({ error }) => {
+              (supabase.rpc as any)("record_business_wpp_click", { business_id_param: b.id })
+                .then(({ error }: { error: unknown }) => {
                   if (error) console.error("Error recording wpp click:", error);
                 });
             }}

@@ -329,7 +329,7 @@ function MerchantStatsDialog({ open, onOpenChange, businessId, businessName }: M
 
   const { data, isLoading } = useQuery({
     queryKey: ["merchant-analytics", businessId, range],
-    queryFn: () => fetchAnalytics({ businessId, range }),
+    queryFn: () => fetchAnalytics({ data: { businessId, range } }),
     enabled: open && !!businessId,
   });
 

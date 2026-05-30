@@ -86,7 +86,7 @@ export const getMerchantAnalytics = createServerFn({ method: "GET" })
     sinceDate.setDate(sinceDate.getDate() - daysCount);
     const sinceIso = sinceDate.toISOString();
 
-    const { data: logs, error } = await supabaseAdmin
+    const { data: logs, error } = await (supabaseAdmin as any)
       .from("business_analytics")
       .select("action_type, created_at")
       .eq("business_id", businessId)
@@ -145,7 +145,7 @@ export const getAdminGlobalAnalytics = createServerFn({ method: "GET" })
 
     const sinceIso = sinceDate.toISOString();
 
-    const { data: logs, error } = await supabaseAdmin
+    const { data: logs, error } = await (supabaseAdmin as any)
       .from("business_analytics")
       .select("action_type, created_at, business_id, businesses(name)")
       .gte("created_at", sinceIso)

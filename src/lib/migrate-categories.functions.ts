@@ -96,7 +96,7 @@ export const runCategoryMigration = createServerFn({ method: "POST" })
         if (m.newSubName) updatePayload.name = m.newSubName;
         if (m.newSubSlug) updatePayload.slug = m.newSubSlug;
 
-        const { error: subError } = await supabaseAdmin
+        const { error: subError } = await (supabaseAdmin as any)
           .from('subcategories')
           .update(updatePayload)
           .eq('id', sub.id);
@@ -321,7 +321,7 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
     if (updateError) throw new Error(updateError.message);
 
     // 2. Buscar todas as empresas associadas à subcategoria de origem na tabela associativa
-    const { data: assocBusinesses, error: fetchAssocError } = await supabaseAdmin
+    const { data: assocBusinesses, error: fetchAssocError } = await (supabaseAdmin as any)
       .from("business_subcategories")
       .select("business_id")
       .eq("subcategory_id", sourceId);
@@ -330,20 +330,20 @@ export const mergeSubcategoriesServer = createServerFn({ method: "POST" })
 
     if (assocBusinesses && assocBusinesses.length > 0) {
       // Inserir as novas relações com targetId
-      const newRelations = assocBusinesses.map((b) => ({
+      const newRelations = assocBusinesses.map((b: any) => ({
         business_id: b.business_id,
         subcategory_id: targetId,
       }));
 
       // Usar upsert para evitar erros de chave primária duplicada se alguma empresa já possuir ambas subcategorias
-      const { error: insertAssocError } = await supabaseAdmin
+      const { error: insertAssocError } = await (supabaseAdmin as any)
         .from("business_subcategories")
         .upsert(newRelations, { onConflict: "business_id,subcategory_id" });
 
       if (insertAssocError) throw new Error(insertAssocError.message);
 
       // Deletar as associações antigas com a subcategoria de origem
-      const { error: deleteOldAssocError } = await supabaseAdmin
+      const { error: deleteOldAssocError } = await (supabaseAdmin as any)
         .from("business_subcategories")
         .delete()
         .eq("subcategory_id", sourceId);

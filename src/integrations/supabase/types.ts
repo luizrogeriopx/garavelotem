@@ -226,39 +226,6 @@ export type Database = {
           },
         ]
       }
-      business_subcategories: {
-        Row: {
-          business_id: string
-          created_at: string
-          subcategory_id: string
-        }
-        Insert: {
-          business_id: string
-          created_at?: string
-          subcategory_id: string
-        }
-        Update: {
-          business_id?: string
-          created_at?: string
-          subcategory_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "business_subcategories_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "business_subcategories_subcategory_id_fkey"
-            columns: ["subcategory_id"]
-            isOneToOne: false
-            referencedRelation: "subcategories"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       businesses: {
         Row: {
           address: string | null
